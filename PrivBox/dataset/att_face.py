@@ -39,10 +39,6 @@ class ATTFace(paddle.io.Dataset):
         mode(str): 'train' or 'test' mode. Default 'train'.
         download(bool): download dataset automatically if
             :attr:`image_path` :attr:`label_path` is not set. Default True
-        backend(str, optional): Specifies which type of image to be returned: 
-            PIL.Image or numpy.ndarray. Should be one of {'pil', 'cv2'}. 
-            If this option is not set, will get backend from ``paddle.vsion.get_image_backend`` ,
-            default backend is 'pil'. Default: None.
             
     Returns:
         Dataset: AT&T Face Dataset.
@@ -68,14 +64,6 @@ class ATTFace(paddle.io.Dataset):
             self.image_path = _check_exists_and_download(
                 image_path, self.URL, self.MD5, self.NAME, download)
 
-        #self.label_path = label_path
-        #if self.label_path is None:
-            #assert download, "label_path is not set and downloading automatically is disabled"
-            #label_url = self.TRAIN_LABEL_URL if self.mode == 'train' else self.TEST_LABEL_URL
-            #label_md5 = self.TRAIN_LABEL_MD5 if self.mode == 'train' else self.TEST_LABEL_MD5
-            #self.label_path = _check_exists_and_download(
-                #label_path, label_url, label_md5, self.NAME, download)
-
         self.transform = transform
 
         # read dataset into memory
@@ -87,7 +75,6 @@ class ATTFace(paddle.io.Dataset):
         # since AT&T data is smalll, we can read all data into memory
         self.images = []
         self.labels = []
-        #define_label = 0
         with zipfile.ZipFile(self.image_path, 'r') as image_file:
             data_dir = os.path.dirname(self.image_path)
             for file in image_file.namelist():

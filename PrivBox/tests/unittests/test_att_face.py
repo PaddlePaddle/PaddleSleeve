@@ -28,7 +28,7 @@ import struct
 import os
 import paddle
 import random
-from dataset.att_face import ATTFace
+from dataset import ATTFace
 
 import paddle.vision.transforms as T
 

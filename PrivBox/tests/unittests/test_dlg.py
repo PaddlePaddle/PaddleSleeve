@@ -26,7 +26,7 @@ import paddle
 import numpy as np
 from paddle import nn
 
-from inversion.dlg import DLGInversionAttack
+from inversion import DLGInversionAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """

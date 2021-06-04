@@ -12,8 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .acc import AccMetric
-from .mse import MSEMetric
-from .metric import Metric
+import paddle
+import abc
 
-__all__ = ["Metric", "AccMetric", "MSEMetric"]
+from paddle.nn.functional import mse_loss
+"""
+Metrics modulus, used for evaluation
+"""
+
+__all__ = ["Metric", "MSEMetric", "AccMetric"]
+
+class Metric(abc.ABC):
+    """
+    abstract base metrics class
+    """
+
+    def compute(self, expected, real):
+        """
+        compute metric for actual and expected
+
+        Args:
+            real(Tensor): Actual result
+            expected(Tensor): Expected result
+
+        Returns:
+            (Tensor): metric result
+        """
+        raise NotImplementedError

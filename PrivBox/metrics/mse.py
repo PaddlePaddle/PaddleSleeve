@@ -13,38 +13,29 @@
 # limitations under the License.
 
 import paddle
+import abc
 
 from paddle.nn.functional import mse_loss
+
+from .metric import Metric
 """
-Metrics modulus, used for evaluation
+Mean square error metrics modulus, used for evaluation
 """
 
-__all__ = ["mse", "acc"]
-
-def mse(expected, real):
+class MSEMetric(Metric):
     """
-    Mean square error
-
-    Args:
-        expected(Tensor): Expected result
-        real(Tensor): Actual result
-    
-    Returns:
-        (Tensor): Mean square error for input of expected and real
+    Mean square error metric
     """
-    return mse_loss(real, expected)
 
+    def compute(self, expected, real):
+        """
+        compute mean square error
 
-def acc(expected, real):
-    """
-    Mean square error
-
-    Args:
-        expected(Tensor): Expected result
-        real(Tensor): Actual result
-    
-    Returns:
-        (Tensor): Mean square error for input of expected and real
-    """
-    acc_o = paddle.metric.Accuracy()
-    return acc_o.compute(expected, real)
+        Args:
+            expected(Tensor): Expected result
+            real(Tensor): Actual result
+        
+        Returns:
+            (Tensor): Mean square error for input of expected and real
+        """
+        return mse_loss(real, expected, reduction="mean")

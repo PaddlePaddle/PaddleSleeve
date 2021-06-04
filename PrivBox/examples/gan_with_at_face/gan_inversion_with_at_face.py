@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-This module provides an example of DLG attack on MNIST.
+This module provides an example of GAN attack on AT&T face dataset.
 """
 
 from __future__ import print_function
@@ -33,9 +33,10 @@ import matplotlib.pyplot as plt
 
 import paddle
 import paddle.nn.functional as F
-from inversion.gan import GANInversionAttack
+from inversion import GANInversionAttack
 from paddle import nn
-from dataset.att_face import ATTFace
+
+from dataset import ATTFace
 from paddle.vision.transforms import Compose, Normalize
 
 

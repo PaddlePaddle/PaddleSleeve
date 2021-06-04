@@ -30,7 +30,8 @@ from PIL import Image
 from paddle.vision.transforms import Compose, Normalize
 import paddle.nn.functional as F
 
-from inversion.dlg import DLGInversionAttack
+from inversion import DLGInversionAttack
+from metrics import MSEMetric, AccMetric
 
 
 def parse_args():
@@ -132,8 +133,8 @@ def train_and_attack(args):
         rec_data = ret[i][0]
         rec_labels = ret[i][1]
 
-        x_loss = dlg_attack.evaluate(target_x, rec_data, ["mse"])[0]
-        y_loss = dlg_attack.evaluate(target_y, rec_labels, ["acc"])[0]
+        x_loss = dlg_attack.evaluate(target_x, rec_data, [MSEMetric()])[0]
+        y_loss = dlg_attack.evaluate(target_y, rec_labels, [AccMetric()])[0]
 
         iteration = i * args.return_epoch
 

@@ -26,7 +26,7 @@ import paddle
 import numpy as np
 from paddle import nn
 
-from inversion.gan import GANInversionAttack
+from inversion import GANInversionAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """

@@ -29,7 +29,7 @@ from paddle import Tensor
 from typing import List
 
 import paddle.nn.functional as F
-from attack import InversionAttack
+from .inversion_attack import InversionAttack
 
 class DLGInversionAttack(InversionAttack):
     """

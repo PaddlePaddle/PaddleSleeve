@@ -26,8 +26,7 @@ import paddle
 
 from typing import List
 from paddle import Tensor
-from metrics.metrics import *
-import metrics as met
+from metrics import *
 
 class Attack(abc.ABC):
     """
@@ -55,111 +54,21 @@ class Attack(abc.ABC):
     def __check_params(self) -> None:
         pass
 
-    def evaluate(self, target, result, metrics, **kwargs) -> List[Tensor]:
+    def evaluate(self, target, result, metric_list, **kwargs) -> List[Tensor]:
         """
         Evaluate target and result using metrics
 
         Args:
-            target(Tensor): Attack target (expected result)
-            result(Tensor): Attack result (real result)
-            metrics(Tensor): Metric names for evaluating
+            target: Attack target (expected result)
+            result: Attack result (real result)
+            metrics(List[Metric]): Metric list
 
         Returns:
             (Tensor): Evaluate result
         """
         ret = []
-        for metric in metrics:
-            if metric not in met.metrics.__all__:
-                raise ValueError("input metric {} is not in supported metrics set {}"
-                    .format(metric, met.metrics.__all__))
-            ret.append(globals()[metric](target, result))
+        for metric in metric_list:
+            if not isinstance(metric, Metric):
+                raise ValueError("input metric error, which is not supported.")
+            ret.append(metric.compute(target, result))
         return ret
-
-class InversionAttack(Attack):
-    """ 
-    Abstract model inversion attack class
-    """
-
-    @abc.abstractmethod
-    def reconstruct(self, **kwargs) -> List[Tensor]:
-        """
-        Reconstruct target trained data from InversionAttack
-
-        Returns:
-            (Tensor): reconstructed data
-        """
-        raise NotImplementedError
-
-class ExtractionAttack(Attack):
-    """ 
-    Abstract model extraction attack class
-    """
-
-    @abc.abstractmethod
-    def extract(self, data, **kwargs) -> paddle.nn.Layer:
-        """
-        Extract target models
-
-        Args:
-            data(Tensor): input data that used for model extraction
-
-        Returns:
-            (Layer): extracted model
-        """
-        raise NotImplementedError
-
-class InferenceAttack(Attack):
-    """ 
-    Abstract model inference attack class
-    """
-
-    @abc.abstractmethod
-    def infer(self, data, **kwargs) -> paddle.Tensor:
-        """
-        Infer data's relationship with training set
-
-        Args:
-            data(Tensor): input data to infer its relationship (whether in training set)
-
-        Returns:
-            (Tensor): infer result
-        """
-        raise NotImplementedError
-
-class MembershipInferenceAttack(InferenceAttack):
-    """ 
-    Abstract membership inference attack class
-    """
-
-    @abc.abstractmethod
-    def infer(self, data, **kwargs) -> paddle.Tensor:
-        """
-        Infer whether data is in training set
-
-        Args:
-            data(Tensor): input data to infer its membership (whether in training set)
-
-        Returns:
-            (Tensor): infer result
-        """
-        raise NotImplementedError
-
-class PropertyInferenceAttack(InferenceAttack):
-    """ 
-    Abstract property inference attack class
-    """
-
-    params = InferenceAttack.params + ["target_feature"]
-
-    @abc.abstractmethod
-    def infer(self, data, **kwargs) -> paddle.Tensor:
-        """
-        Infer properties from PropertyInferenceAttack
-
-        Args:
-            data(Tensor): input data that used to infer properties
-
-        Returns:
-            (Tensor): infer result
-        """
-        raise NotImplementedError

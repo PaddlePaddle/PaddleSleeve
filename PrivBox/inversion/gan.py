@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Implememt of DLG model inversion attack
+Implememt of GAN model inversion attack
 ref paper: https://arxiv.org/pdf/1702.07464.pdf
 """
 
@@ -29,7 +29,7 @@ from paddle import Tensor
 from typing import List
 
 import paddle.nn.functional as F
-from attack import InversionAttack
+from .inversion_attack import InversionAttack
 
 class GANInversionAttack(InversionAttack):
     """
@@ -38,11 +38,9 @@ class GANInversionAttack(InversionAttack):
 
     """
     Params:
-        learning_rate(float): The learning rate of attacking training
-        attack_epoch(int): The iterations of attacking training
-        window_size(int): When batch size greater than 1, 
-            we update single data roundly for each window size iterations
-        return_epoch(int): Return reconstructed data every 'return_epoch' epochs
+        learning_rate_real(float): The learning rate of training dist_net with real data
+        learning_rate_fake(float): The learning rate of training dist_net with fake data
+        learning_rate_gen(float): The learning rate of training gen_net with fake data
     """
     params = ["learning_rate_real",
              "learning_rate_fake",
@@ -50,14 +48,14 @@ class GANInversionAttack(InversionAttack):
 
     def __init__(self, gen_net, label_size, target_label, target_fake_label, fake_dataload):
         """
-        construct DLGInversionAttack
+        construct GANInversionAttack
 
         Args:
-            net(Layer): input target model which has not be updated with param_grad
-                notice that the model must can be twice differentiable
-            param_grad(List(Tensor)): model gradient computed by target data
-            data_shape(Tensor): shape of target data
-            labels_shape(Tensor): shape of target labels
+            gen_net(Layer): Generator for GAN
+            label_size(int): Size of data label
+            target_label(int): Label for attacking
+            target_fake_label: Fake label for train dist net with fake data
+            fake_dataload(DataLoader): Dataloader for fake data
         """
         self.gen_net = gen_net
         self.fake_label_shape = fake_dataload().next()[1].shape
@@ -82,14 +80,27 @@ class GANInversionAttack(InversionAttack):
         self.__check_params()
 
     def fit(self, model, data=None, **kwargs):
+        """
+        Train generator and discriminator (the input model)
+
+        Args:
+            model(Layer): input discriminator, also is target model
+            data([data, label]): optional input real data for train dicriminator,
+                if is None, only fake data is used to train dicriminator
+            kwargs(dict): set key of "epoch" to make logging message per epoch, otherwise per step,
+                i.g., kwargs = {"epoch": epoch_i}
+
+        Returns:
+            (Layer): trained discriminator
+        """
         return self._GAN_attack(model, data, **kwargs)
 
     def reconstruct(self, **kwargs):
         """
-        reconstruct target data by DLG inversion attact
+        reconstruct target data by GAN inversion attact
 
         Returns:
-            (Tensor): multiple reconstructed data, which shape is (num, (data_shape, label_shape))
+            (Tensor): reconstructed data
         """
         return self.gen_net(self.fake_dataload().next()[0])
 
@@ -224,4 +235,3 @@ class GANInversionAttack(InversionAttack):
         if not isinstance(self.target_label, (int, np.int32)) or self.target_label < 0:
             raise ValueError("The parameter of target_label must be a non-negative int value.")
 
-        

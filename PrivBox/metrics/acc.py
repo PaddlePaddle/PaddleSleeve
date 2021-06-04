@@ -22,7 +22,7 @@ Accuracy metric modulus, used for evaluation
 """
 
 
-class AccMetric(Metric):
+class Accuracy(Metric):
     """
     Accuracy metric
     """

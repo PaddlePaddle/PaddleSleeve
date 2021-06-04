@@ -21,7 +21,7 @@ import sys
 sys.path.append("../../")
 
 import attack
-from metrics import AccMetric
+from metrics import Accuracy
 import paddle
 import numpy as np
 
@@ -55,7 +55,7 @@ class TestAttack(unittest.TestCase):
         result = paddle.to_tensor(np.array([1]))
         
         # no exception
-        self.attack.evaluate(target, result, [AccMetric()])
+        self.attack.evaluate(target, result, [Accuracy()])
 
 
 if __name__ == '__main__':

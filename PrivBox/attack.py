@@ -66,9 +66,10 @@ class Attack(abc.ABC):
         Returns:
             (Tensor): Evaluate result
         """
-        ret = []
         for metric in metric_list:
             if not isinstance(metric, Metric):
                 raise ValueError("input metrics type error.")
+        ret = []
+        for metric in metric_list:
             ret.append(metric.compute(target, result))
         return ret

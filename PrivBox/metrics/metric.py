@@ -20,7 +20,6 @@ from paddle.nn.functional import mse_loss
 Metrics modulus, used for evaluation
 """
 
-__all__ = ["Metric", "MSEMetric", "AccMetric"]
 
 class Metric(abc.ABC):
     """

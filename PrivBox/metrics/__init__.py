@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .acc import AccMetric
-from .mse import MSEMetric
+from .acc import Accuracy
+from .mse import MSE
 from .metric import Metric
 
-__all__ = ["Metric", "AccMetric", "MSEMetric"]
+__all__ = ["Metric", "Accuracy", "MSE"]

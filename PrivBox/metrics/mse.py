@@ -22,7 +22,7 @@ from .metric import Metric
 Mean square error metrics modulus, used for evaluation
 """
 
-class MSEMetric(Metric):
+class MSE(Metric):
     """
     Mean square error metric
     """

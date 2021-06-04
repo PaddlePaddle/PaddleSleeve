@@ -69,6 +69,6 @@ class Attack(abc.ABC):
         ret = []
         for metric in metric_list:
             if not isinstance(metric, Metric):
-                raise ValueError("input metric error, which is not supported.")
+                raise ValueError("input metrics type error.")
             ret.append(metric.compute(target, result))
         return ret

@@ -13,14 +13,14 @@ python3 gan_inversion_with_at_face.py
 
 例子提供以下参数，用户可以自定义设置
 
-- `--batch_size` (int, default=32): 训练数据的batch size
-- `--attack_epoch` (int, default=100): GAN攻击的训练epoch数量
-- `--target_label` (int, default=1): 攻击目标标签，要恢复的数据标签
-- `--learning_rate_real` (float, default=0.0002): 实际联邦训练的学习率
-- `--learning_rate_fake` (float, default=0.0002): 攻击者用虚假数据训练真实模型的学习率
-- `--learning_rate_gen` (float, default=0.0002): 攻击者训练GAN生成器的学习率
-- `--result_dir` (str, default='./att_results'): 攻击结果保存目录
-- `--num_pic_save` (int, default=4): 每个epoch存储多少个攻击结果图片
+- `--batch_size` (int, default=32): 训练数据的batch size。
+- `--attack_epoch` (int, default=100): GAN攻击的训练epoch数量。
+- `--target_label` (int, default=1): 攻击目标标签，要恢复的数据标签。
+- `--learning_rate_real` (float, default=0.0002): 实际联邦训练的学习率。
+- `--learning_rate_fake` (float, default=0.0002): 攻击者用虚假数据训练真实模型的学习率。
+- `--learning_rate_gen` (float, default=0.0002): 攻击者训练GAN生成器的学习率。
+- `--result_dir` (str, default='./att_results'): 攻击结果保存目录。
+- `--num_pic_save` (int, default=4): 每个epoch存储多少个攻击结果图片。
 
 
-默认地，程序运行结束后，结果保存在运行目录所在的`att_results/`目录下, 用户也可以通过`--result_dir`自行指定保存位置
+默认地，程序运行结束后，结果保存在运行目录所在的`att_results/`目录下, 用户也可以通过`--result_dir`自行指定保存位置。

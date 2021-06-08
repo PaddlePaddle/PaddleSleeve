@@ -94,7 +94,7 @@ class DLGInversionAttack(InversionAttack):
 
         # try to reveal label
         label_idx = self._attack_label(self.param_grad[0])
-        dummy_y[:][label_idx] = 1.0
+        dummy_y[:, :, label_idx] = 1.0
 
         dummy_x = paddle.to_tensor(dummy_x)
         dummy_y = paddle.to_tensor(dummy_y)
@@ -140,6 +140,12 @@ class DLGInversionAttack(InversionAttack):
             if iteration % self.return_epoch == 0:
                 ret.append((dummy_x.clone(), dummy_y.clone()))
 
+            # reset tensor reference count for next iteration
+            dummy_x = dummy_x.detach()
+            dummy_y = dummy_y.detach()
+            dummy_x.stop_gradient = False
+            dummy_y.stop_gradient = False
+
         end = time.time()
         
         print("Attack cost time in seconds: {}".format(end - start))
@@ -155,7 +161,7 @@ class DLGInversionAttack(InversionAttack):
         """
         dw_mul = paddle.matmul(dw, dw, transpose_x=True)
         for i in range(dw_mul.shape[0]):
-            dw_mul[i][i] = 0
+            dw_mul[i, i] = 0
             all_le_zero = all(x <= 0 for x in dw_mul[i])
             if all_le_zero:
                 return i

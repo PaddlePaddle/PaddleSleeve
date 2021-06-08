@@ -1,8 +1,9 @@
-# 基于GAN恢复AT&T人脸训练数据例子
+# Example for using GAN to reconstruct AT&T face training data
+English | [简体中文](./README_cn.md)
 
-本例子模拟在参数共享的联邦训练场景下，恶意参与者如何通过GAN攻击模块恢复另一方训练数据。
+This example simulates how malicious participants recover training data from the other party through the GAN attack module in a  federated training scenario that sharing model parameters.
 
-## 运行例子
+## Run Example
 
 
 ```shell
@@ -11,16 +12,16 @@ python3 gan_inversion_with_at_face.py
 
 ```
 
-例子提供以下参数，用户可以自定义设置
+The example provides the following parameters that the user can customize the settings.
 
-- `--batch_size` (int, default=32): 训练数据的batch size
-- `--attack_epoch` (int, default=100): GAN攻击的训练epoch数量
-- `--target_label` (int, default=1): 攻击目标标签，要恢复的数据标签
-- `--learning_rate_real` (float, default=0.0002): 实际联邦训练的学习率
-- `--learning_rate_fake` (float, default=0.0002): 攻击者用虚假数据训练真实模型的学习率
-- `--learning_rate_gen` (float, default=0.0002): 攻击者训练GAN生成器的学习率
-- `--result_dir` (str, default='./att_results'): 攻击结果保存目录
-- `--num_pic_save` (int, default=4): 每个epoch存储多少个攻击结果图片
+- `--batch_size` (int, default=32): batch size of training data
+- `--attack_epoch` (int, default=100): epoch of GAN attack
+- `--target_label` (int, default=1): target label for reconstruction
+- `--learning_rate_real` (float, default=0.0002): learning rate for actual federated training
+- `--learning_rate_fake` (float, default=0.0002): learning rate for training model with fake data by attacker
+- `--learning_rate_gen` (float, default=0.0002): learning rate for training GAN's generator by attacker
+- `--result_dir` (str, default='./att_results'): results dir
+- `--num_pic_save` (int, default=4): number of pictures saving per epoch
 
 
-默认地，程序运行结束后，结果保存在运行目录所在的`att_results/`目录下, 用户也可以通过`--result_dir`自行指定保存位置
+By default, the results are saved in the 'att_results/' directory where the running directory is located. User can also specify the location by `--result_dir`.

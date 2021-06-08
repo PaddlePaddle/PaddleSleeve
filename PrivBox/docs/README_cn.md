@@ -1,16 +1,16 @@
-# Development Guide
-English | [简体中文](./README_cn.md)
+# 设计与开发指南
 
-## Attack Classes
+
+## Attack架构
 
 <p align="center">
   <img src="images/Attacks.png?raw=true" width="700" title="PrivBox Framework">
 </p>
 
 
-## Add new Attack
+## 增加新的Attack
 
-Following codes show how to add a new inference attack. Other attacks are similar.
+以下代码以增加新的Inference Attack的为例，其他类型Attack类似。
 
 ```python
 
@@ -31,7 +31,7 @@ class NewInferenceAttack(MembershipInferenceAttack):
 
 ```
 
-## Add new Metric
+## 增加新的Metric
 
 ```python
 # Step 1. add new metric class which implement abstract metric class
@@ -42,7 +42,7 @@ class NewMetric(Metric):
 
 ```
 
-## Add new Dataset
+## 增加新的Dataset
 
-Same as  [paddle add new dataset](https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/io/Dataset_en.html)
+参考 [paddle增加新的dataset方法](https://www.paddlepaddle.org.cn/documentation/docs/zh/guides/02_paddle2.0_develop/02_data_load_cn.html)。
 

@@ -1,8 +1,9 @@
-# 基于DLG恢复MNIST训练数据例子
+# Example for using DLG to reconstruct MNIST data
+English | [简体中文](./README_cn.md)
 
-本例子模拟在梯度共享的联邦训练场景下，恶意参与者如何通过DLG攻击模块恢复另一方训练数据。
+This example simulates how malicious participants recover training data from the other party through the DLG attack module in a  federated training scenario that sharing model gradient.
 
-## 运行例子
+## Run example
 
 ```shell
 
@@ -10,14 +11,14 @@ python3 dlg_inversion_with_mnist.py
 
 ```
 
-例子提供以下参数，用户可以自定义设置
+The example provides the following parameters that the user can customize the settings.
 
-- `--batch_size` (int, default=1): 训练数据的batch size, 也是要恢复数据量 （注意目前batch size大于1时，恢复的图像会有重叠）
-- `--attack_epoch` (int, default=2000): DLG攻击的epoch数量
-- `--learning_rate` (float, default=0.2): DLG攻击过程的学习率
-- `--result_dir` (str, default='./att_results'): 攻击结果保存目录
-- `--return_epoch` (int, default=100): 每多少个attack_epcoh保存一个结果
-- `--window_size` (int, default=200): DLG论文提出，当batch_size大于1时，交替地更新batch中的样本会更快地收敛，window_size即为每多少个样本更新后再更新另一个样本
+- `--batch_size` (int, default=1): batch size of training data.
+- `--attack_epoch` (int, default=2000): iterations of DLG attack.
+- `--learning_rate` (float, default=0.2): leaning rate of DLG.
+- `--result_dir` (str, default='./att_results'): results saving dir.
+- `--return_epoch` (int, default=100): save a result per `return_epoch` epoch.
+- `--window_size` (int, default=200): The DLG paper proposes that when batch_size is greater than 1, updating the samples in batch alternately converges faster, and window_size decides the number of epoch to update other samples.
 
 
-默认地，程序运行结束后，结果保存在运行目录所在的`att_results/`目录下, 用户也可以通过`--result_dir`自行指定保存位置
+By default, the results are saved in the 'att_results/' directory where the running directory is located. User can also specify the location by `--result_dir`.

@@ -94,7 +94,7 @@ class DLGInversionAttack(InversionAttack):
 
         # try to reveal label
         label_idx = self._attack_label(self.param_grad[0])
-        dummy_y[:][label_idx] = 1.0
+        dummy_y[:, :, label_idx] = 1.0
 
         dummy_x = paddle.to_tensor(dummy_x)
         dummy_y = paddle.to_tensor(dummy_y)
@@ -155,7 +155,7 @@ class DLGInversionAttack(InversionAttack):
         """
         dw_mul = paddle.matmul(dw, dw, transpose_x=True)
         for i in range(dw_mul.shape[0]):
-            dw_mul[i][i] = 0
+            dw_mul[i, i] = 0
             all_le_zero = all(x <= 0 for x in dw_mul[i])
             if all_le_zero:
                 return i

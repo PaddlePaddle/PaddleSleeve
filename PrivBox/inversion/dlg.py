@@ -140,6 +140,12 @@ class DLGInversionAttack(InversionAttack):
             if iteration % self.return_epoch == 0:
                 ret.append((dummy_x.clone(), dummy_y.clone()))
 
+            # reset tensor reference count for next iteration
+            dummy_x = dummy_x.detach()
+            dummy_y = dummy_y.detach()
+            dummy_x.stop_gradient = False
+            dummy_y.stop_gradient = False
+
         end = time.time()
         
         print("Attack cost time in seconds: {}".format(end - start))

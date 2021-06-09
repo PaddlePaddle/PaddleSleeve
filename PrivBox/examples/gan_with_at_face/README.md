@@ -1,7 +1,12 @@
 # Example for using GAN to reconstruct AT&T face training data
 English | [简体中文](./README_cn.md)
 
-This example simulates how malicious participants recover training data from the other party through the GAN attack module in a  federated training scenario that sharing model parameters.
+As shown below, this example simulates how malicious participants recover training data from the other party through the GAN attack module in a  federated training scenario that sharing model parameters.
+
+<p align="center">
+  <img src="../../docs/images/gan_example.png?raw=true" width="700" title="GAN attack in federated learning">
+</p>
+
 
 ## Run Example
 

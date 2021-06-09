@@ -1,7 +1,11 @@
 # Example for using DLG to reconstruct MNIST data
 English | [简体中文](./README_cn.md)
 
-This example simulates how malicious participants recover training data from the other party through the DLG attack module in a  federated training scenario that sharing model gradient.
+As shown below, this example simulates how malicious participants recover training data from the other party through the DLG attack module in a federated training scenario that sharing model gradient.
+
+<p align="center">
+  <img src="../../docs/images/dlg_example.png?raw=true" width="700" title="DLG attack in federated learning">
+</p>
 
 ## Run example
 

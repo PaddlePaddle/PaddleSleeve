@@ -1,5 +1,27 @@
 # 设计与开发指南
 
+## 代码结构
+```
+PrivBox
+├── dataset                     \\ 自定义数据集模块
+│
+├── docs                        \\ 文档目录
+│
+├── examples                    \\ 例子目录
+│
+├── extraction                  \\ 模型提取攻击模块
+│
+├── inference
+│   ├── membership_inference    \\ 成员推理攻击模块
+│   └── property_inference      \\ 属性推理攻击模块
+│
+├── inversion                   \\ 模型逆向攻击模块
+│
+├── metrics                     \\ 评估算子，用来评估攻击效果
+│
+└── tests
+    └── unittests               \\ 单测
+```
 
 ## Attack架构
 

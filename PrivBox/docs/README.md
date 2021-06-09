@@ -1,6 +1,29 @@
 # Development Guide
 English | [简体中文](./README_cn.md)
 
+## Structure of Codebase
+```
+PrivBox
+├── dataset                     \\ Directory for datasets
+│
+├── docs                        \\ Directory for document
+│
+├── examples                    \\ Examples directory
+│
+├── extraction                  \\ Model extraction attack modulus
+│
+├── inference
+│   ├── membership_inference    \\ Membership Inference attack modulus
+│   └── property_inference      \\ Property Inference attack modulus
+│
+├── inversion                   \\ Model inversion attack modulus
+│
+├── metrics                     \\ Metric modulus, for attack evaluation
+│
+└── tests
+    └── unittests               \\ Unittests
+
+```
 ## Attack Classes
 
 <p align="center">
@@ -8,7 +31,7 @@ English | [简体中文](./README_cn.md)
 </p>
 
 
-## Add new Attack
+## Adding a New Attack
 
 Following codes show how to add a new inference attack. Other attacks are similar.
 
@@ -31,7 +54,9 @@ class NewInferenceAttack(MembershipInferenceAttack):
 
 ```
 
-## Add new Metric
+## Adding a New Metric
+
+A metric (such as Accuracy, AUC) is used for evaluating the effect of an attack. Following codes show how to add a new metric.
 
 ```python
 # Step 1. add new metric class which implement abstract metric class
@@ -42,7 +67,7 @@ class NewMetric(Metric):
 
 ```
 
-## Add new Dataset
+## Adding a New Dataset
 
 Same as  [paddle add new dataset](https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/io/Dataset_en.html)
 

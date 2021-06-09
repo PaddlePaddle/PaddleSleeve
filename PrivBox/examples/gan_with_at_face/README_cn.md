@@ -1,6 +1,11 @@
 # 基于GAN恢复AT&T人脸训练数据例子
 
-本例子模拟在参数共享的联邦训练场景下，恶意参与者如何通过GAN攻击模块恢复另一方训练数据。
+如下图所示，本例子模拟在参数共享的联邦训练场景下，恶意参与者如何通过GAN攻击模块恢复另一方训练数据。
+
+<p align="center">
+  <img src="../../docs/images/gan_example.png?raw=true" width="700" title="GAN attack in federated learning">
+</p>
+
 
 ## 运行例子
 

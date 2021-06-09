@@ -1,6 +1,6 @@
 # PrivBox--隐私攻击检测工具
 
-PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库，PrivBox从攻击的角度，提供了多种AI攻击类别的前沿成果的实现，攻击类别包括模型逆向、成员推理、属性推理、模型窃取，帮助模型开发者们通过攻击来更好地评估自己模型的安全分险。
+PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库。PrivBox从攻击的角度，提供了多种AI模型隐私攻击的前沿成果的实现，攻击类别包括模型逆向、成员推理、属性推理、模型窃取，帮助模型开发者们通过攻击来更好地评估自己模型的隐私风险。
 
 <p align="center">
   <img src="docs/images/PrivBox.png?raw=true" width="500" title="PrivBox Framework">
@@ -12,7 +12,7 @@ PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库，PrivB
 ### 环境要求
 python 3.6 及以上。
 
-paddlepaddle 2.0 及以上 (paddle 安装请参考[paddle安装](https://www.paddlepaddle.org.cn/install/quick))。
+PaddlePaddle 2.0 及以上 (paddle 安装请参考[paddle安装](https://www.paddlepaddle.org.cn/install/quick))。
 
 
 ### 使用例子

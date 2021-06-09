@@ -1,6 +1,10 @@
 # 基于DLG恢复MNIST训练数据例子
 
-本例子模拟在梯度共享的联邦训练场景下，恶意参与者如何通过DLG攻击模块恢复另一方训练数据。
+如下图所示，本例子模拟在梯度共享的联邦训练场景下，恶意参与者如何通过DLG攻击模块恢复另一方训练数据。
+
+<p align="center">
+  <img src="../../docs/images/dlg_example.png?raw=true" width="700" title="DLG attack in federated learning"/>
+</p>
 
 ## 运行例子
 

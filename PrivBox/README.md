@@ -8,6 +8,22 @@ PrivBox is a Python library for testing AI model privacy leaking risk, which is 
   <img src="docs/images/PrivBox.png?raw=true" width="500" title="PrivBox Framework">
 </p>
 
+
+**PrivBox Supported Attack Methods**
+| Attacks | Implemented Methods                                                      |
+| -------- | ------------------------------------------------------------ |
+| Model Inversion |                                                                |
+|          | Deep Leakage from Gradients（DLG, [paper link](https://arxiv.org/pdf/1906.08935.pdf)) |
+|          | Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN, [paper link](https://arxiv.org/pdf/1702.07464.pdf)） |
+|          |                                                              |
+| Membership Inference |                                                              |
+|          |                                                              |
+| Property Inference |                                                              |
+|          |                                                              |
+| Model Extraction |                                                              |
+|          |                                                              |
+
+
 ## Getting Started
 
 

@@ -6,6 +6,22 @@ PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库。PrivB
   <img src="docs/images/PrivBox.png?raw=true" width="500" title="PrivBox Framework">
 </p>
 
+
+**PrivBox已支持攻击方法**
+| 攻击类别  | 已实现方法                                                      |
+| -------- | ------------------------------------------------------------ |
+| 模型逆向  |                                                                |
+|          | Deep Leakage from Gradients（DLG, [论文链接](https://arxiv.org/pdf/1906.08935.pdf)) |
+|          | Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN, [论文链接](https://arxiv.org/pdf/1702.07464.pdf)） |
+|          |                                                              |
+| 成员推理  |                                                              |
+|          |                                                              |
+| 属性推理  |                                                              |
+|          |                                                              |
+| 模型窃取  |                                                              |
+|          |                                                              |
+
+
 ## 开始使用
 
 

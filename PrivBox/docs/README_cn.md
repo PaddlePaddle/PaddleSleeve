@@ -55,6 +55,9 @@ class NewInferenceAttack(MembershipInferenceAttack):
 
 ## 增加新的Metric
 
+Metric是用来评估攻击效果的算子，比如常见的Accuracy, AUC等，下述代码描述如何添加一个新的Metric。
+
+
 ```python
 # Step 1. add new metric class which implement abstract metric class
 # and implement methods of compute

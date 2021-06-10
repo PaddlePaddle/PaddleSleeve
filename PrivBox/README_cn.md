@@ -8,18 +8,54 @@ PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库。PrivB
 
 
 **PrivBox已支持攻击方法**
-| 攻击类别  | 已实现方法                                                      | 参考文献 |
-| -------- | ------------------------------------------------------------ | ---- |
-| 模型逆向  |                                                                |    |
-|          | Deep Leakage from Gradients（DLG)) | [\[ZLH19\]](https://arxiv.org/pdf/1906.08935.pdf) |
-|          | Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN） | [\[HAPC17\]](https://arxiv.org/pdf/1702.07464.pdf) |
-|          |                                                              |    |
-| 成员推理  |                                                              |    |
-|          |                                                              |    |
-| 属性推理  |                                                              |    |
-|          |                                                              |    |
-| 模型窃取  |                                                              |    |
-|          |                                                              |    |
+<table>
+   <tr>
+      <td>攻击类别</td>
+      <td>已实现方法</td>
+      <td>参考文献</td>
+   </tr>
+   <tr>
+      <td rowspan="3">模型逆向</td>
+      <td>Deep Leakage from Gradients（DLG)</td>
+      <td><a href="https://arxiv.org/pdf/1906.08935.pdf">[ZLH19]</a></td>
+   </tr>
+   <tr>
+      <td>Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning (GAN)</td>
+      <td><a href="https://arxiv.org/pdf/1702.07464.pdf">[HAPC17]</a></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td rowspan="2">成员推理</td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td rowspan="2">属性推理</td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td rowspan="2">模型窃取</td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+   </tr>
+</table>
 
 
 ## 开始使用

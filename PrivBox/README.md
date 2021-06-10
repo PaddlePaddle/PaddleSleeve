@@ -10,19 +10,55 @@ PrivBox is a Python library for testing AI model privacy leaking risk, which is 
 
 
 **PrivBox Supported Attack Methods**
-| Attacks | Implemented Methods                                                      | References |
-| -------- | ------------------------------------------------------------ | ---- |
-| Model Inversion |                                                                |    |
-|          | Deep Leakage from Gradients（DLG) | [\[ZLH19\]](https://arxiv.org/pdf/1906.08935.pdf) |
-|          | Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN） | [\[HAP17\]](https://arxiv.org/pdf/1702.07464.pdf) |
-|          |                                                              |    |
-| Membership Inference |                                                              |    |
-|          |                                                              |    |
-| Property Inference |                                                              |    |
-|          |                                                              |    |
-| Model Extraction |                                                              |    |
-|          |                                                              |    |
 
+<table>
+   <tr>
+      <td>Attacks</td>
+      <td>Implemented Methods</td>
+      <td>References</td>
+   </tr>
+   <tr>
+      <td rowspan="3">Model Inversion</td>
+      <td>Deep Leakage from Gradients（DLG)</td>
+      <td><a href="https://arxiv.org/pdf/1906.08935.pdf">[ZLH19]</a></td>
+   </tr>
+   <tr>
+      <td>Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning (GAN)</td>
+      <td><a href="https://arxiv.org/pdf/1702.07464.pdf">[HAPC17]</a></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td rowspan="2">Membership Inference</td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td rowspan="2">Property Inference</td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td rowspan="2">Model Extraction</td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td></td>
+      <td></td>
+   </tr>
+</table>
 
 ## Getting Started
 

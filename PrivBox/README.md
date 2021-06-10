@@ -8,6 +8,22 @@ PrivBox is a Python library for testing AI model privacy leaking risk, which is 
   <img src="docs/images/PrivBox.png?raw=true" width="500" title="PrivBox Framework">
 </p>
 
+
+**PrivBox Supported Attack Methods**
+| Attacks | Implemented Methods                                                      | References |
+| -------- | ------------------------------------------------------------ | ---- |
+| Model Inversion |                                                                |    |
+|          | Deep Leakage from Gradients（DLG) | [\[ZLH19\]](https://arxiv.org/pdf/1906.08935.pdf) |
+|          | Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN） | [\[HAP17\]](https://arxiv.org/pdf/1702.07464.pdf) |
+|          |                                                              |    |
+| Membership Inference |                                                              |    |
+|          |                                                              |    |
+| Property Inference |                                                              |    |
+|          |                                                              |    |
+| Model Extraction |                                                              |    |
+|          |                                                              |    |
+
+
 ## Getting Started
 
 
@@ -28,3 +44,9 @@ Directory [`examples/`](examples/) list multiple examples for usage PrivBox.
 
 
 PrivBox is under continuous development. Contributions, bug reports and other feedbacks are very welcome!
+
+## References
+
+\[ZLH19\] Ligeng Zhu, Zhijian Liu, and Song Han. Deep leakage from gradients. ArXiv, abs/1906.08935, 2019.
+
+\[HAPC17\] Briland Hitaj, Giuseppe Ateniese, and Fernando P´erez-Cruz. Deep models under the gan: Information leakage from collaborative deep learning. CCS, 2017.

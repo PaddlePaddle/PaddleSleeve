@@ -20,7 +20,7 @@ PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库。PrivB
       <td><a href="https://arxiv.org/pdf/1906.08935.pdf">[ZLH19]</a></td>
    </tr>
    <tr>
-      <td>Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN）</td>
+      <td>Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning (GAN)</td>
       <td><a href="https://arxiv.org/pdf/1702.07464.pdf">[HAPC17]</a></td>
    </tr>
    <tr>

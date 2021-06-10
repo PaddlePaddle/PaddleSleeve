@@ -15,43 +15,26 @@ PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库。PrivB
       <td>参考文献</td>
    </tr>
    <tr>
-      <td rowspan="3">模型逆向</td>
+      <td rowspan="2">模型逆向</td>
       <td>Deep Leakage from Gradients（DLG)</td>
       <td><a href="https://arxiv.org/pdf/1906.08935.pdf">[ZLH19]</a></td>
    </tr>
    <tr>
-      <td>Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning (GAN)</td>
+      <td>Deep Models Under the GAN: Information Leakage from Collaborative Deep Learning （GAN）</td>
       <td><a href="https://arxiv.org/pdf/1702.07464.pdf">[HAPC17]</a></td>
    </tr>
    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td rowspan="2">成员推理</td>
+      <td rowspan="1">成员推理</td>
       <td></td>
       <td></td>
    </tr>
    <tr>
+      <td rowspan="1">属性推理</td>
       <td></td>
       <td></td>
    </tr>
    <tr>
-      <td rowspan="2">属性推理</td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td rowspan="2">模型窃取</td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
+      <td rowspan="1">模型窃取</td>
       <td></td>
       <td></td>
    </tr>
@@ -81,6 +64,6 @@ PaddlePaddle 2.0 及以上 (paddle 安装请参考[paddle安装](https://www.pad
 
 ## 参考文献
 
-\[ZLH19\] Ligeng Zhu, Zhijian Liu, and Song Han. Deep leakage from gradients. ArXiv, abs/1906.08935, 2019.
+\[ZLH19\] Ligeng Zhu, Zhijian Liu, and Song Han. Deep leakage from gradients. NeurIPS, 2019.
 
 \[HAPC17\] Briland Hitaj, Giuseppe Ateniese, and Fernando P´erez-Cruz. Deep models under the gan: Information leakage from collaborative deep learning. CCS, 2017.

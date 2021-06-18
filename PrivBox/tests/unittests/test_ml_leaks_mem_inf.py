@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-unittest for dlg attack modulus
+unittest for ML-Leaks attack modulus
 """
 from __future__ import print_function
 
@@ -26,7 +26,7 @@ import paddle
 import numpy as np
 from paddle import nn
 
-from inversion import DLGInversionAttack
+from inference.membership_inference import MLLeaksMembershipInferenceAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """
@@ -39,7 +39,7 @@ class SimpleDataset(paddle.io.Dataset):
 
     def __getitem__(self, idx):
         image = np.random.random(self.data_shape).astype('float32')
-        label = np.random.randint(0, 2, 1).reshape([1, 1]).astype('int32')
+        label = np.random.randint(0, 2, 1).reshape([1]).astype('int64')
         return image, label
 
     def __len__(self):
@@ -47,6 +47,9 @@ class SimpleDataset(paddle.io.Dataset):
 
 
 class SimpleNet(nn.Layer):
+    """
+    Simple Net for test
+    """
     def __init__(self):
         super(SimpleNet, self).__init__()
         self.linear = paddle.nn.Linear(2, 2)
@@ -59,34 +62,30 @@ class SimpleNet(nn.Layer):
         return y
         
 
-class TestDLG(unittest.TestCase):
+class TestMLLeaks(unittest.TestCase):
     """
-    Test DLG Attack modulus
+    Test ML-Leaks Attack modulus
     """
     
-    def test_main(self):
+    def test_normal(self):
+        """
+        Used trained shadow model
+        """
+        # assume net have been trained
         net = SimpleNet()
-
         dataset = SimpleDataset(100, [2], 2)
-        dataload = paddle.io.DataLoader(dataset)
 
-        data = dataload().next()
+        attack = MLLeaksMembershipInferenceAttack(net, [dataset, dataset])
 
-        pre = net(data[0])
+        attack_params = {"batch_size": 1, "shadow_epoch": 1,
+                     "classifier_epoch": 1, "topk": 2,
+                     "shadow_lr":0.01, "classifier_lr": 0.01}
+        attack.set_params(**attack_params)
 
-        label = paddle.nn.functional.one_hot(data[1], 2).astype('float32')
+        data = paddle.rand([2, 2])
+        pred = net(data)
 
-        loss = paddle.nn.functional.mse_loss(pre, label, reduction='none')
-
-
-        grad = paddle.grad(loss, net.parameters())
-
-        attack = DLGInversionAttack(net, grad, data[0].shape, data[1].shape)
-
-        params = {"learning_rate": 0.2, "attack_epoch":2, "window_size":100, "return_epoch":1}
-        attack.set_params(**params)
-
-        result = attack.reconstruct()
+        attack.infer(pred)
 
 
 if __name__ == '__main__':

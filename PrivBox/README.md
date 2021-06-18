@@ -27,9 +27,13 @@ PrivBox is a Python library for testing AI model privacy leaking risk, which is 
       <td><a href="https://arxiv.org/pdf/1702.07464.pdf">[HAPC17]</a></td>
    </tr>
    <tr>
-      <td rowspan="1">Membership Inference</td>
-      <td></td>
-      <td></td>
+      <td rowspan="2">Membership Inference</td>
+      <td>Privacy Risk in Machine Learning: Analyzing the Connection to Overfitting</td>
+      <td><a href="https://arxiv.org/pdf/1709.01604.pdf">[YGFJ18]</a></td>
+   </tr>
+   <tr>
+      <td>ML-Leaks: Model and Data Independent Membership Inference Attacks and Defenses on Machine Learning Models</td>
+      <td><a href="https://arxiv.org/pdf/1806.01246.pdf">[SZHB19]</a></td>
    </tr>
    <tr>
       <td rowspan="1">Property Inference</td>
@@ -69,3 +73,7 @@ PrivBox is under continuous development. Contributions, bug reports and other fe
 \[ZLH19\] Ligeng Zhu, Zhijian Liu, and Song Han. Deep leakage from gradients. NeurIPS, 2019.
 
 \[HAPC17\] Briland Hitaj, Giuseppe Ateniese, and Fernando P´erez-Cruz. Deep models under the gan: Information leakage from collaborative deep learning. CCS, 2017.
+
+\[YGFJ18\] Samuel Yeom, Irene Giacomelli, Matt Fredrikson, Somesh Jha. Privacy risk in machine learning: Analyzing the connection to overfitting. Computer Security Foundations Symposium (CSF), 2018.
+
+\[SZHB19\] Ahmed Salem, Yang Zhang, Mathias Humbert, Pascal Berrang, Mario Fritz, Michael Backes. ML-Leaks: Model and Data Independent Membership Inference Attacks and Defenses on Machine Learning Models. Network and Distributed Systems Security Symposium (NDSS) 2019.

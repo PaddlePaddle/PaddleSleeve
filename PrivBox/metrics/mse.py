@@ -27,15 +27,15 @@ class MSE(Metric):
     Mean square error metric
     """
 
-    def compute(self, expected, real):
+    def compute(self, actual, expected):
         """
         compute mean square error
 
         Args:
-            expected(Tensor): Expected result
             real(Tensor): Actual result
+            expected(Tensor): Expected result
         
         Returns:
-            (Tensor): Mean square error for input of expected and real
+            (Tensor): Mean square error for input of expected and actual
         """
-        return mse_loss(real, expected, reduction="mean")
+        return mse_loss(actual, expected, reduction="mean").numpy()[0]

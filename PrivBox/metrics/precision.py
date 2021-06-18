@@ -14,27 +14,35 @@
 
 import paddle
 import abc
+from .metric import Metric
 
-from paddle.nn.functional import mse_loss
 """
-Metrics modulus, used for evaluation
+Precision metric modulus, used for evaluation
 """
 
 
-class Metric(abc.ABC):
+class Precision(Metric):
     """
-    abstract base metrics class
+    Precision metric
     """
 
     def compute(self, actual, expected):
         """
-        compute metric for actual and expected
+        compute precision metric
 
         Args:
             actual(Tensor): Actual result
             expected(Tensor): Expected result
-
+            
         Returns:
-            (Tensor): metric result
+            (Tensor): Precision for input of expected and actual
         """
-        raise NotImplementedError
+        if len(actual.shape) > 1 and actual.shape[-1] == 2:
+            actual = actual[:, 1]
+        elif len(actual.shape) > 1 and actual.shape[-1] > 2:
+            raise ValueError("""Input actual error,
+                             Precision metric only supports binary classification.""")
+
+        pre = paddle.metric.Precision()
+        pre.update(actual, expected)
+        return pre.accumulate()

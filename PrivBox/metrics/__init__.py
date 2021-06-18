@@ -14,6 +14,9 @@
 
 from .acc import Accuracy
 from .mse import MSE
+from .auc import AUC
+from .precision import Precision
+from .recall import Recall
 from .metric import Metric
 
-__all__ = ["Metric", "Accuracy", "MSE"]
+__all__ = ["Metric", "Accuracy", "MSE", "AUC", "Precision", "Recall"]

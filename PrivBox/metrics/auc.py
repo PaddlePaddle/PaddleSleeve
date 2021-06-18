@@ -14,27 +14,44 @@
 
 import paddle
 import abc
+from .metric import Metric
 
-from paddle.nn.functional import mse_loss
 """
-Metrics modulus, used for evaluation
+AUC metric modulus, used for evaluation
 """
 
 
-class Metric(abc.ABC):
+class AUC(Metric):
     """
-    abstract base metrics class
+    AUC metric
     """
+
+    def __init__(self, soft_actual=True):
+        """
+        init AUC class, only for binary classifier
+
+        Args:
+            soft_actual(Boolean): Whether input of actual value is soft label
+        """
+        self.soft_actual = soft_actual
 
     def compute(self, actual, expected):
         """
-        compute metric for actual and expected
+        compute AUC metric
 
         Args:
             actual(Tensor): Actual result
             expected(Tensor): Expected result
-
+            
         Returns:
-            (Tensor): metric result
+            (Tensor): AUC for input of expected and actual
         """
-        raise NotImplementedError
+
+        auc = paddle.metric.Auc()
+        if not self.soft_actual:
+            shape = actual.shape
+            if shape[-1] == 1:
+                del shape[-1]
+            actual = paddle.nn.functional.one_hot(actual.reshape(shape).astype("int32"), num_classes=2)
+        auc.update(actual, expected)
+        return auc.accumulate()

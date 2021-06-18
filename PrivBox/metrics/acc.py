@@ -27,16 +27,37 @@ class Accuracy(Metric):
     Accuracy metric
     """
 
-    def compute(self, expected, real):
+    def __init__(self, soft_actual=True, num_classes=None):
+        """
+        init Accuracy class
+
+        Args:
+            soft_actual(Boolean): Whether input of actual value is soft label
+                when set to 'False', must input 'num_classes'
+            num_classes(int): number of classes
+        """
+        self.soft_actual = soft_actual
+        self.num_classes = num_classes
+        if not soft_actual and num_classes is None:
+            raise ValueError("must input num_classes when set soft_actual as False")
+
+    def compute(self, actual, expected):
         """
         compute acc metric
 
         Args:
+            actual(Tensor): Actual result
             expected(Tensor): Expected result
-            real(Tensor): Actual result
-        
+            
         Returns:
-            (Tensor): accuracy for input of expected and real
+            (Tensor): accuracy for input of expected and actual
         """
+        if not self.soft_actual:
+            shape = actual.shape
+            if shape[-1] == 1:
+                del shape[-1]
+            actual = paddle.nn.functional.one_hot(actual.reshape(shape).astype('int32'), self.num_classes)
         acc_o = paddle.metric.Accuracy()
-        return acc_o.compute(expected, real)
+        correct = acc_o.compute(actual, expected)
+        acc_o.update(correct)
+        return acc_o.accumulate()

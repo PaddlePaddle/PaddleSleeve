@@ -4,7 +4,7 @@ English | [简体中文](./README_cn.md)
 As shown below, this example simulates how malicious participants recover training data from the other party through the GAN attack module in a  federated training scenario that sharing model parameters.
 
 <p align="center">
-  <img src="../../docs/images/gan_example.png?raw=true" width="700" title="GAN attack in federated learning">
+  <img src="../../../docs/images/gan_example.png?raw=true" width="700" title="GAN attack in federated learning">
 </p>
 
 

@@ -37,7 +37,7 @@ class PropertyInferenceAttack(InferenceAttack):
         Infer properties from PropertyInferenceAttack
 
         Args:
-            data(Tensor): input data that used to infer properties
+            data(Tensor|List[Tensor]): input data that used to infer properties
 
         Returns:
             (Tensor): infer result

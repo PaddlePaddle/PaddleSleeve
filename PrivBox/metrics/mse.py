@@ -36,6 +36,6 @@ class MSE(Metric):
             expected(Tensor): Expected result
         
         Returns:
-            (Tensor): Mean square error for input of expected and actual
+            (float): Mean square error for input of expected and actual
         """
         return mse_loss(actual, expected, reduction="mean").numpy()[0]

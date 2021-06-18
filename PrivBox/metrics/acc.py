@@ -50,7 +50,7 @@ class Accuracy(Metric):
             expected(Tensor): Expected result
             
         Returns:
-            (Tensor): accuracy for input of expected and actual
+            (float): accuracy for input of expected and actual
         """
         if not self.soft_actual:
             shape = actual.shape

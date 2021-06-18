@@ -14,7 +14,6 @@ ref paper: https://arxiv.org/pdf/1709.01604.pdf
 """
 
 import sys
-sys.path.append("..")
 
 import abc
 import paddle

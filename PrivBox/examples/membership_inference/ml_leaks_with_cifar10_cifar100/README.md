@@ -25,6 +25,6 @@ The example provides the following parameters that the user can customize the se
 - `--shadow_lr` (float, default=0.0002): The learning rate for training shadow model.
 - `--classifier_lr` (float, default=0.0002): The learning rate for training ML-Leaks classifier.
 - `--topk` (int, default=10): The top k predict results for training ML-Leaks classifier.
-- `--shadow_dataset` (str, default=cifar10): shadow dataset(cifar10 or cifar100).
-- `--target_dataset` (str, default=cifar10): target dataset(cifar10 or cifar100).
-- `--shadow_model` (str, default=resnet18): shadow model(resnet18 or resnet34).
+- `--shadow_dataset` (str, default=cifar10): Shadow dataset(cifar10 or cifar100).
+- `--target_dataset` (str, default=cifar10): Target dataset(cifar10 or cifar100).
+- `--shadow_model` (str, default=resnet18): Shadow model(resnet18 or resnet34).

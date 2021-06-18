@@ -35,7 +35,7 @@ class Recall(Metric):
             expected(Tensor): Expected result
             
         Returns:
-            (Tensor): Recall for input of expected and actual
+            (float): Recall for input of expected and actual
         """
 
         if len(actual.shape) > 1 and actual.shape[-1] == 2:

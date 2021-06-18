@@ -44,7 +44,7 @@ class AUC(Metric):
             expected(Tensor): Expected result
             
         Returns:
-            (Tensor): AUC for input of expected and actual
+            (float): AUC for input of expected and actual
         """
 
         auc = paddle.metric.Auc()

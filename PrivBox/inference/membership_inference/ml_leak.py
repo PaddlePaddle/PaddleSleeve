@@ -14,7 +14,6 @@ ref paper: https://arxiv.org/pdf/1806.01246.pdf
 """
 
 import sys
-sys.path.append("..")
 
 import abc
 import paddle
@@ -30,7 +29,7 @@ class Classifier(paddle.nn.Layer):
     """
     def __init__(self, intput_size):
         """
-        init classifier class
+        Init classifier class
         """
         super(Classifier, self).__init__()
         hidden_layer = 64
@@ -103,7 +102,9 @@ class MLLeaksMembershipInferenceAttack(MembershipInferenceAttack):
 
         Args:
             shadow_model(Layer|Model): Shadow model for ML-Leaks.
-            shadow_dataset(List[DataLoader|Dataset]): Datasets that used for training shadow model.
+            shadow_dataset(List[DataLoader|Dataset]): Datasets that used for training shadow model,
+                including member-dataset and non-member dataset,
+                that is shadow_dataset = [mem_data, non_mem_data]
                 
         """
         self.shadow_model = shadow_model
@@ -168,7 +169,7 @@ class MLLeaksMembershipInferenceAttack(MembershipInferenceAttack):
     def _train_classifier(self, shadow_model, classifier, shadow_train_data, shadow_test_data,
                           epoch, learning_rate, topk, batch_size):
         """
-        train classifier with predict data
+        Train classifier with predict results
         """
         train_data_set = shadow_model.predict(shadow_train_data, batch_size=batch_size, stack_outputs=True)
         test_data_set = shadow_model.predict(shadow_test_data, batch_size=batch_size, stack_outputs=True)
@@ -204,7 +205,7 @@ class MLLeaksMembershipInferenceAttack(MembershipInferenceAttack):
 
     def __check_params(self) -> None:
         """
-        check params
+        Check params
         """
         if not isinstance(self.batch_size, int) or self.batch_size <= 0:
             raise ValueError("The parameter of batch_size must be a positive int value.")

@@ -35,6 +35,6 @@ class Metric(abc.ABC):
             expected(Tensor): Expected result
 
         Returns:
-            (Tensor): metric result
+            (float): metric result
         """
         raise NotImplementedError

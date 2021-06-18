@@ -35,7 +35,7 @@ class Precision(Metric):
             expected(Tensor): Expected result
             
         Returns:
-            (Tensor): Precision for input of expected and actual
+            (float): Precision for input of expected and actual
         """
         if len(actual.shape) > 1 and actual.shape[-1] == 2:
             actual = actual[:, 1]

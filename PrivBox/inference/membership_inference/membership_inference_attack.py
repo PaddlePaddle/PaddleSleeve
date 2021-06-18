@@ -13,7 +13,7 @@ Abstract base class for membership inference attacks
 """
 
 import sys
-sys.path.append("..")
+sys.path.append("../../")
 
 import abc
 from attack import Attack
@@ -21,7 +21,7 @@ import paddle
 
 from typing import List
 from paddle import Tensor
-from ..inference_attack import InferenceAttack
+from inference.inference_attack import InferenceAttack
 
 class MembershipInferenceAttack(InferenceAttack):
     """ 

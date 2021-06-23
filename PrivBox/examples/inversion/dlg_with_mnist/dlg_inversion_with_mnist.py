@@ -19,7 +19,7 @@ from __future__ import print_function
 
 import sys
 import os
-sys.path.append('../../')
+sys.path.append('../../../')
 
 import argparse
 import numpy
@@ -139,8 +139,8 @@ def train_and_attack(args):
         iteration = i * args.return_epoch
 
         print("Attack Iteration {}: data_mse_loss = {}, labels_acc = {}"
-            .format(iteration, x_loss.numpy()[0],
-            y_loss.numpy()[0]))
+            .format(iteration, x_loss,
+            y_loss))
         
         save_shape = (28, 28)
         for data_idx in range(rec_data.shape[0]):

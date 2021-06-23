@@ -9,33 +9,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Abstract base class for inference attacks
+Implement of rule based membership inference attacks
+ref paper: https://arxiv.org/pdf/1709.01604.pdf
 """
 
 import sys
-sys.path.append("..")
 
 import abc
-from attack import Attack
 import paddle
 
 from typing import List
 from paddle import Tensor
+from .membership_inference_attack import MembershipInferenceAttack
 
-class InferenceAttack(Attack):
+class BaselineMembershipInferenceAttack(MembershipInferenceAttack):
     """ 
-    Abstract model inference attack class
+    Baseline membership inference attack class which is based on the rule
+    that infer an instance as member if its predict result is correct.
     """
 
-    @abc.abstractmethod
     def infer(self, data, **kwargs) -> paddle.Tensor:
         """
-        Infer data's relationship with training set
+        Infer whether data is in training set
 
         Args:
-            data(Tensor|List[Tensor]): input data to infer its relationship (whether in training set)
+            data(List[Tensor]): input ([predict result, label]) to infer its membership (whether in training set)
 
         Returns:
             (Tensor): infer result
         """
-        raise NotImplementedError
+        result = (data[0] == data[1]).astype("int32")
+        return result

@@ -54,7 +54,7 @@ class Attack(abc.ABC):
     def __check_params(self) -> None:
         pass
 
-    def evaluate(self, target, result, metric_list, **kwargs) -> List[Tensor]:
+    def evaluate(self, target, result, metric_list, **kwargs) -> List[float]:
         """
         Evaluate target and result using metrics
 
@@ -64,12 +64,12 @@ class Attack(abc.ABC):
             metrics(List[Metric]): Metric list
 
         Returns:
-            (Tensor): Evaluate result
+            (List[float]): Evaluate result
         """
         for metric in metric_list:
             if not isinstance(metric, Metric):
                 raise ValueError("input metrics type error.")
         ret = []
         for metric in metric_list:
-            ret.append(metric.compute(target, result))
+            ret.append(metric.compute(result, target))
         return ret

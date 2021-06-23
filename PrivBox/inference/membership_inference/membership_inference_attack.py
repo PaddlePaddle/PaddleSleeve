@@ -13,7 +13,7 @@ Abstract base class for membership inference attacks
 """
 
 import sys
-sys.path.append("..")
+sys.path.append("../../")
 
 import abc
 from attack import Attack
@@ -21,7 +21,7 @@ import paddle
 
 from typing import List
 from paddle import Tensor
-from inference_attack import InferenceAttack
+from inference.inference_attack import InferenceAttack
 
 class MembershipInferenceAttack(InferenceAttack):
     """ 
@@ -34,7 +34,7 @@ class MembershipInferenceAttack(InferenceAttack):
         Infer whether data is in training set
 
         Args:
-            data(Tensor): input data to infer its membership (whether in training set)
+            data(Tensor|List[Tensor]): input data to infer its membership (whether in training set)
 
         Returns:
             (Tensor): infer result

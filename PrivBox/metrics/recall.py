@@ -14,27 +14,36 @@
 
 import paddle
 import abc
+from .metric import Metric
 
-from paddle.nn.functional import mse_loss
 """
-Metrics modulus, used for evaluation
+Recall metric modulus, used for evaluation
 """
 
 
-class Metric(abc.ABC):
+class Recall(Metric):
     """
-    abstract base metrics class
+    Recall metric
     """
 
     def compute(self, actual, expected):
         """
-        compute metric for actual and expected
+        compute recall metric
 
         Args:
             actual(Tensor): Actual result
             expected(Tensor): Expected result
-
+            
         Returns:
-            (float): metric result
+            (float): Recall for input of expected and actual
         """
-        raise NotImplementedError
+
+        if len(actual.shape) > 1 and actual.shape[-1] == 2:
+            actual = actual[:, 1]
+        elif len(actual.shape) > 1 and actual.shape[-1] > 2:
+            raise ValueError("""Input actual error,
+                             Recall metric only supports binary classification.""")
+
+        recall = paddle.metric.Recall()
+        recall.update(actual, expected)
+        return recall.accumulate()

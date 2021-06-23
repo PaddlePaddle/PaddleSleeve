@@ -16,48 +16,42 @@ import paddle
 import abc
 from .metric import Metric
 
-from paddle.nn.functional import mse_loss
 """
-Accuracy metric modulus, used for evaluation
+AUC metric modulus, used for evaluation
 """
 
 
-class Accuracy(Metric):
+class AUC(Metric):
     """
-    Accuracy metric
+    AUC metric
     """
 
-    def __init__(self, soft_actual=True, num_classes=None):
+    def __init__(self, soft_actual=True):
         """
-        init Accuracy class
+        init AUC class, only for binary classifier
 
         Args:
             soft_actual(Boolean): Whether input of actual value is soft label
-                when set to 'False', must input 'num_classes'
-            num_classes(int): number of classes
         """
         self.soft_actual = soft_actual
-        self.num_classes = num_classes
-        if not soft_actual and num_classes is None:
-            raise ValueError("must input num_classes when set soft_actual as False")
 
     def compute(self, actual, expected):
         """
-        compute acc metric
+        compute AUC metric
 
         Args:
             actual(Tensor): Actual result
             expected(Tensor): Expected result
             
         Returns:
-            (float): accuracy for input of expected and actual
+            (float): AUC for input of expected and actual
         """
+
+        auc = paddle.metric.Auc()
         if not self.soft_actual:
             shape = actual.shape
             if shape[-1] == 1:
                 del shape[-1]
-            actual = paddle.nn.functional.one_hot(actual.reshape(shape).astype('int32'), self.num_classes)
-        acc_o = paddle.metric.Accuracy()
-        correct = acc_o.compute(actual, expected)
-        acc_o.update(correct)
-        return acc_o.accumulate()
+            actual = paddle.nn.functional.one_hot(actual.reshape(shape).astype("int32"), num_classes=2)
+        auc.update(actual, expected)
+        return auc.accumulate()

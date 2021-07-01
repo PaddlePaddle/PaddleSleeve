@@ -3,7 +3,7 @@
 # AdvBox
 
 对抗样本是深度学习领域的一个重要问题，比如在图像上叠加肉眼难以识别的修改，就可以欺骗主流的深度学习图像模型，产生分类错误，指鹿为马，或者无中生有。这些问题对于特定领域（比如无人车、人脸识别）会产生严重的后果。因此AI模型对抗攻击及防御技术引起机器学习和安全领域的研究者及开发者越来越多的关注。
-AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddl的AI模型安全工具箱。AdvBox集成了多种攻击算法，可以高效的构造对抗样本，进行模型鲁棒性评估或对抗训练，提高模型的安全性。它能为工程师、研究者研究模型的安全性提供便利，减少重复造轮子的精力与时间消耗。
+AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle的AI模型安全工具箱。AdvBox集成了多种攻击算法，可以高效的构造对抗样本，进行模型鲁棒性评估或对抗训练，提高模型的安全性。它能为工程师、研究者研究模型的安全性提供便利，减少重复造轮子的精力与时间消耗。
 
 ---
 
@@ -24,10 +24,10 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddl�
 + BIM
 + ILCM
 + C/W
-+ JSMA
 
 黑盒攻击算法
 + SinglePixelAttack
++ TransferAttack
 
 ---
 ### 黑盒攻击示例
@@ -61,7 +61,7 @@ SinglePixelAttack attack done
 
 **Single Pixel Attack** 
 
-<img src="./examples/image_cls/output/show/number5-adv.png" style="zoom:30%;" />
+<img src="./examples/image_cls/output/show/number5_adv.png" style="zoom:30%;" />
 
 **Transfer Attack** 
 
@@ -70,6 +70,8 @@ SinglePixelAttack attack done
     python weighted_ensemble_attack_fgsm.py --target=330
     python serial_ensemble_attack_fgsm.py --target=1
 
+类别282的小猫，经过黑盒攻击后被误识别为类别1金鱼。
+<img src="./examples/image_cls/output/show/serial_ensemble_fgsm_diff_1.png" style="zoom:60%;" />
 ### 白盒攻击示例
 
 以FGSM为例，其他攻击方法使用方式类似。采用imagenet数据集，vgg16的预训练模型作为攻击对象。
@@ -110,10 +112,10 @@ fgsm attack done
 ### 其他攻击方法示例结果
 
 **PGD定向攻击**
-<img src="./examples/image_cls/output/show/pgd-adv.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:40%;" />
 
 **CW定向攻击**
-<img src="./examples/image_cls/output/show/cw-adv.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:40%;" />
 
 **BIM非定向攻击**
 <img src="./examples/image_cls/output/show/bim_untarget_368.png" style="zoom:40%;" />

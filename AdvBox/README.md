@@ -16,24 +16,24 @@ The project also contains plenty of useful tutorials for different AI applicatio
 <img src="./examples/image_cls/output/show/fgsm_untarget_803.png" style="zoom:60%;" />
 
 **PGD targeted attack**
-<img src="./examples/image_cls/output/show/pgd-adv.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:40%;" />
 
 **CW targeted attack**
-<img src="./examples/image_cls/output/show/cw-adv.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:40%;" />
 
 
 ## Table of Adversarial Attack Methods
 
 | Adversarial Attack Methods                                    | White-Box | Black-Box | Ensemble  |  AdvTrain   |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--:|:--:|:--:|:--:|
-| [FGSM (FastGradientSignMethodAttack)](AdvBox/attacks/gradient_method.py)          | ✓  |   | ✓ | ✓ |
-| [FGSMT (FastGradientSignMethodTargetedAttack)](AdvBox/attacks/gradient_method.py) | ✓  |   | ✓ | ✓ |
-| [BIM (BasicIterativeMethodAttack)](AdvBox/attacks/gradient_method.py)             | ✓  |   | ✓ | ✓ |
-| [ILCM (IterativeLeastLikelyClassMethodAttack)](AdvBox/attacks/gradient_method.py) | ✓  |   | ✓ | ✓ |
-| [MI-FGSM (MomentumIteratorAttack)](AdvBox/attacks/gradient_method.py)             | ✓  |   | ✓ | ✓ |
-| [PGD (ProjectedGradientDescentAttack)](AdvBox/attacks/gradient_method.py)         | ✓  |   | ✓ | ✓ |
-| [CW_L2 (CWL2Attack)](AdvBox/attacks/cw.py)                           | ✓  |   |   | ✓ |
-| [SinglePixelAttack](AdvBox/attacks/single_pixel_attack.py)                            |    | ✓ |   |   |
+| [FGSM (FastGradientSignMethodAttack)](attacks/gradient_method.py)                | ✓  |   | ✓ | ✓ |
+| [FGSMT (FastGradientSignMethodTargetedAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
+| [BIM (BasicIterativeMethodAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
+| [ILCM (IterativeLeastLikelyClassMethodAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
+| [MI-FGSM (MomentumIteratorAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
+| [PGD (ProjectedGradientDescentAttack)](attacks/gradient_method.py)               | ✓  |   | ✓ | ✓ |
+| [CW_L2 (CWL2Attack)](attacks/cw.py)                                              | ✓  |   |   | ✓ |
+| [SinglePixelAttack](attacks/single_pixel_attack.py)                              |    | ✓ |   |   |
 
  
 ## To generate an AE in AdvBox

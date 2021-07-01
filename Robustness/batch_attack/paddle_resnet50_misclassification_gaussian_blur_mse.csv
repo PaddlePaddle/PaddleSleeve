@@ -1,0 +1,14 @@
+pic_name,label,ori_pred_label,adv_pred_label,distance_mse
+ILSVRC2012_val_00000035.JPEG,half track,half track,"thresher, thrasher, threshing machine",8.07e-03
+ILSVRC2012_val_00000314.JPEG,minibus,minibus,moving van,8.84e-03
+ILSVRC2012_val_00000024.JPEG,planetarium,planetarium,black grouse,1.27e-02
+ILSVRC2012_val_00000793.JPEG,minibus,minibus,minivan,8.30e-03
+ILSVRC2012_val_00000431.JPEG,"cab, hack, taxi, taxicab","cab, hack, taxi, taxicab",go-kart,1.31e-02
+ILSVRC2012_val_00000014.JPEG,"recreational vehicle, RV, R.V.","recreational vehicle, RV, R.V.",moving van,1.01e-02
+ILSVRC2012_val_00000175.JPEG,"beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon","beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon","tow truck, tow car, wrecker",1.84e-04
+ILSVRC2012_val_00000573.JPEG,"trolleybus, trolley coach, trackless trolley","trolleybus, trolley coach, trackless trolley",car mirror,8.00e-03
+ILSVRC2012_val_00000049.JPEG,"pickup, pickup truck","pickup, pickup truck","cab, hack, taxi, taxicab",3.50e-04
+ILSVRC2012_val_00000056.JPEG,"cab, hack, taxi, taxicab","cab, hack, taxi, taxicab",school bus,1.91e-02
+ILSVRC2012_val_00000432.JPEG,"cab, hack, taxi, taxicab","police van, police wagon, paddy wagon, patrol wagon, wagon, black Maria","cab, hack, taxi, taxicab",7.77e-04
+ILSVRC2012_val_00000135.JPEG,"racer, race car, racing car","racer, race car, racing car",go-kart,3.43e-03
+ILSVRC2012_val_00000032.JPEG,go-kart,go-kart,"clog, geta, patten, sabot",1.10e-02

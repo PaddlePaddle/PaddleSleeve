@@ -1,0 +1,127 @@
+{
+  "frameworks": [
+    "paddle",
+    "pytorch"
+  ],
+  "paddle_models": [
+    "resnet18",
+    "resnet50",
+    "vgg16"
+  ],
+  "pytorch_models": [
+    "vgg11",
+    "resnet18"
+  ],
+  "keras_models": [
+    "xception",
+    "vgg16",
+    "vgg19",
+    "resnet50",
+    "inception_v3",
+    "yolo_v3",
+    "ssd300",
+    "retina_resnet_50"
+  ],
+  "cloud_models": [
+    "aip_antiporn",
+    "google_safesearch",
+    "google_objectdetection"
+  ],
+  "detection_models": [
+    "yolo_v3",
+    "ssd300",
+    "retina_resnet_50"
+  ],
+  "metrics": [
+    "additive_gaussian_noise",
+    "additive_uniform_noise",
+    "blend_uniform_noise",
+    "gaussian_blur",
+    "brightness",
+    "contrast_reduction",
+    "motion_blur",
+    "rotation",
+    "salt_and_pepper_noise",
+    "spatial",
+    "contrast",
+    "horizontal_translation",
+    "vertical_translation",
+    "snow",
+    "fog",
+    "frost"
+  ],
+  "whitebox_metrics": [
+    "carlini_wagner_l2",
+    "carlini_wagner_linf"
+  ],
+  "blackbox_metrics": [
+    "additive_gaussian_noise",
+    "additive_uniform_noise",
+    "blend_uniform_noise",
+    "gaussian_blur",
+    "brightness",
+    "contrast_reduction",
+    "motion_blur",
+    "rotation",
+    "salt_and_pepper_noise",
+    "spatial",
+    "contrast",
+    "horizontal_translation",
+    "vertical_translation"
+  ],
+  "verifiable_metrics": [
+    "brightness",
+    "rotation",
+    "horizontal_translation",
+    "vertical_translation",
+    "snow",
+    "fog",
+    "frost"
+  ],
+  "distances": [
+    "mse",
+    "mae",
+    "linf",
+    "l0",
+    "l2"
+  ],
+  "criterions": [
+    "misclassification",
+    "confident_misclassification",
+    "topk_misclassification",
+    "target_class",
+    "original_class_probability",
+    "target_class_probability",
+    "misclassification_antiporn",
+    "misclassification_safesearch",
+    "target_class_miss",
+    "target_class_miss_google",
+    "weighted_ap"
+  ],
+  "targeted_criteria": [
+    "target_class",
+    "target_class_probability",
+    "target_class_miss"
+  ],
+  "classification_criterions": [
+    "misclassification",
+    "confident_misclassification",
+    "topk_misclassification",
+    "target_class",
+    "original_class_probability",
+    "target_class_probability"
+  ],
+  "detection_criterions": [
+    "target_class_miss",
+    "weighted_ap"
+  ],
+  "aip_antiporn_criterions": [
+    "misclassification_antiporn"
+  ],
+  "google_safesearch_criterions": [
+    "misclassification_safesearch"
+  ],
+  "google_objectdetection_criterions": [
+    "target_class_miss_google"
+  ]
+}

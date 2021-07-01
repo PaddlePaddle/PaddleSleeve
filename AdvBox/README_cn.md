@@ -1,4 +1,4 @@
-
+简体中文 | [English](./README.md)
 
 # AdvBox
 
@@ -61,7 +61,7 @@ SinglePixelAttack attack done
 
 **Single Pixel Attack** 
 
-<img src="./examples/image_cls/output/show/number5_adv.png" style="zoom:30%;" />
+<img src="./examples/image_cls/output/show/number5_adv.png" style="zoom:20%;" />
 
 **Transfer Attack** 
 
@@ -112,10 +112,10 @@ fgsm attack done
 ### 其他攻击方法示例结果
 
 **PGD定向攻击**
-<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:20%;" />
 
 **CW定向攻击**
-<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:20%;" />
 
 **BIM非定向攻击**
 <img src="./examples/image_cls/output/show/bim_untarget_368.png" style="zoom:40%;" />

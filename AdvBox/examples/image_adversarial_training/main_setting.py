@@ -30,9 +30,9 @@ robust model in adversarial training, we have to adjust model structure (wider o
 #################################################################################################################
 # CHANGE HERE: try different data augmentation methods and model type.
 model_choice = input("choose towernet/mobilenet/resnet:")
-training_choice = input("choose base/advtraining:")
+training_choice = input("choose base/advtraining/advtraining_TRADES:")
 assert model_choice in ("towernet", "mobilenet", "resnet")
-assert training_choice in ("base", "advtraining")
+assert training_choice in ("base", "advtraining", "advtraining_TRADES")
 # inputs and labels are not required for dynamic graph.
 if model_choice == 'towernet':
     from examples.classifier.definednet import transform_train, transform_eval, TowerNet
@@ -45,8 +45,15 @@ if model_choice == 'towernet':
         opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
     elif training_choice == "advtraining":
         # for adv trained model, we set "p" == 0.05, which means each batch
-        # will probably contain 5% adv trans augmented data.
+        # will probably contain 3% adv trans augmented data.
         enhance_config = {"p": 0.03, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+        model = TowerNet(3, 10, wide_scale=1)
+        # experiment wide_scale=2 ^_^...
+        # model = TowerNet(3, 10, wide_scale=2)
+        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
+    elif training_choice == "advtraining_TRADES":
+        # 100% of each input batch will be convert into adv augmented data.
+        enhance_config = {"p": 1, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
         model = TowerNet(3, 10, wide_scale=1)
         # experiment wide_scale=2 ^_^...
         # model = TowerNet(3, 10, wide_scale=2)
@@ -57,6 +64,7 @@ if model_choice == 'towernet':
     EPOCH_NUM = 60
     ADVTRAIN_START_NUM = 0
     BATCH_SIZE = 256
+
 elif model_choice == 'mobilenet':
     from examples.classifier.mobilenet_v3 import transform_train, transform_eval
     from examples.classifier.mobilenet_v3 import MobileNetV3_large_x1_0, MobileNetV3_large_x1_25
@@ -83,6 +91,7 @@ elif model_choice == 'mobilenet':
     EPOCH_NUM = 24
     ADVTRAIN_START_NUM = 0
     BATCH_SIZE = 1024
+
 elif model_choice == 'resnet':
     from examples.classifier.resnet_vd import transform_train, transform_eval, ResNet50_vd
     path = '../classifier/pretrained_weights/ResNet50_vd_ssld_pretrained.pdparams'
@@ -93,7 +102,7 @@ elif model_choice == 'resnet':
         model = ResNet50_vd(class_dim=10)
         model.set_state_dict(model_state_dict)
     elif training_choice == "advtraining":
-        enhance_config = {"p": 0, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0.03, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
         # adv trained model
         with paddle.utils.unique_name.guard():
             model = ResNet50_vd(class_dim=10)
@@ -110,15 +119,9 @@ elif model_choice == 'resnet':
 else:
     exit(0)
 
-if training_choice == "base":
-    MODEL_PARA_NAME = 'base_net_'
-    MODEL_OPT_PARA_NAME = 'base_optimizer_'
-elif training_choice == "advtraining":
-    MODEL_PARA_NAME = 'adv_trained_net_'
-    MODEL_OPT_PARA_NAME = 'adv_trained_optimizer_'
-else:
-    exit(0)
 #################################################################################################################
+MODEL_PARA_NAME = training_choice + '_net_'
+MODEL_OPT_PARA_NAME = training_choice + '_optimizer_'
 MODEL = model
 # all model weights will be saved under MODEL_PATH
 p = enhance_config['p']

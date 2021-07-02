@@ -39,7 +39,7 @@ paddle.seed(2021)
 
 def get_best_weigthts_from_folder(folder, pdparams_file_starter):
     pdparams_files = [filename for filename in os.listdir(folder) if filename.lower().endswith('.pdparams')
-                      and filename.lower().startswith(pdparams_file_starter)]
+                      and filename.lower().startswith(pdparams_file_starter.lower())]
     if not pdparams_files:
         return None
     else:
@@ -54,6 +54,7 @@ def get_best_weigthts_from_folder(folder, pdparams_file_starter):
 from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME
 MODEL = MODEL
 path = get_best_weigthts_from_folder(MODEL_PATH, MODEL_PARA_NAME)
+
 model_state_dict = paddle.load(path)
 MODEL.set_state_dict(model_state_dict)
 

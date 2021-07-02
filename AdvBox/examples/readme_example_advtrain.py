@@ -20,7 +20,6 @@ import numpy as np
 import paddle
 from attacks.gradient_method import FGSM, PGD
 from attacks.cw import CW_L2
-from attacks.saliency import JSMA
 from models.whitebox import PaddleWhiteBoxModel
 from defences.adversarial_transform import ClassificationAdversarialTransform
 

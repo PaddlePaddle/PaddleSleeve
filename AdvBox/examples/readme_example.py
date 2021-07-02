@@ -21,7 +21,6 @@ import numpy as np
 from adversary import Adversary
 from attacks.gradient_method import FGSM
 from attacks.cw import CW_L2
-from attacks.saliency import JSMA
 from models.whitebox import PaddleWhiteBoxModel
 
 from classifier.definednet import transform_eval, TowerNet
@@ -41,7 +40,6 @@ paddle_model = PaddleWhiteBoxModel(
 # FGSM attack, init attack with the ensembled model
 # attack = FGSM(paddle_model)
 attack = CW_L2(paddle_model, learning_rate=0.01)
-# attack = JSMA(paddle_model)
 
 cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
 test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)

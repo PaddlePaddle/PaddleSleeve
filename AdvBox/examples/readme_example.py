@@ -21,6 +21,7 @@ import numpy as np
 from adversary import Adversary
 from attacks.gradient_method import FGSM
 from attacks.cw import CW_L2
+from attacks.logits_dispersion import LOGITS_DISPERSION
 from models.whitebox import PaddleWhiteBoxModel
 
 from classifier.definednet import transform_eval, TowerNet
@@ -28,7 +29,6 @@ model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
 # set fgsm attack configuration
-fgsm_attack_config = {"norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
 paddle_model = PaddleWhiteBoxModel(
     [model_0, model_1],   # ensemble two models
     [1, 1.8],             # dictate weight
@@ -39,7 +39,8 @@ paddle_model = PaddleWhiteBoxModel(
 
 # FGSM attack, init attack with the ensembled model
 # attack = FGSM(paddle_model)
-attack = CW_L2(paddle_model, learning_rate=0.01)
+# attack = CW_L2(paddle_model, learning_rate=0.01)
+attack = LOGITS_DISPERSION(paddle_model, dispersion_type='softmax_kl_l_inf')
 
 cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
 test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)
@@ -50,15 +51,16 @@ label = data[1]
 
 # init adversary status
 adversary = Adversary(img.numpy(), int(label))
-target = np.random.randint(paddle_model.num_classes())
-while label == target:
-    target = np.random.randint(paddle_model.num_classes())
-print(label, target)
-adversary.set_status(is_targeted_attack=True, target_label=target)
+# target = np.random.randint(paddle_model.num_classes())
+# while label == target:
+#     target = np.random.randint(paddle_model.num_classes())
+# print(label, target)
+# adversary.set_status(is_targeted_attack=True, target_label=target)
 
 # launch attack
-# adversary = attack(adversary, **fgsm_attack_config)
-adversary = attack(adversary, attack_iterations=100, verbose=True)
+# adversary = attack(adversary, norm_ord=np.inf, epsilons=0.003, epsilon_steps=1, steps=1)
+# adversary = attack(adversary, attack_iterations=100, verbose=True)
+adversary = attack(adversary, epsilon=0.031, perturb_steps=10, verbose=True)
 
 if adversary.is_successful():
     original_img = adversary.original

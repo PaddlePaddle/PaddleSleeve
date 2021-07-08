@@ -92,6 +92,7 @@ class GradientMethodAttack(Attack):
 
         original_label = adversary.original_label
         min_, max_ = self.model.bounds
+        # TODO: name adv_img or img?
         adv_img = adversary.original
         if len(adv_img.shape) < 4:
             adv_img = np.expand_dims(adv_img, axis=0)
@@ -121,12 +122,15 @@ class GradientMethodAttack(Attack):
                 if len(adv_img.shape) < 4:
                     adv_img = np.expand_dims(adv_img.numpy(), axis=0)
 
+                # TODO: pgd clip issue. clip_min = np.clip(img.numpy() * (1.0 - perturb), min_, max_).
+                # TODO: epsilon and perturb name issue.
+                # TODO: epsilon transformation issue.
                 if self.pgd_flag:
                     # linf
                     adv_img = adv_img + gradient_norm * epsilon
                     clip_max = np.clip(adv_img.numpy() * (1.0 + perturb), min_, max_)
                     clip_min = np.clip(adv_img.numpy() * (1.0 - perturb), min_, max_)
-                    adv_img = np.clip(adv_img.numpy(), clip_min, clip_max)  
+                    adv_img = np.clip(adv_img.numpy(), clip_min, clip_max)
                     adv_label = np.argmax(self.model.predict(paddle.to_tensor(adv_img)))
                     adv_img = paddle.to_tensor(adv_img)
                 else:
@@ -138,6 +142,7 @@ class GradientMethodAttack(Attack):
 
         return adversary
 
+    # TODO: check effectiveness
     @staticmethod
     def _norm(a, ord):
         if a.ndim == 1 or a.ndim == 2:
@@ -303,6 +308,7 @@ class MomentumIteratorAttack(GradientMethodAttack):
             if epsilon == 0.0:
                 continue
 
+            # TODO: name adv_img or img?
             adv_img = adversary.original
             if len(adv_img.shape) < 4:
                 adv_img = np.expand_dims(adv_img, axis=0)

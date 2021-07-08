@@ -34,6 +34,18 @@ class PaddleWhiteBoxModel(Model):
                  bounds=None,
                  channel_axis=3,
                  nb_classes=1000):
+        """
+        Paddle model for white box attack.
+        Args:
+            model_list: List. A list of Paddle2 model.
+            model_weights: List. A list of float weights for each model to consider.
+            loss: Paddle.Op. Loss function for supervised classification.
+            bounds(tuple): (float, float). The range (lower and upper bound) for float value of the model input.
+                For normal distribution, we suggest set it as (-3, 3).
+            channel_axis(int): The index of the axis that represents the color
+                channel.
+            nb_classes: int. number of classification class.
+        """
         assert len(model_list) == len(model_weights)
         super(PaddleWhiteBoxModel, self).__init__(
             bounds=bounds, channel_axis=channel_axis)
@@ -71,11 +83,9 @@ class PaddleWhiteBoxModel(Model):
                     # print("evaled!!")
                     module.eval()
 
-        # scaled_data = self._process_input(data)
-        scaled_data = data
-        scaled_data = paddle.to_tensor(scaled_data, dtype='float32', place=self._device)
+        tensor_data = paddle.to_tensor(data, dtype='float32', place=self._device)
         # Run prediction
-        predict = self._weighted_ensemble_model(scaled_data)
+        predict = self._weighted_ensemble_model(tensor_data)
 
         # free model parameter
         for model in self._model_list:
@@ -94,7 +104,7 @@ class PaddleWhiteBoxModel(Model):
         Args:
             data: Paddle.Tensor input data with shape (size, height, width, channels).
         Return:
-            numpy.ndarray: predictions of the data with shape (batch_size, num_of_classes).
+            Paddle.Tensor: predictions of the data with shape (batch_size, num_of_classes).
         """
         # freeze BN when forwarding
         for model in self._model_list:
@@ -138,18 +148,15 @@ class PaddleWhiteBoxModel(Model):
             numpy.ndarray. gradient of the cross-entropy loss w.r.t the image
                 with the shape (height, width, channel).
         """
-        # with paddle.fluid.dygraph.guard():
-        # scaled_data = self._process_input(data)
-        scaled_data = data
-        scaled_data = paddle.to_tensor(scaled_data, dtype='float32', place=self._device)
-        scaled_data.stop_gradient = False
+        tensor_data = paddle.to_tensor(data, dtype='float32', place=self._device)
+        tensor_data.stop_gradient = False
         label = paddle.to_tensor(label, dtype='int64', place=self._device)
-        output = self.predict_tensor(scaled_data)
+        output = self.predict_tensor(tensor_data)
         loss = self._loss(output, label)
         loss.backward(retain_graph=True)
-        grad = scaled_data.grad.numpy()
+        grad = tensor_data.grad.numpy()
 
-        return grad.reshape(scaled_data.shape)
+        return grad
 
     def predict_name(self):
         """

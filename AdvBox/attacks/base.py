@@ -42,6 +42,8 @@ class Attack(object):
         adversary(object): The adversary object.
         **kwargs: Other named arguments.
         """
+        # TODO: add epsilon-ball transform computation. epsilon= 2/255, 8/255 => transformed_epsilon
+        # TODO: make user specify normalization setting.
         return self._apply(adversary, **kwargs)
 
     @abstractmethod

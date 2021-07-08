@@ -54,6 +54,7 @@ if model_choice == 'towernet':
     elif training_choice == "advtraining_TRADES":
         # 100% of each input batch will be convert into adv augmented data.
         enhance_config = {"p": 1, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+        # enhance_config = {"p": 1, "epsilon": 0.031, "perturb_steps": 10, "verbose": True}
         model = TowerNet(3, 10, wide_scale=1)
         # experiment wide_scale=2 ^_^...
         # model = TowerNet(3, 10, wide_scale=2)

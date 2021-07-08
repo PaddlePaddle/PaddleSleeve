@@ -19,7 +19,7 @@ sys.path.append("../..")
 import paddle
 import paddle.nn.functional as F
 import numpy as np
-from attacks.gradient_method import FGSM
+from attacks.logits_dispersion import LOGITS_DISPERSION
 from defences.adversarial_transform import ClassificationAdversarialTransform
 from models.whitebox import PaddleWhiteBoxModel
 
@@ -79,10 +79,10 @@ def adverarial_train_TRADES(model, cifar10_train, cifar10_test, save_path=None, 
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
             # adversarial training late start
+            # TODO: use kl between x_adv and x to compute x_data_augmented. attack method should add.w
             if epoch >= advtrain_start_num and adversarial_trans is not None:
                 x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
             else:
-                print("adversarial_trans is None!!")
                 x_data_augmented, y_data_augmented = x_data, y_data
             # turn model into training mode
             model.train()
@@ -153,7 +153,7 @@ def main():
         (-3, 3),
         channel_axis=3,
         nb_classes=10)
-    adversarial_trans = ClassificationAdversarialTransform(paddle_model, [FGSM], [None], [ENHANCE_CONFIG])
+    adversarial_trans = ClassificationAdversarialTransform(paddle_model, [LOGITS_DISPERSION], [None], [ENHANCE_CONFIG])
     ADVTRAIN_SETTINGS["adversarial_trans"] = adversarial_trans
     ADVTRAIN_SETTINGS["TRADES_beta"] = 1
     val_acc_history, val_loss_history = adverarial_train_TRADES(MODEL, CIFAR10_TRAIN, CIFAR10_TEST,

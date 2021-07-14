@@ -41,7 +41,8 @@ class PaddleWhiteBoxModel(Model):
             model_weights: List. A list of float weights for each model to consider.
             loss: Paddle.Op. Loss function for supervised classification.
             bounds(tuple): (float, float). The range (lower and upper bound) for float value of the model input.
-                For normal distribution, we suggest set it as (-3, 3).
+                For input after normal distribution transform, we suggest set it as (-3, 3).
+                If no normalization applied, bounds equal to dataset bounds.
             channel_axis(int): The index of the axis that represents the color
                 channel.
             nb_classes: int. number of classification class.

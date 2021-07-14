@@ -27,13 +27,18 @@ class Attack(object):
     adversarial attack which search an adversarial example. Subclass should
     implement the _apply(self, adversary, **kwargs) method.
     Args:
-        model(Model): an instance of a paddle model
+        model(Model): an instance of a models.base.Model
+        norm(str): 'Linf' or 'L2', the norm of the threat model
+        epsilon_ball(float): the bound on the norm of the AE
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, model):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255):
         self.model = model
         self._device = paddle.get_device()
+        assert norm in ('Linf', 'L2')
+        self.norm = norm
+        self.epsilon_ball = epsilon_ball
 
     def __call__(self, adversary, **kwargs):
         """
@@ -44,7 +49,23 @@ class Attack(object):
         """
         # TODO: add epsilon-ball transform computation. epsilon= 2/255, 8/255 => transformed_epsilon
         # TODO: make user specify normalization setting.
-        return self._apply(adversary, **kwargs)
+        adversary = self._generate_denormalized_original(adversary,
+                                                         self.model.normalization_mean,
+                                                         self.model.normalization_std)
+        # _apply generate denormalized AE to perturb adversarial in (0, 1) domain
+        adversary = self._apply(adversary, **kwargs)
+        adversary = self._generate_normalized_adversarial_example(adversary,
+                                                                  self.model.normalization_mean,
+                                                                  self.model.normalization_std)
+        return adversary
+
+    def _generate_denormalized_original(self, adversary, mean, std):
+
+        return adversary
+
+    def _generate_normalized_adversarial_example(self, adversary, mean, std):
+
+        return adversary
 
     @abstractmethod
     def _apply(self, adversary, **kwargs):

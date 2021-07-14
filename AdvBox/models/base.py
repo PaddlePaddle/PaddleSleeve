@@ -26,16 +26,31 @@ class Model(with_metaclass(ABCMeta, object)):
     """
     Base class of model to provide attack.
     Args:
-        bounds(tuple): (float, float). The range (lower and upper bound) for float value of the model input.
-                    For normal distribution, we suggest set it as (-3, 3).
+        bounds(tuple): (float, float). The value range (lower and upper bound) of the model
+                        input before standard normal distribution transform (if there is one).
+                        Most of datasets' value range is (0, 1), for instance, MNIST & Cifar10.
+                        Some of datasets' value range is (-1, 1).
         channel_axis(int): The index of the axis that represents the color
                 channel.
+        mean(list): The mean value of each channel if used 01 normalization. If None, it is [0].
+        std(list): The std value of each channel if used 01 normalization. If None, it is [1].
     """
-    def __init__(self, bounds, channel_axis):
+    def __init__(self, bounds, channel_axis, mean=None, std=None):
         assert len(bounds) == 2
-        assert channel_axis in [0, 1, 2, 3]
+        assert bounds[0] < bounds[1]
+        assert channel_axis in (0, 1, 2, 3)
         self.__bounds = bounds
         self.__channel_axis = channel_axis
+        # mean and std are channel wise.
+        if mean is None or std is None:
+            self.__MEAN = [0]
+            self.__STD = [1]
+        else:
+            assert isinstance(mean, list)
+            assert isinstance(std, list)
+            assert len(mean) == len(std)
+            self.__MEAN = mean
+            self.__STD = std
 
     @property
     def bounds(self):
@@ -50,6 +65,20 @@ class Model(with_metaclass(ABCMeta, object)):
         Return the channel axis of the model.
         """
         return self.__channel_axis
+
+    @property
+    def normalization_mean(self):
+        """
+        Return the mean used for data normalization.
+        """
+        return self.__MEAN
+
+    @property
+    def normalization_std(self):
+        """
+        Return the std used for data normalization.
+        """
+        return self.__STD
 
     def _ensemble_models(self, model_list, model_weights):
         """

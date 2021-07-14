@@ -43,6 +43,10 @@ class Adversary(object):
         self.__target_label = None
         self.adversarial_label = None
 
+        self.__denormalized_original = None
+        self.__denormalized_adversarial_example = None
+        self.__denormalized_bad_adversarial_example = None
+
         self.__adversarial_example = None
         self.__bad_adversarial_example = None
 
@@ -85,6 +89,10 @@ class Adversary(object):
         self.__is_targeted_attack = False
         self.__target_label = None
         self.adversarial_label = None
+
+        self.__denormalized_original = None
+        self.__denormalized_adversarial_example = None
+        self.__denormalized_bad_adversarial_example = None
 
         self.__adversarial_example = None
         self.__bad_adversarial_example = None

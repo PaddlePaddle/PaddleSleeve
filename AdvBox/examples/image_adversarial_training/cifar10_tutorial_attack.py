@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-A tutorial for FGSM attack adv sample generation on CIFAR10 dataset.
+A tutorial for LD attack adv sample generation on CIFAR10 dataset.
 """
 from __future__ import print_function
 from __future__ import absolute_import
@@ -25,7 +25,6 @@ import math
 import sys
 sys.path.append("../..")
 from adversary import Adversary
-from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
 from skimage.metrics import structural_similarity
 
@@ -54,39 +53,41 @@ def get_best_weigthts_from_folder(folder, pdparams_file_starter):
 from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME
 MODEL = MODEL
 path = get_best_weigthts_from_folder(MODEL_PATH, MODEL_PARA_NAME)
-
 model_state_dict = paddle.load(path)
 MODEL.set_state_dict(model_state_dict)
 
-from main_setting import cifar10_test, fgsm_attack_config, TOTAL_TEST_NUM
+from main_setting import cifar10_test, MEAN, STD
+MEAN = MEAN
+STD = STD
 CIFAR10_TEST = cifar10_test
-FGSM_ATTACK_CONFIG = fgsm_attack_config
-TOTAL_TEST_NUM = TOTAL_TEST_NUM
+
+attack_zoo = ("FGSM", "LD")
+attack_choice = input(f"choose {attack_zoo}:")
+assert attack_choice in attack_zoo
+
+if attack_choice == attack_zoo[0]:
+    from attacks.gradient_method import FGSM
+    ATTACK_METHOD = FGSM
+    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255}
+    ATTACK_CONFIG = {"norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+elif attack_choice == attack_zoo[1]:
+    from attacks.logits_dispersion import LD
+    ATTACK_METHOD = LD
+    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255, "dispersion_type": "softmax_kl"}
+    ATTACK_CONFIG = {"perturb_steps": 10, "verbose": True}
+else:
+    exit(1)
+
+TOTAL_TEST_NUM = 500
 # for now, attacks only support batch == 1, thus we fixed batch size.
 BATCH_SIZE = 1
+IS_TARGET_ATTACK = False
 
 
-def main(model, cifar10_test, **attack_config):
+def main(model, advbox_model, test_loader, attack, attack_config=None):
     """
-    Advbox demo which demonstrates how to use advbox.
+    Demonstrates how to use attacks.
     """
-    test_loader = paddle.io.DataLoader(cifar10_test, batch_size=BATCH_SIZE)
-    # init a paddle model
-    paddle_model = PaddleWhiteBoxModel(
-        [model],
-        [1],
-        paddle.nn.CrossEntropyLoss(),
-        (-3, 3),
-        channel_axis=3,
-        nb_classes=10)
-
-    USE_CW = False
-    if USE_CW:
-        from attacks.cw import CW_L2
-        attack = CW_L2(paddle_model, learning_rate=0.01)
-    else:
-        # FGSM attack
-        attack = FGSM(paddle_model)
     # use test data to generate adversarial examples
     total_count = 0
     fooling_count = 0
@@ -98,12 +99,12 @@ def main(model, cifar10_test, **attack_config):
         img = data[0][0]
         label = data[1]
 
-        if USE_CW:
+        if IS_TARGET_ATTACK:
             # init adversary status
             adversary = Adversary(img.numpy(), int(label))
-            target = np.random.randint(paddle_model.num_classes())
+            target = np.random.randint(advbox_model.num_classes())
             while label == target:
-                target = np.random.randint(paddle_model.num_classes())
+                target = np.random.randint(advbox_model.num_classes())
             adversary.set_status(is_targeted_attack=True, target_label=target)
             # run call to attack, change adversary's status
             adversary = attack(adversary)
@@ -112,7 +113,7 @@ def main(model, cifar10_test, **attack_config):
             # run call to attack, change adversary's status
             adversary = attack(adversary, **attack_config)
 
-        # it is a must or BN will change during input forwarding
+        # it is a must or BN will change during forwarding
         model.eval()
         logits = model(data[0])
         acc = paddle.metric.accuracy(logits, data[1].unsqueeze(0))
@@ -142,7 +143,7 @@ def main(model, cifar10_test, **attack_config):
                   % (fooling_count, total_count, float(fooling_count) / total_count, correct_num / total_count))
             break
 
-    print("FGSM attack done")
+    print("Attack done")
 
 
 def compute_psnr(img1, img2):
@@ -226,4 +227,20 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
 
 
 if __name__ == '__main__':
-    main(MODEL, CIFAR10_TEST, **FGSM_ATTACK_CONFIG)
+    # init a paddle model
+    advbox_model = PaddleWhiteBoxModel(
+        [MODEL],
+        [1],
+        (0, 1),
+        mean=MEAN,
+        std=STD,
+        input_channel_axis=0,
+        input_shape=(3, 256, 256),
+        loss=paddle.nn.CrossEntropyLoss(),
+        nb_classes=10)
+
+    test_loader = paddle.io.DataLoader(cifar10_test, batch_size=BATCH_SIZE)
+
+    attack = ATTACK_METHOD(advbox_model, **INIT_CONFIG)
+
+    main(MODEL, advbox_model, test_loader, attack, ATTACK_CONFIG)

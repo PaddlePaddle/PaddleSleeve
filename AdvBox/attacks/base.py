@@ -33,6 +33,8 @@ class Attack(object):
     """
     __metaclass__ = ABCMeta
 
+    # TODO: add epsilon-ball transform computation. epsilon= 2/255, 8/255 => transformed_epsilon
+    # TODO: make user specify normalization setting.
     def __init__(self, model, norm='Linf', epsilon_ball=8/255):
         self.model = model
         self._device = paddle.get_device()
@@ -47,24 +49,17 @@ class Attack(object):
         adversary(object): The adversary object.
         **kwargs: Other named arguments.
         """
-        # TODO: add epsilon-ball transform computation. epsilon= 2/255, 8/255 => transformed_epsilon
-        # TODO: make user specify normalization setting.
-        adversary = self._generate_denormalized_original(adversary,
-                                                         self.model.normalization_mean,
-                                                         self.model.normalization_std)
-        # _apply generate denormalized AE to perturb adversarial in (0, 1) domain
+        # make sure data in adversary is compatible with self.model
+        adversary.routine_check(self.model)
+        adversary.generate_denormalized_original(self.model.input_channel_axis,
+                                                 self.model.normalization_mean,
+                                                 self.model.normalization_std)
+        # _apply generate denormalized AE to perturb adversarial in pre-normalized domain
         adversary = self._apply(adversary, **kwargs)
-        adversary = self._generate_normalized_adversarial_example(adversary,
-                                                                  self.model.normalization_mean,
-                                                                  self.model.normalization_std)
-        return adversary
-
-    def _generate_denormalized_original(self, adversary, mean, std):
-
-        return adversary
-
-    def _generate_normalized_adversarial_example(self, adversary, mean, std):
-
+        # transform generated denormalized AE into normalized domain
+        adversary.generate_normalized_adversarial_example(self.model.input_channel_axis,
+                                                          self.model.normalization_mean,
+                                                          self.model.normalization_std)
         return adversary
 
     @abstractmethod
@@ -74,5 +69,7 @@ class Attack(object):
         Args:
         adversary(object): The adversary object.
         **kwargs: Other named arguments.
+
+        retun
         """
         raise NotImplementedError

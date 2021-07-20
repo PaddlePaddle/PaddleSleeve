@@ -77,7 +77,7 @@ class LOGITS_DISPERSION(Attack):
             Adversary instance with possible changed status.
         """
         epsilon = self.epsilon_ball
-        original_img = adversary.original
+        original_img = adversary.denormalized_original
         if len(original_img.shape) < 4:
             original_img = np.expand_dims(original_img, axis=0)
 
@@ -113,8 +113,6 @@ class LOGITS_DISPERSION(Attack):
                     adv_img = paddle.clip(adv_img, original_img - epsilon, original_img + epsilon)
                     adv_img = paddle.clip(adv_img, box_constrains_lower_bound, box_constrains_upper_bound)
                     '''
-                # import pdb
-                # pdb.set_trace()
             elif self.norm == 'L2':
                 # TODO: finsh this.
                 delta = 0.001 * torch.randn(x_natural.shape).cuda().detach()

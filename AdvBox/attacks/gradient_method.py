@@ -38,14 +38,14 @@ class GradientMethodAttack(Attack):
     """
     This class implements gradient attack method, and is the base of FGSM, BIM, ILCM, etc.
     """
-    def __init__(self, model, support_targeted=True, pgd_flag=False):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, support_targeted=True, pgd_flag=False):
         """
         Args:
             model: An instance of a paddle model to be attacked.
             support_targeted(Does): this attack method support targeted.
             pgd_flag: place it true if use pgd
         """
-        super(GradientMethodAttack, self).__init__(model)
+        super(GradientMethodAttack, self).__init__(model, norm=norm, epsilon_ball=epsilon_ball)
         self.support_targeted = support_targeted
         self.pgd_flag = pgd_flag
 
@@ -85,19 +85,19 @@ class GradientMethodAttack(Attack):
                 epsilons = [epsilons]
             else:
                 epsilons = np.linspace(0, epsilons, num=epsilon_steps)
-        assert self.model.channel_axis == adversary.original.ndim
-        assert (self.model.channel_axis == 1 or
-                self.model.channel_axis == adversary.original.shape[0] or
-                self.model.channel_axis == adversary.original.shape[-1])
+
+        assert len(self.model.input_shape) == adversary.original.ndim
+        assert (len(self.model.input_shape) == 1 or
+                len(self.model.input_shape) == adversary.original.shape[0] or
+                len(self.model.input_shape) == adversary.original.shape[-1])
 
         original_label = adversary.original_label
         min_, max_ = self.model.bounds
-        # TODO: name adv_img or img?
-        adv_img = adversary.original
-        if len(adv_img.shape) < 4:
-            adv_img = np.expand_dims(adv_img, axis=0)
+        img = adversary.denormalized_original
+        if len(img.shape) < 4:
+            img = np.expand_dims(img, axis=0)
 
-        adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)
+        adv_img = paddle.to_tensor(img, dtype='float32', place=self._device)
         adv_img.stop_gradient = False
 
         if adversary.is_targeted_attack:
@@ -122,14 +122,13 @@ class GradientMethodAttack(Attack):
                 if len(adv_img.shape) < 4:
                     adv_img = np.expand_dims(adv_img.numpy(), axis=0)
 
-                # TODO: pgd clip issue. clip_min = np.clip(img.numpy() * (1.0 - perturb), min_, max_).
                 # TODO: epsilon and perturb name issue.
                 # TODO: epsilon transformation issue.
                 if self.pgd_flag:
                     # linf
                     adv_img = adv_img + gradient_norm * epsilon
-                    clip_max = np.clip(adv_img.numpy() * (1.0 + perturb), min_, max_)
-                    clip_min = np.clip(adv_img.numpy() * (1.0 - perturb), min_, max_)
+                    clip_max = np.clip(img * (1.0 + perturb), min_, max_)
+                    clip_min = np.clip(img * (1.0 - perturb), min_, max_)
                     adv_img = np.clip(adv_img.numpy(), clip_min, clip_max)
                     adv_label = np.argmax(self.model.predict(paddle.to_tensor(adv_img)))
                     adv_img = paddle.to_tensor(adv_img)
@@ -187,14 +186,14 @@ class FastGradientSignMethodAttack(FastGradientSignMethodTargetedAttack):
     Paper link: https://arxiv.org/abs/1412.6572
     """
 
-    def __init__(self, model):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255):
         """
         FGSM attack init.
         Args:
             model: PaddleWhiteBoxModel.
         """
 
-        super(FastGradientSignMethodAttack, self).__init__(model, False)
+        super(FastGradientSignMethodAttack, self).__init__(model, norm=norm, epsilon_ball=epsilon_ball, support_targeted=False)
 
 
 class IterativeLeastLikelyClassMethodAttack(GradientMethodAttack):
@@ -309,7 +308,7 @@ class MomentumIteratorAttack(GradientMethodAttack):
                 continue
 
             # TODO: name adv_img or img?
-            adv_img = adversary.original
+            adv_img = adversary.denormalized_original
             if len(adv_img.shape) < 4:
                 adv_img = np.expand_dims(adv_img, axis=0)
             adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)

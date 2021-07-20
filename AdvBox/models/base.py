@@ -20,6 +20,8 @@ from abc import ABCMeta
 from abc import abstractmethod
 import paddle
 from future.utils import with_metaclass
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Model(with_metaclass(ABCMeta, object)):
@@ -27,20 +29,21 @@ class Model(with_metaclass(ABCMeta, object)):
     Base class of model to provide attack.
     Args:
         bounds(tuple): (float, float). The value range (lower and upper bound) of the model
-                        input before standard normal distribution transform (if there is one).
+                        input before standard normal distribution transform (pre-normalized domain).
                         Most of datasets' value range is (0, 1), for instance, MNIST & Cifar10.
                         Some of datasets' value range is (-1, 1).
-        channel_axis(int): The index of the axis that represents the color
-                channel.
+        channel_axis(int): The index of the axis that represents the color channel.
         mean(list): The mean value of each channel if used 01 normalization. If None, it is [0].
         std(list): The std value of each channel if used 01 normalization. If None, it is [1].
     """
-    def __init__(self, bounds, channel_axis, mean=None, std=None):
+    def __init__(self, bounds, mean, std, input_channel_axis, input_shape):
         assert len(bounds) == 2
         assert bounds[0] < bounds[1]
-        assert channel_axis in (0, 1, 2, 3)
+        assert input_channel_axis in (0, 1, 2, 3)
         self.__bounds = bounds
-        self.__channel_axis = channel_axis
+        self.__input_channel_axis = input_channel_axis
+        self.__input_shape = input_shape
+
         # mean and std are channel wise.
         if mean is None or std is None:
             self.__MEAN = [0]
@@ -52,19 +55,16 @@ class Model(with_metaclass(ABCMeta, object)):
             self.__MEAN = mean
             self.__STD = std
 
+        self._device = paddle.get_device()
+        print("Paddle Device: ", self._device)
+        logger.info("Finished AdvBox Model Initialization")
+
     @property
     def bounds(self):
         """
         Return the upper and lower bounds of the model.
         """
         return self.__bounds
-
-    @property
-    def channel_axis(self):
-        """
-        Return the channel axis of the model.
-        """
-        return self.__channel_axis
 
     @property
     def normalization_mean(self):
@@ -80,11 +80,26 @@ class Model(with_metaclass(ABCMeta, object)):
         """
         return self.__STD
 
-    def _ensemble_models(self, model_list, model_weights):
+    @property
+    def input_channel_axis(self):
+        """
+        Return the channel axis of the model.
+        """
+        return self.__input_channel_axis
+
+    @property
+    def input_shape(self):
+        """
+        Return the channel axis of the model.
+        """
+        return self.__input_shape
+
+    @staticmethod
+    def ensemble_models(model_list, model_weights):
         """
         Ensemble paddle2 models for inference.
         Args:
-            model_list: A list of paddle2 models.s
+            model_list: A list of paddle2 models.
             model_weights: A list of model weights.
         Returns:
             The one inference result of the ensemble paddle2 model.
@@ -137,15 +152,6 @@ class Model(with_metaclass(ABCMeta, object)):
         Return:
             numpy.ndarray: predictions of the data with shape (batch_size,
                 num_of_classes).
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def num_classes(self):
-        """
-        Determine the number of the classes
-        Return:
-            int: the number of the classes
         """
         raise NotImplementedError
 

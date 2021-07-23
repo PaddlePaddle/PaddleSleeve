@@ -141,9 +141,12 @@ def main(image_path):
     paddle_model = PaddleWhiteBoxModel(
         attack_models,
         [1, 1, 1, 1, 1, 1, 1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     inputs = np.squeeze(img)

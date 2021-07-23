@@ -55,7 +55,7 @@ class GradientMethodAttack(Attack):
                epsilons=0.01,
                epsilon_steps=10,
                steps=100,
-               perturb=16.0 / 256,
+               perturb=16.0 / 255,
                ):
         """
         Apply the gradient attack method.
@@ -93,11 +93,12 @@ class GradientMethodAttack(Attack):
 
         original_label = adversary.original_label
         min_, max_ = self.model.bounds
-        img = adversary.denormalized_original
-        if len(img.shape) < 4:
-            img = np.expand_dims(img, axis=0)
 
+        img = adversary.denormalized_original
         adv_img = paddle.to_tensor(img, dtype='float32', place=self._device)
+        adv_img = self.normalize(paddle.squeeze(adv_img))
+        if len(adv_img.shape) < 4:
+            adv_img = paddle.unsqueeze(adv_img, axis=0)
         adv_img.stop_gradient = False
 
         if adversary.is_targeted_attack:
@@ -193,7 +194,8 @@ class FastGradientSignMethodAttack(FastGradientSignMethodTargetedAttack):
             model: PaddleWhiteBoxModel.
         """
 
-        super(FastGradientSignMethodAttack, self).__init__(model, norm=norm, epsilon_ball=epsilon_ball, support_targeted=False)
+        super(FastGradientSignMethodAttack, self).__init__(model, norm=norm, epsilon_ball=epsilon_ball,
+                                                           support_targeted=False)
 
 
 class IterativeLeastLikelyClassMethodAttack(GradientMethodAttack):
@@ -217,12 +219,11 @@ class IterativeLeastLikelyClassMethodAttack(GradientMethodAttack):
         Returns:
             An adversary status with changed status.
         """
-        return GradientMethodAttack._apply(
-            self,
-            adversary=adversary,
-            norm_ord=np.inf,
-            epsilons=epsilons,
-            steps=steps)
+        return GradientMethodAttack._apply(self,
+                                           adversary=adversary,
+                                           norm_ord=np.inf,
+                                           epsilons=epsilons,
+                                           steps=steps)
 
 
 class BasicIterativeMethodAttack(IterativeLeastLikelyClassMethodAttack):
@@ -232,13 +233,15 @@ class BasicIterativeMethodAttack(IterativeLeastLikelyClassMethodAttack):
     Paper link: https://arxiv.org/abs/1607.02533
     """
 
-    def __init__(self, model):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255):
         """
 
         Args:
             model: PaddleWhiteBoxModel.
         """
-        super(BasicIterativeMethodAttack, self).__init__(model, False)
+        super(BasicIterativeMethodAttack, self).__init__(model, norm=norm,
+                                                         epsilon_ball=epsilon_ball,
+                                                         support_targeted=False)
 
 
 class MomentumIteratorAttack(GradientMethodAttack):
@@ -307,11 +310,11 @@ class MomentumIteratorAttack(GradientMethodAttack):
             if epsilon == 0.0:
                 continue
 
-            # TODO: name adv_img or img?
-            adv_img = adversary.denormalized_original
+            img = adversary.denormalized_original
+            adv_img = paddle.to_tensor(img, dtype='float32', place=self._device)
+            adv_img = self.normalize(paddle.squeeze(adv_img))
             if len(adv_img.shape) < 4:
-                adv_img = np.expand_dims(adv_img, axis=0)
-            adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)
+                adv_img = paddle.unsqueeze(adv_img, axis=0)
             adv_img.stop_gradient = False
 
             momentum = 0

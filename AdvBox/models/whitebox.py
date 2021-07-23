@@ -48,10 +48,11 @@ class PaddleWhiteBoxModel(Model):
                         input before standard normal distribution transform (pre-normalized domain).
                         Most of datasets' value range is (0, 1), for instance, MNIST & Cifar10.
                         Some of datasets' value range is (-1, 1).
-            channel_axis(int): The index of the axis that represents the color channel.
-            nb_classes: int. number of classification class.
             mean(list): The mean value of each channel if used 01 normalization. If None, it is [0].
             std(list): The std value of each channel if used 01 normalization. If None, it is [1].
+            input_channel_axis(int): The index of the axis that represents the color channel.
+            input_shape(tuple): The dimension of input sample.
+            nb_classes: int. number of classification class.
         """
         assert len(model_list) == len(model_weights)
         super(PaddleWhiteBoxModel, self).__init__(

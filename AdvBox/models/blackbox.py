@@ -34,30 +34,38 @@ class PaddleBlackBoxModel(Model):
     def __init__(self,
                  model_list,
                  model_weights,
-                 loss=None,
                  bounds=None,
-                 channel_axis=3,
-                 nb_classes=1000,
                  mean=None,
-                 std=None):
+                 std=None,
+                 input_channel_axis=None,
+                 input_shape=None,
+                 loss=None,
+                 nb_classes=None):
         """
-
+        Paddle model for black box attack.
         Args:
-            model_list:
-            model_weights:
-            loss:
-            bounds:
-            channel_axis:
-            nb_classes:
-            mean:
-            std:
+            model_list: List. A list of Paddle2 model.
+            model_weights: List. A list of float weights for each model to consider.
+            loss: Paddle.Op. Loss function for supervised classification.
+            bounds(tuple): (float, float). The value range (lower and upper bound) of the model
+                        input before standard normal distribution transform (pre-normalized domain).
+                        Most of datasets' value range is (0, 1), for instance, MNIST & Cifar10.
+                        Some of datasets' value range is (-1, 1).
+            mean(list): The mean value of each channel if used 01 normalization. If None, it is [0].
+            std(list): The std value of each channel if used 01 normalization. If None, it is [1].
+            input_channel_axis(int): The index of the axis that represents the color channel.
+            input_shape(tuple): The dimension of input sample.
+            nb_classes: int. number of classification class.
         """
         assert len(model_list) == len(model_weights)
         assert loss is not None
 
         super(PaddleBlackBoxModel, self).__init__(
-            bounds=bounds, channel_axis=channel_axis, mean=mean, std=std)
-
+            bounds=bounds,
+            mean=mean,
+            std=std,
+            input_channel_axis=input_channel_axis,
+            input_shape=input_shape)
         self._model_list = model_list
         self._model_weights = model_weights
         self._weighted_ensemble_model = self.ensemble_models(model_list, model_weights)

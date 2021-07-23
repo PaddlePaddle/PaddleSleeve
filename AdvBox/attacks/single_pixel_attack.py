@@ -82,7 +82,7 @@ class SinglePixelAttack(Attack):
         adversary.adversarial_label  对抗样本的标签
         '''
 
-        axes = [i for i in range(adversary.original.ndim) if i != self.model.channel_axis]
+        axes = [i for i in range(adversary.original.ndim) if i != self.model.input_channel_axis]
 
         # 输入的图像必须具有长和宽属性
         assert len(axes) == 2
@@ -106,7 +106,7 @@ class SinglePixelAttack(Attack):
             if i % 50 == 0:
                 logging.info("Attack location x={0} y={1}".format(x, y))
 
-            location.insert(self.model.channel_axis, slice(None))
+            location.insert(self.model.input_channel_axis, slice(None))
             location = tuple(location)
 
             if not isPreprocessed:

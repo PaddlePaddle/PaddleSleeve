@@ -44,18 +44,6 @@ class CWL2Attack(Attack):
         # (float, float), It is used to map input float into (0, 1) for arctanh
         self.sample_float_range = self.model.bounds
 
-    def __call__(self, adversary, **kwargs):
-        """
-        Call attack and apply.
-        Args:
-            adversary: Adversary. An adversary instance with initial status.
-            **kwargs: Other named arguments.
-
-        Returns:
-            An adversary status with changed status.
-        """
-        return self._apply(adversary, **kwargs)
-
     def _apply(self,
                adversary,
                attack_iterations=10,
@@ -63,7 +51,7 @@ class CWL2Attack(Attack):
                c_range=(0.01, 100),
                c_accuracy=0.01,
                k_threshold=0,
-               verbose=False,
+               verbose=True,
                ):
         """
         Launch an attack process.
@@ -79,10 +67,6 @@ class CWL2Attack(Attack):
         Returns:
             Adversary instance with possible changed status.
         """
-        original_img = adversary.original
-        if len(original_img.shape) < 4:
-            original_img = np.expand_dims(original_img, axis=0)
-
         if not adversary.is_targeted_attack:
             raise ValueError("This attack method only support targeted attack!")
 
@@ -95,11 +79,11 @@ class CWL2Attack(Attack):
 
         box_constrains_lower_bound = self.sample_float_range[0]
         box_constrains_upper_bound = self.sample_float_range[1]
-        assert box_constrains_upper_bound > box_constrains_lower_bound
+        assert box_constrains_lower_bound < box_constrains_upper_bound
+        original_img = adversary.denormalized_original
         original_img = np.clip(original_img, box_constrains_lower_bound, box_constrains_upper_bound)
         mid_point = (box_constrains_upper_bound + box_constrains_lower_bound) * 0.5
         half_range = (box_constrains_upper_bound - box_constrains_lower_bound) * 0.5
-
         original_img_tensor = paddle.to_tensor(original_img, dtype='float32', place=self._device)
 
         c_lower_bound = c_range[0]
@@ -118,7 +102,6 @@ class CWL2Attack(Attack):
             arctanh_w = np.arctanh(linear_to_01)
             arctanh_w_tensor = paddle.to_tensor(arctanh_w, dtype='float32', place=self._device, stop_gradient=False)
             optimizer = paddle.optimizer.Adam(learning_rate=self.learning_rate, parameters=[arctanh_w_tensor])
-
             small_l2, current_pred_label, small_perturbed = self._cwb(arctanh_w_tensor,
                                                                       original_img_tensor,
                                                                       target_onehot,
@@ -193,6 +176,10 @@ class CWL2Attack(Attack):
         for iteration in range(attack_iterations):
             optimizer.clear_grad()
             perturbed_image = paddle.tanh(arctanh_w_tensor) * half_range + mid_point
+            perturbed_image = self.normalize(paddle.squeeze(perturbed_image))
+            if len(perturbed_image.shape) < 4:
+                perturbed_image = paddle.unsqueeze(perturbed_image, axis=0)
+
             logits = self.model.predict_tensor(perturbed_image)
             l2_loss = paddle.sum((perturbed_image - original_img_tensor) ** 2)
 

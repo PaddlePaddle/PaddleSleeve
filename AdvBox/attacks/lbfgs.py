@@ -39,15 +39,6 @@ class LBFGSAttack(Attack):
         self._predicts_normalized = None
         self._adversary = None  # type: Adversary
 
-    def __call__(self, adversary, **kwargs):
-        """
-        Generate the adversarial sample.
-        Args:
-        adversary(object): The adversary object.
-        **kwargs: Other named arguments.
-        """
-        return self._apply(adversary, **kwargs)
-
     def _apply(self, adversary, epsilon=0.001, steps=10):
         self._adversary = adversary
 
@@ -133,7 +124,7 @@ class LBFGSAttack(Attack):
 
         # gradient
         gradient = self.model.gradient(img, self._adversary.target_label)
-        result = (c * ce + d).astype(float), gradient.flatten().astype(float).numpy()
+        result = (c * ce + d).astype(float), gradient.flatten().astype(float)
         return result
 
     def _lbfgsb(self, x0, c, maxiter):

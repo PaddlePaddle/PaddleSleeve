@@ -41,6 +41,8 @@ class Attack(object):
         assert norm in ('Linf', 'L2')
         self.norm = norm
         self.epsilon_ball = epsilon_ball
+        self.normalize = paddle.vision.transforms.Normalize(mean=self.model.normalization_mean,
+                                                            std=self.model.normalization_std)
 
     def __call__(self, adversary, **kwargs):
         """
@@ -56,10 +58,6 @@ class Attack(object):
                                                  self.model.normalization_std)
         # _apply generate denormalized AE to perturb adversarial in pre-normalized domain
         adversary = self._apply(adversary, **kwargs)
-        # transform generated denormalized AE into normalized domain
-        adversary.generate_normalized_adversarial_example(self.model.input_channel_axis,
-                                                          self.model.normalization_mean,
-                                                          self.model.normalization_std)
         return adversary
 
     @abstractmethod

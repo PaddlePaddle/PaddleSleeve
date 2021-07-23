@@ -112,15 +112,16 @@ def target_attack_fgsm(input_image_path, output_image_path, model, tlabel):
     img = paddle.to_tensor(img, dtype='float32',
                            place=paddle.CUDAPlace(0), stop_gradient=False)
 
-    loss_fn = paddle.nn.CrossEntropyLoss()
-
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     inputs = np.squeeze(img)

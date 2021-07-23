@@ -81,22 +81,24 @@ def main(image_path):
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
-    loss_fn = paddle.nn.CrossEntropyLoss()
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     # non-targeted attack
     attack = BIM(paddle_model)
 
     predict = model(img)[0]
-    print (predict.shape)
+    print(predict.shape)
     label = np.argmax(predict)
     # 388
     print("label={}".format(label))

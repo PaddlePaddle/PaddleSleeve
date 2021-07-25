@@ -27,7 +27,7 @@ sys.path.append("../..")
 from past.utils import old_div
 import logging
 logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] %(levelname)s %(message)s")
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 import argparse
 import cv2
@@ -78,7 +78,7 @@ def predict(image_path, model):
 
     img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32',
-                           place=paddle.CUDAPlace(0), stop_gradient=False)
+                           place=paddle.get_device(), stop_gradient=False)
 
     predict_result = model(img)[0]
     label = np.argmax(predict_result)
@@ -98,19 +98,20 @@ def target_attack_fgsm(input_image_path, output_image_path, model, tlabel):
     label = predict(input_image_path, model)
     print("original label={}".format(label))
 
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
+
     orig = cv2.imread(input_image_path)[..., ::-1]
     orig = cv2.resize(orig, (224, 224))
     img = orig.copy().astype(np.float32)
 
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
     img /= 255.0
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
 
     img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32',
-                           place=paddle.CUDAPlace(0), stop_gradient=False)
+                           place=paddle.get_device(), stop_gradient=False)
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -147,7 +148,6 @@ def target_attack_fgsm(input_image_path, output_image_path, model, tlabel):
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
         cv2.imwrite(output_image_path, adv_cv)
-
         # show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')

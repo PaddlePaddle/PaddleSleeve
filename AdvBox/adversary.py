@@ -31,7 +31,7 @@ class Adversary(object):
         """
         Initialization for Adversary object.
         Args:
-            original: numpy.ndarray. The original sample, such as an image. Numpy
+            original: numpy.ndarray. The single original sample(no batch), such as an image.
             original_label: numpy.ndarray. The original sample's label.
         """
         assert isinstance(original, np.ndarray)

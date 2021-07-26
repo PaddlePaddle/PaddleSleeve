@@ -55,7 +55,7 @@ class LOGITS_DISPERSION(Attack):
         assert self.box_constrains_lower_bound < self.box_constrains_upper_bound
 
         self.support_type = ('softmax_kl', 'logits_norm', 'difference_logits_ratio')
-        assert dispersion_type in self.support_type
+        assert dispersion_type in self.support_type, self.support_type
         self.dispersion_type = dispersion_type
         self.kldiv_criterion = paddle.nn.KLDivLoss(reduction='batchmean')
         self.logsoftmax = paddle.nn.LogSoftmax()
@@ -114,6 +114,8 @@ class LOGITS_DISPERSION(Attack):
                     adv_img = paddle.clip(adv_img, box_constrains_lower_bound, box_constrains_upper_bound)
                     '''
             elif self.norm == 'L2':
+                print("developing")
+                exit(0)
                 # TODO: finsh this.
                 delta = 0.001 * torch.randn(x_natural.shape).cuda().detach()
                 delta = Variable(delta.data, requires_grad=True)
@@ -145,11 +147,15 @@ class LOGITS_DISPERSION(Attack):
                 x_adv = Variable(x_natural + delta, requires_grad=False)
         # TODO: ALP L2 logits dispersion
         elif dispersion_type == self.support_type[1]:
-            pass
+            print("developing")
+            exit(0)
         # TODO: DLR in Reliable Evaluation of Adversarial Robustness with an Ensemble of Diverse Parameter-free Attacks
         elif dispersion_type == self.support_type[2]:
-            pass
+            print("developing")
+            exit(0)
         else:
+            print("developing")
+            exit(0)
             x_adv = np.clip(original_img, box_constrains_lower_bound, box_constrains_upper_bound)
 
         adv_label = np.argmax(self.model.predict(paddle.to_tensor(adv_img)))

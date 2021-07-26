@@ -24,23 +24,25 @@ from attacks.cw import CW_L2
 from attacks.logits_dispersion import LOGITS_DISPERSION
 from models.whitebox import PaddleWhiteBoxModel
 
-from classifier.definednet import transform_eval, TowerNet
+from classifier.definednet import transform_eval, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
-# set fgsm attack configuration
-paddle_model = PaddleWhiteBoxModel(
-    [model_0, model_1],   # ensemble two models
-    [1, 1.8],             # dictate weight
-    paddle.nn.CrossEntropyLoss(),
-    (-3, 3),
-    channel_axis=3,
+advbox_model = PaddleWhiteBoxModel(
+    [model_0, model_1],
+    [1, 1.8],
+    (0, 1),
+    mean=MEAN,
+    std=STD,
+    input_channel_axis=0,
+    input_shape=(3, 256, 256),
+    loss=paddle.nn.CrossEntropyLoss(),
     nb_classes=10)
 
 # FGSM attack, init attack with the ensembled model
 # attack = FGSM(paddle_model)
 # attack = CW_L2(paddle_model, learning_rate=0.01)
-attack = LOGITS_DISPERSION(paddle_model, dispersion_type='softmax_kl_l_inf')
+attack = LOGITS_DISPERSION(advbox_model, dispersion_type='softmax_kl')
 
 cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
 test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)
@@ -60,7 +62,7 @@ adversary = Adversary(img.numpy(), int(label))
 # launch attack
 # adversary = attack(adversary, norm_ord=np.inf, epsilons=0.003, epsilon_steps=1, steps=1)
 # adversary = attack(adversary, attack_iterations=100, verbose=True)
-adversary = attack(adversary, epsilon=0.031, perturb_steps=10, verbose=True)
+adversary = attack(adversary, perturb_steps=10, verbose=True)
 
 if adversary.is_successful():
     original_img = adversary.original

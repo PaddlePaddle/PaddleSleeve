@@ -23,18 +23,22 @@ from attacks.cw import CW_L2
 from models.whitebox import PaddleWhiteBoxModel
 from defences.adversarial_transform import ClassificationAdversarialTransform
 
-from classifier.definednet import transform_train, TowerNet
+from classifier.definednet import transform_train, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
 # set fgsm attack configuration
 fgsm_attack_config = {"norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
-paddle_model = PaddleWhiteBoxModel(
-    [model_0, model_1],  # ensemble two models
-    [1, 1.8],  # dictate weight
-    paddle.nn.CrossEntropyLoss(),
-    (-3, 3),
-    channel_axis=3,
+
+advbox_model = PaddleWhiteBoxModel(
+    [model_0, model_1],
+    [1, 1.8],
+    (0, 1),
+    mean=MEAN,
+    std=STD,
+    input_channel_axis=0,
+    input_shape=(3, 256, 256),
+    loss=paddle.nn.CrossEntropyLoss(),
     nb_classes=10)
 
 # "p" controls the probability of this enhance.
@@ -49,7 +53,7 @@ enhance_config3 = {"p": 0.05,
                    "c_search_steps": 6,
                    "verbose": False}
 
-adversarial_trans = ClassificationAdversarialTransform(paddle_model,
+adversarial_trans = ClassificationAdversarialTransform(advbox_model,
                                                        [FGSM, PGD, CW_L2],
                                                        [None, None, init_config3],
                                                        [enhance_config, enhance_config2, enhance_config3])

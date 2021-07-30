@@ -43,6 +43,9 @@ class Adversary(object):
         self._target_label = None
 
         self._denormalized_original = None
+        # TODO: finish this
+        self._denormalized_adversarial_example = None
+        self._denormalized_bad_adversarial_example = None
 
         self._adversarial_label = None
         self._adversarial_example = None
@@ -108,6 +111,30 @@ class Adversary(object):
         for channel in range(self.original.shape[input_channel_axis]):
             self._denormalized_original[channel] = self.original[channel] * std[channel] + mean[channel]
 
+    # def generate_normalized_adversarial_example(self, input_channel_axis, mean, std):
+    #     """
+    #     Normalize generated adversarial sample from denormalized domain.
+    #     Args:
+    #         input_channel_axis: int. the channel index number of input sample.
+    #         mean: list. channelwise average values.
+    #         std: list. channelwise standard deviation values.
+    #     Returns:
+    #         None
+    #     """
+    #     assert self.original.shape[input_channel_axis] == len(mean)
+    #
+    #     ok = self.is_successful()
+    #     if ok:
+    #         self._adversarial_example = np.zeros(self.original.shape)
+    #         for channel in range(self.original.shape[input_channel_axis]):
+    #             self._adversarial_example[channel] = \
+    #                 (self._denormalized_adversarial_example[channel] - mean[channel]) / std[channel]
+    #     else:
+    #         self._bad_adversarial_example = np.zeros(self.original.shape)
+    #         for channel in range(self.original.shape[input_channel_axis]):
+    #             self._bad_adversarial_example[channel] = \
+    #                 (self._denormalized_bad_adversarial_example[channel] - mean[channel]) / std[channel]
+
     def reset(self):
         """
         Reset adversary status.
@@ -118,6 +145,8 @@ class Adversary(object):
         self._target_label = None
 
         self._denormalized_original = None
+        self._denormalized_adversarial_example = None
+        self._denormalized_bad_adversarial_example = None
 
         self._adversarial_label = None
         self._adversarial_example = None
@@ -148,29 +177,34 @@ class Adversary(object):
         """
         return self._is_successful(self._adversarial_label)
 
-    def try_accept_the_example(self, adversarial_example, adversarial_label):
+    def try_accept_the_example(self, denormalized_adversarial_example, adversarial_example, adversarial_label):
         """
         If adversarial_label the target label that we are finding.
         The adversarial_example and adversarial_label will be accepted and
         True will be returned.
         Else the adversarial_example will be stored in _bad_adversarial_example.
         Args:
+            denormalized_adversarial_example: numpy.ndarray.
             adversarial_example: numpy.ndarray.
             adversarial_label: int.
 
         Returns:
             bool.
         """
+        assert isinstance(denormalized_adversarial_example, np.ndarray)
         assert isinstance(adversarial_example, np.ndarray)
         assert isinstance(adversarial_label, int) or isinstance(adversarial_label, np.int64)
         assert self.denormalized_original.shape == adversarial_example.shape
+        assert self.denormalized_original.shape == denormalized_adversarial_example.shape
 
         ok = self._is_successful(adversarial_label)
         if ok:
             self._adversarial_example = adversarial_example
+            self._denormalized_adversarial_example = denormalized_adversarial_example
             self._adversarial_label = adversarial_label
         else:
             self._bad_adversarial_example = adversarial_example
+            self._denormalized_bad_adversarial_example = denormalized_adversarial_example
 
         return ok
 
@@ -231,6 +265,13 @@ class Adversary(object):
         return self._denormalized_original
 
     @property
+    def denormalized_adversarial_example(self):
+        """
+        :property: denormalized adversarial_example
+        """
+        return self._denormalized_adversarial_example
+
+    @property
     def adversarial_example(self):
         """
         :property: adversarial_example
@@ -243,6 +284,13 @@ class Adversary(object):
         :property: adversarial_label
         """
         return self._adversarial_label
+
+    @property
+    def denormalized_bad_adversarial_example(self):
+        """
+        :property: denormalized bad adversarial example
+        """
+        return self._denormalized_bad_adversarial_example
 
     @property
     def bad_adversarial_example(self):

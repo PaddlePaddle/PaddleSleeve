@@ -115,10 +115,11 @@ def main(image_path):
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    attack = ILCM(paddle_model)
+    attack = ILCM(paddle_model, norm='Linf', epsilon_ball=16/255, epsilon_stepsize=2/255)
+    # attack = ILCM(paddle_model, norm='L2', epsilon_ball=100/255, epsilon_stepsize=100/255)
 
     # 设定epsilons  
-    attack_config = {"epsilons": 0.3, "steps": 100}
+    attack_config = {"steps": 100}
     adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():

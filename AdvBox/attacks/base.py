@@ -35,12 +35,14 @@ class Attack(object):
 
     # TODO: add epsilon-ball transform computation. epsilon= 2/255, 8/255 => transformed_epsilon
     # TODO: make user specify normalization setting.
-    def __init__(self, model, norm='Linf', epsilon_ball=8/255):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
+        # norm='L2', epsilon_ball=128/255, epsilon_stepsize=15/255
         self.model = model
         self._device = paddle.get_device()
         assert norm in ('Linf', 'L2')
         self.norm = norm
         self.epsilon_ball = epsilon_ball
+        self.epsilon_stepsize = epsilon_stepsize
         self.normalize = paddle.vision.transforms.Normalize(mean=self.model.normalization_mean,
                                                             std=self.model.normalization_std)
 

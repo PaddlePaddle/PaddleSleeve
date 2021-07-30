@@ -81,7 +81,6 @@ def main(image_path):
     img = np.expand_dims(img, axis=0) 
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
 
-
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
@@ -99,13 +98,12 @@ def main(image_path):
         nb_classes=1000)
 
     predict = model(img)[0]
-    print(predict.shape)
     label = np.argmax(predict)
-    print("label={}".format(label))
-
     img = np.squeeze(img)
     inputs = img
     labels = label
+    print(predict.shape)
+    print("label={}".format(label))
     print("input img shape: ", inputs.shape)
 
     adversary = Adversary(inputs.numpy(), labels)
@@ -118,11 +116,12 @@ def main(image_path):
     if target_class != -1:
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
-        attack = FGSMT(paddle_model)
+        attack = FGSMT(paddle_model, norm='Linf',
+                       epsilon_ball=100 / 255, epsilon_stepsize=100/255)
 
-    # 设定epsilons  
-    attack_config = {"epsilons": 0.3, "epsilon_steps": 10, "steps": 1}
-    adversary = attack(adversary, **attack_config)
+    # 设定epsilons
+    # adversary = attack(adversary, **attack_config)
+    adversary = attack(adversary)
 
     if adversary.is_successful():
         print(
@@ -141,7 +140,6 @@ def main(image_path):
         show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
-
 
     print("fgsm attack done")
 

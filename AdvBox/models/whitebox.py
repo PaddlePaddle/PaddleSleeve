@@ -70,7 +70,7 @@ class PaddleWhiteBoxModel(Model):
         probe_output = self.predict(probe_inputdata)
         assert probe_output.shape[1] == nb_classes
 
-        self._loss = loss
+        self.loss = loss
         self._nb_classes = nb_classes
 
     def predict(self, data):
@@ -159,7 +159,7 @@ class PaddleWhiteBoxModel(Model):
         tensor_data.stop_gradient = False
         label = paddle.to_tensor(label, dtype='int64', place=self._device)
         output = self.predict_tensor(tensor_data)
-        loss = self._loss(output, label)
+        loss = self.loss(output, label)
         loss.backward(retain_graph=True)
         grad = tensor_data.grad.numpy()
 

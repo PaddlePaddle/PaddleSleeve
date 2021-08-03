@@ -29,7 +29,7 @@ CIFAR10_TEST = cifar10_test
 ADVTRAIN_SETTINGS = advtrain_settings
 ENHANCE_CONFIG = enhance_config
 
-from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME
+from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME, MEAN, STD
 MODEL = MODEL
 MODEL_PATH = MODEL_PATH
 MODEL_PARA_NAME = MODEL_PARA_NAME
@@ -41,6 +41,7 @@ if USE_GPU.startswith('gpu'):
 else:
     paddle.set_device("cpu")
 paddle.seed(2021)
+
 
 def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
     """
@@ -132,10 +133,14 @@ def main():
     paddle_model = PaddleWhiteBoxModel(
         [MODEL],
         [1],
-        paddle.nn.CrossEntropyLoss(),
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=MEAN,
+        std=STD,
+        input_channel_axis=0,
+        input_shape=(3, 256, 256),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=10)
+
     adversarial_trans = ClassificationAdversarialTransform(paddle_model, [FGSM], [None], [ENHANCE_CONFIG])
     ADVTRAIN_SETTINGS["adversarial_trans"] = adversarial_trans
     val_acc_history, val_loss_history = adverarial_train(MODEL, CIFAR10_TRAIN, CIFAR10_TEST,

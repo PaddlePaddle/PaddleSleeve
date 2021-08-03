@@ -19,7 +19,6 @@ import numpy as np
 from paddle.regularizer import L2Decay
 print(paddle.__version__)
 
-
 """
 According to the DL theory, the adversarial training is similar to adding a regularization
 term on the training loss function. Thus, by controlling the adversarial enhance config to avoid
@@ -30,6 +29,7 @@ robust model in adversarial training, we have to adjust model structure (wider o
 #################################################################################################################
 # CHANGE HERE: try different data augmentation methods and model type.
 model_zoo = ("towernet", "mobilenet", "resnet")
+# training_zoo = ("base", "advtraining", "advtraining_TRADES_FGSM", "advtraining_TRADES_LD")
 training_zoo = ("base", "advtraining", "advtraining_TRADES", "advtraining_TRADES_LD")
 model_choice = input(f"choose {model_zoo}:")
 training_choice = input(f"choose {training_zoo}:")
@@ -42,28 +42,27 @@ if model_choice == 'towernet':
     if training_choice == training_zoo[0]:
         # "p" controls the probability of this enhance.
         # for base model training, we set "p" == 0, so we skipped adv trans data augmentation.
-        enhance_config = {"p": 0, "norm_ord": np.inf, "epsilons": 0.005, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0}
         model = TowerNet(3, 10, wide_scale=1)
         opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
     elif training_choice == training_zoo[1]:
         # for adv trained model, we set "p" == 0.05, which means each batch
         # will probably contain 3% adv trans augmented data.
-        enhance_config = {"p": 0.03, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0.1}
         model = TowerNet(3, 10, wide_scale=1)
         # experiment wide_scale=2 ^_^...
         # model = TowerNet(3, 10, wide_scale=2)
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
     elif training_choice == training_zoo[2]:
         # 100% of each input batch will be convert into adv augmented data.
-        enhance_config = {"p": 1, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
-        # enhance_config = {"p": 1, "epsilon": 0.031, "perturb_steps": 10, "verbose": True}
+        enhance_config = {"p": 1}
         model = TowerNet(3, 10, wide_scale=1)
         # experiment wide_scale=2 ^_^...
         # model = TowerNet(3, 10, wide_scale=2)
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
     elif training_choice == training_zoo[3]:
-        init_config = {"dispersion_type": "softmax_kl_l_inf"}
-        enhance_config = {"p": 1, "epsilon": 0.031, "perturb_steps": 10, "verbose": True}
+        init_config = {"norm": "Linf", "dispersion_type": "softmax_kl"}
+        enhance_config = {"p": 1, "steps": 10, "verbose": False}
         model = TowerNet(3, 10, wide_scale=1)
         # experiment wide_scale=2 ^_^...
         # model = TowerNet(3, 10, wide_scale=2)

@@ -68,13 +68,13 @@ assert attack_choice in attack_zoo
 if attack_choice == attack_zoo[0]:
     from attacks.gradient_method import FGSM
     ATTACK_METHOD = FGSM
-    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255}
-    ATTACK_CONFIG = {"norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255, "epsilon_stepsize": 2/255}
+    ATTACK_CONFIG = {}
 elif attack_choice == attack_zoo[1]:
     from attacks.logits_dispersion import LD
     ATTACK_METHOD = LD
     INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255, "dispersion_type": "softmax_kl"}
-    ATTACK_CONFIG = {"perturb_steps": 10, "verbose": True}
+    ATTACK_CONFIG = {"steps": 10, "verbose": False}
 else:
     exit(1)
 
@@ -125,12 +125,12 @@ def main(model, advbox_model, test_loader, attack, attack_config=None):
         pbar.update(1)
         if adversary.is_successful():
             if not USE_GPU.startswith('gpu'):
-                show_images_diff(adversary.original, adversary.original_label,
-                                 adversary.adversarial_example.squeeze(), adversary.adversarial_label)
+                show_images_diff(adversary.denormalized_original, adversary.original_label,
+                                 adversary.denormalized_adversarial_example, adversary.adversarial_label)
             fooling_count += 1
-            psnr = compute_psnr(adversary.original, adversary.adversarial_example.squeeze())
-            ssim = compute_ssim(np.rollaxis(adversary.original, 0, 3),
-                                np.rollaxis(adversary.adversarial_example.squeeze(), 0, 3))
+            psnr = compute_psnr(adversary.denormalized_original, adversary.denormalized_adversarial_example)
+            ssim = compute_ssim(np.rollaxis(adversary.denormalized_original, 0, 3),
+                                np.rollaxis(adversary.denormalized_adversarial_example, 0, 3))
             pbar.set_description('succeeded, psnr=%f, ssim=%f, '
                                  'original_label=%d, adversarial_label=%d, count=%d'
                                  % (psnr, ssim, data[1], adversary.adversarial_label, total_count))
@@ -186,11 +186,6 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
     Returns:
         None
     """
-    if original_img.any() > 1.0:
-        original_img = original_img / 255
-    if adversarial_img.any() > 1.0:
-        adversarial_img = adversarial_img / 255
-
     if original_img.shape[0] == 3:
         original_img = np.rollaxis(original_img, 0, 3)
 

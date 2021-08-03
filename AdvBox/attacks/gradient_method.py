@@ -15,10 +15,6 @@
 This module provides the implementation for FGSM attack method.
 """
 from __future__ import division
-
-import logging
-from collections import Iterable
-
 import numpy as np
 import paddle
 from .base import Attack
@@ -40,17 +36,16 @@ class GradientMethodAttack(Attack):
     """
     def __init__(self, model, norm='Linf',
                  epsilon_ball=8/255, epsilon_stepsize=2/255,
-                 support_targeted=True, pgd_flag=False):
+                 support_targeted=True):
         """
         Args:
             model: An instance of a paddle model to be attacked.
             support_targeted(Does): this attack method support targeted.
-            pgd_flag: place it true if use pgd.
         """
         super(GradientMethodAttack, self).__init__(model, norm=norm,
-                                                   epsilon_ball=epsilon_ball, epsilon_stepsize=epsilon_stepsize)
+                                                   epsilon_ball=epsilon_ball,
+                                                   epsilon_stepsize=epsilon_stepsize)
         self.support_targeted = support_targeted
-        self.pgd_flag = pgd_flag
 
     def _apply(self,
                adversary,
@@ -110,42 +105,22 @@ class GradientMethodAttack(Attack):
                 exit(1)
 
             # control norm and clip in model.bounds domain.
-            if self.pgd_flag:
-                # Linf
-                eta = epsilon_stepsize * normalized_gradient
-                adv_img = adv_img.detach() + eta
-                eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
-                adv_img = adv_img + eta
-                adv_img = paddle.clip(adv_img, min_, max_).detach()
-            else:
-                eta = epsilon_stepsize * normalized_gradient
-                adv_img = adv_img.detach() + eta
-                adv_img = paddle.clip(adv_img, min_, max_).detach()
+            eta = epsilon_stepsize * normalized_gradient
+            adv_img = adv_img.detach() + eta.detach()
+            eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
+            adv_img = img_tensor + eta
+            adv_img = paddle.clip(adv_img, min_, max_).detach()
 
             adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
             if len(adv_img_normalized.shape) < 4:
                 adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
             adv_label = np.argmax(self.model.predict(adv_img_normalized))
-            print(adv_label)
 
             if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
                                                 np.squeeze(adv_img_normalized.numpy()),
                                                 adv_label):
                 return adversary
         return adversary
-
-    # TODO: check effectiveness
-    @staticmethod
-    def _norm(a, ord):
-        if a.ndim == 1 or a.ndim == 2:
-            return np.linalg.norm(a, ord=ord)
-        # channel first
-        elif a.ndim == a.shape[0]:
-            norm_shape = a.ndim * a.shape[1:][0] * a.shape[1:][0]
-        # channel last
-        else:
-            norm_shape = a.ndim * a.shape[:-1][0] * a.shape[:-1][1]
-        return np.linalg.norm(a.reshape(norm_shape), ord=ord)
 
 
 class FastGradientSignMethodTargetedAttack(GradientMethodAttack):
@@ -166,8 +141,7 @@ class FastGradientSignMethodTargetedAttack(GradientMethodAttack):
                                                                    norm=norm,
                                                                    epsilon_ball=epsilon_ball,
                                                                    epsilon_stepsize=epsilon_stepsize,
-                                                                   support_targeted=True,
-                                                                   pgd_flag=False)
+                                                                   support_targeted=True)
 
     def _apply(self, adversary, **kwargs):
         """
@@ -201,8 +175,7 @@ class FastGradientSignMethodAttack(GradientMethodAttack):
                                                            norm=norm,
                                                            epsilon_ball=epsilon_ball,
                                                            epsilon_stepsize=epsilon_stepsize,
-                                                           support_targeted=False,
-                                                           pgd_flag=False)
+                                                           support_targeted=False)
 
     def _apply(self, adversary, **kwargs):
         """
@@ -231,13 +204,11 @@ class ProjectedGradientDescentAttack(GradientMethodAttack):
         Args:
             model: PaddleWhiteBoxModel.
         """
-        print(epsilon_ball)
         super(ProjectedGradientDescentAttack, self).__init__(model,
                                                              norm=norm,
                                                              epsilon_ball=epsilon_ball,
                                                              epsilon_stepsize=epsilon_stepsize,
-                                                             support_targeted=True,
-                                                             pgd_flag=True)
+                                                             support_targeted=True)
 
     def _apply(self, adversary, **kwargs):
         """
@@ -317,7 +288,6 @@ class MomentumIteratorAttack(Attack):
                                                      epsilon_ball=epsilon_ball,
                                                      epsilon_stepsize=epsilon_stepsize)
 
-    # TODO: fix this
     def _apply(self,
                adversary,
                steps=100,
@@ -379,7 +349,7 @@ class MomentumIteratorAttack(Attack):
                 exit(1)
 
             eta = epsilon_stepsize * normalized_momentum
-            adv_img = adv_img.detach() + eta
+            adv_img = adv_img.detach() + eta.detact()
             eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
             adv_img = adv_img + eta
             adv_img = paddle.clip(adv_img, min_, max_).detach()
@@ -388,7 +358,6 @@ class MomentumIteratorAttack(Attack):
             if len(adv_img_normalized.shape) < 4:
                 adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
             adv_label = np.argmax(self.model.predict(adv_img_normalized))
-            print(adv_label)
 
             if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
                                                 np.squeeze(adv_img_normalized.numpy()),

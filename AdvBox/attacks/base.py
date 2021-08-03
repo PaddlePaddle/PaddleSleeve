@@ -27,14 +27,12 @@ class Attack(object):
     adversarial attack which search an adversarial example. Subclass should
     implement the _apply(self, adversary, **kwargs) method.
     Args:
-        model(Model): an instance of a models.base.Model
-        norm(str): 'Linf' or 'L2', the norm of the threat model
-        epsilon_ball(float): the bound on the norm of the AE
+        model(Model): an instance of a models.base.Model.
+        norm(str): 'Linf' or 'L2', the norm of the threat model.
+        epsilon_ball(float): the bound on the norm of the AE.
     """
     __metaclass__ = ABCMeta
 
-    # TODO: add epsilon-ball transform computation. epsilon= 2/255, 8/255 => transformed_epsilon
-    # TODO: make user specify normalization setting.
     def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
         # norm='L2', epsilon_ball=128/255, epsilon_stepsize=15/255
         self.model = model

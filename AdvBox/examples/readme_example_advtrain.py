@@ -45,8 +45,8 @@ advbox_model = PaddleWhiteBoxModel(
 # for base model training, we set "p" == 0, so we skipped adv trans data augmentation.
 # for adv trained model, we set "p" == 0.05, which means each batch
 # will probably contain 5% adv trans augmented data.
-enhance_config = {"p": 0.1, "norm_ord": np.inf, "epsilons": 0.0005, "epsilon_steps": 1, "steps": 1}
-enhance_config2 = {"p": 0.1, "norm_ord": np.inf, "epsilons": 0.001, "epsilon_steps": 3, "steps": 3}
+enhance_config1 = {"p": 0.1}
+enhance_config2 = {"p": 0.1}
 init_config3 = {"learning_rate": 0.01}
 enhance_config3 = {"p": 0.05,
                    "attack_iterations": 15,
@@ -56,7 +56,7 @@ enhance_config3 = {"p": 0.05,
 adversarial_trans = ClassificationAdversarialTransform(advbox_model,
                                                        [FGSM, PGD, CW_L2],
                                                        [None, None, init_config3],
-                                                       [enhance_config, enhance_config2, enhance_config3])
+                                                       [enhance_config1, enhance_config2, enhance_config3])
 
 cifar10_train = paddle.vision.datasets.Cifar10(mode='train', transform=transform_train)
 train_loader = paddle.io.DataLoader(cifar10_train, batch_size=16)

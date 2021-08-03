@@ -23,10 +23,11 @@ from attacks.logits_dispersion import LOGITS_DISPERSION
 from defences.adversarial_transform import ClassificationAdversarialTransform
 from models.whitebox import PaddleWhiteBoxModel
 
-from main_setting import cifar10_train, cifar10_test, advtrain_settings, enhance_config
+from main_setting import cifar10_train, cifar10_test, advtrain_settings, init_config, enhance_config
 CIFAR10_TRAIN = cifar10_train
 CIFAR10_TEST = cifar10_test
 ADVTRAIN_SETTINGS = advtrain_settings
+INIT_CONFIG = init_config
 ENHANCE_CONFIG = enhance_config
 
 from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME, MEAN, STD
@@ -156,7 +157,7 @@ def main():
         input_shape=(3, 256, 256),
         loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=10)
-    adversarial_trans = ClassificationAdversarialTransform(paddle_model, [LOGITS_DISPERSION], [None], [ENHANCE_CONFIG])
+    adversarial_trans = ClassificationAdversarialTransform(paddle_model, [LOGITS_DISPERSION], [INIT_CONFIG], [ENHANCE_CONFIG])
     ADVTRAIN_SETTINGS["adversarial_trans"] = adversarial_trans
     ADVTRAIN_SETTINGS["TRADES_beta"] = 1
     val_acc_history, val_loss_history = adverarial_train_TRADES(MODEL, CIFAR10_TRAIN, CIFAR10_TEST,

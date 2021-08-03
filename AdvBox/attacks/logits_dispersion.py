@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 from builtins import range
+import math
 import numpy as np
 import paddle
 from .base import Attack
@@ -37,7 +38,6 @@ class LOGITS_DISPERSION(Attack):
     4. Reliable Evaluation of Adversarial Robustness with an Ensemble of Diverse Parameter-free Attacks.
 
     Including:
-    # TODO: seperate as three: softmax kl, logits norm, DLR
     * softmax_kl, softmax of logits KL dispersion
     * logits_norm, logits of norm distance dispersion, for instantce ||logit - logits_adv||22
     * difference_logits_ratio, Difference of Logits Ratio Loss. DLR(x, y) = − (zy − max(i!=y)zi) / (zπ1 − zπ3)
@@ -45,8 +45,10 @@ class LOGITS_DISPERSION(Attack):
         model: PaddleWhiteBoxModel.
         learning_rate: float. for adam optimizer.
     """
-    def __init__(self, model, norm='Linf', epsilon_ball=8/255, dispersion_type=None):
-        super(LOGITS_DISPERSION, self).__init__(model, norm=norm, epsilon_ball=epsilon_ball)
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255, dispersion_type=None):
+        super(LOGITS_DISPERSION, self).__init__(model, norm=norm,
+                                                epsilon_ball=epsilon_ball,
+                                                epsilon_stepsize=epsilon_stepsize)
         self.model = model
         self.safe_num = 0.999999
         # (float, float), It is used to map input float into (0, 1) for arctanh
@@ -63,23 +65,24 @@ class LOGITS_DISPERSION(Attack):
 
     def _apply(self,
                adversary,
-               perturb_steps=10,
+               steps=10,
                verbose=False,
                ):
         """
         Launch an attack process.
         Args:
             adversary: Adversary. An adversary instance with initial status.
-            perturb_steps: int. The number of steps to find adversary example.
+            steps: int. The number of steps to find adversary example.
             verbose: bool. log attack process if true.
 
         Returns:
             Adversary instance with possible changed status.
         """
-        epsilon = self.epsilon_ball
+        epsilon_ball = self.epsilon_ball
+        # Unused
+        # epsilon_stepsize = self.epsilon_stepsize
+
         original_img = adversary.denormalized_original
-        if len(original_img.shape) < 4:
-            original_img = np.expand_dims(original_img, axis=0)
 
         if adversary.is_targeted_attack:
             raise ValueError("This attack method only support untargeted attack!")
@@ -88,63 +91,83 @@ class LOGITS_DISPERSION(Attack):
         box_constrains_upper_bound = self.box_constrains_upper_bound
 
         adv_img = original_img + 0.001 * np.random.standard_normal(original_img.shape)
-        original_img = paddle.to_tensor(original_img, dtype='float32', place=self._device)
         adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)
+        original_img = paddle.to_tensor(original_img, dtype='float32', place=self._device)
+        original_img_normalized = self.normalize(paddle.squeeze(original_img))
+        if len(original_img_normalized.shape) < 4:
+            original_img_normalized = paddle.unsqueeze(original_img_normalized, axis=0)
+        logits = self.model.predict_tensor(original_img_normalized)
+
         dispersion_type = self.dispersion_type
         if dispersion_type == self.support_type[0]:
             if self.norm == 'Linf':
-                step_size = epsilon / perturb_steps
-                for _ in range(perturb_steps):
+                step_size = epsilon_ball / steps
+                for _ in range(steps):
                     adv_img.stop_gradient = False
-                    logits = self.model.predict_tensor(original_img)
-                    logits_advs = self.model.predict_tensor(adv_img)
+                    adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
+                    if len(adv_img_normalized.shape) < 4:
+                        adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+
+                    logits_advs = self.model.predict_tensor(adv_img_normalized)
                     loss_logits_kl = self.kldiv_criterion(self.logsoftmax(logits_advs), self.softmax(logits))
 
                     grad = paddle.autograd.grad(loss_logits_kl, adv_img)[0]
+                    # TODO: fix nan error
+                    # if (grad_norms == 0).any() or grad_norms.isnan():
+                    #     paddle.assign(0.0001 * paddle.randn(delta.grad.shape), delta.grad)
                     adv_img = adv_img.detach() + step_size * paddle.sign(grad.detach())
-                    adv_img = paddle.clip(adv_img, original_img - epsilon, original_img + epsilon)
+                    eta = paddle.clip(adv_img - original_img, - epsilon_ball, epsilon_ball)
+                    adv_img = original_img + eta
                     adv_img = paddle.clip(adv_img, box_constrains_lower_bound, box_constrains_upper_bound)
                     '''
                     loss_logits_kl = self.kldiv_criterion(self.logsoftmax(logits_advs), self.softmax(logits))
                     loss_logits_kl.backward()
                     grad = adv_img.grad
                     adv_img = adv_img.detach() + step_size * paddle.sign(grad.detach())
-                    # adv_img = paddle.min(paddle.max(adv_img, original_img - epsilon), original_img + epsilon)
-                    adv_img = paddle.clip(adv_img, original_img - epsilon, original_img + epsilon)
+                    # adv_img = paddle.min(paddle.max(adv_img, original_img - epsilon_ball), original_img + epsilon_ball)
+                    adv_img = paddle.clip(adv_img, original_img - epsilon_ball, original_img + epsilon_ball)
                     adv_img = paddle.clip(adv_img, box_constrains_lower_bound, box_constrains_upper_bound)
                     '''
             elif self.norm == 'L2':
-                print("developing")
-                exit(0)
-                # TODO: finsh this.
-                delta = 0.001 * torch.randn(x_natural.shape).cuda().detach()
-                delta = Variable(delta.data, requires_grad=True)
+                delta = 0.001 * paddle.randn(original_img.shape).detach()
                 # Setup optimizers
-                # lr = epsilon / perturb_steps * 2, because of the (v - epsilon, v + epsilon) limit within perturb_steps.
-                optimizer_delta = paddle.optimizer.SGD(learning_rate=epsilon / perturb_steps * 2, parameters=[delta])
+                # lr = epsilon_ball / steps * 2, because of the (v - epsilon_ball, v + epsilon_ball) limit within steps.
+                optimizer_delta = paddle.optimizer.SGD(learning_rate=epsilon_ball / steps * 2, parameters=[delta])
 
-                for _ in range(perturb_steps):
-                    adv = x_natural + delta
-
+                for _ in range(steps):
+                    delta.stop_gradient = False
+                    adv_img = original_img + delta
                     # optimize
-                    optimizer_delta.zero_grad()
-                    with torch.enable_grad():
-                        loss = (-1) * criterion_kl(F.log_softmax(model(adv), dim=1),
-                                                   F.softmax(model(x_natural), dim=1))
-                    loss.backward()
+                    optimizer_delta.clear_grad()
+
+                    adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
+                    if len(adv_img_normalized.shape) < 4:
+                        adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+
+                    logits_advs = self.model.predict_tensor(adv_img_normalized)
+                    loss_logits_kl = (-1) * self.kldiv_criterion(self.logsoftmax(logits_advs), self.softmax(logits))
+                    loss_logits_kl.backward()
+
                     # renorming gradient
-                    grad_norms = delta.grad.view(batch_size, -1).norm(p=2, dim=1)
-                    delta.grad.div_(grad_norms.view(-1, 1, 1, 1))
+                    grad_norms = paddle.norm(delta.grad, p=2)
+                    delta.grad.divide(grad_norms)
+
                     # avoid nan or inf if gradient is 0
-                    if (grad_norms == 0).any():
-                        delta.grad[grad_norms == 0] = torch.randn_like(delta.grad[grad_norms == 0])
+                    if (grad_norms == 0).any() or grad_norms.isnan():
+                        paddle.assign(0.0001 * paddle.randn(delta.grad.shape), delta.grad)
+
                     optimizer_delta.step()
 
                     # projection
-                    delta.data.add_(x_natural)
-                    delta.data.clamp_(0, 1).sub_(x_natural)
-                    delta.data.renorm_(p=2, dim=0, maxnorm=epsilon)
-                x_adv = Variable(x_natural + delta, requires_grad=False)
+                    delta.add(original_img)
+                    delta.clip(box_constrains_lower_bound, box_constrains_upper_bound).add(-original_img)
+                    delta_norm = paddle.norm(delta, p=2)
+                    delta.divide(delta_norm)
+                    # clip epsilon_ball for safety.
+                    delta.clip(-epsilon_ball, epsilon_ball)
+
+                adv_img = original_img.detach() + delta.detach()
+
         # TODO: ALP L2 logits dispersion
         elif dispersion_type == self.support_type[1]:
             print("developing")
@@ -156,10 +179,12 @@ class LOGITS_DISPERSION(Attack):
         else:
             print("developing")
             exit(0)
-            x_adv = np.clip(original_img, box_constrains_lower_bound, box_constrains_upper_bound)
+            adv_img = np.clip(original_img, box_constrains_lower_bound, box_constrains_upper_bound)
 
-        adv_label = np.argmax(self.model.predict(paddle.to_tensor(adv_img)))
-        adversary.try_accept_the_example(np.squeeze(adv_img.numpy()), adv_label)
+        adv_label = np.argmax(self.model.predict(adv_img_normalized))
+        adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
+                                         np.squeeze(adv_img_normalized.numpy()),
+                                         adv_label)
         return adversary
 
 

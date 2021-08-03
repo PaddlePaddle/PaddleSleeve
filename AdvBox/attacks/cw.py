@@ -67,6 +67,7 @@ class CWL2Attack(Attack):
         Returns:
             Adversary instance with possible changed status.
         """
+        # TODO: fix norm and denormalization issue.
         if not adversary.is_targeted_attack:
             raise ValueError("This attack method only support targeted attack!")
 
@@ -133,7 +134,10 @@ class CWL2Attack(Attack):
 
             if best_perturb is not None:
                 best_perturb = np.squeeze(best_perturb)
-                adversary.try_accept_the_example(best_perturb, best_pred_label)
+                # TODO: fix here
+                adversary.try_accept_the_example(best_perturb,
+                                                 best_perturb,
+                                                 best_pred_label)
             else:
                 pass
 

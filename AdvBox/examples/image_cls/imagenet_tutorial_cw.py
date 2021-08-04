@@ -105,7 +105,7 @@ def main(image_path):
 
     img = np.squeeze(img)
     inputs = img
-    labels = label #orig_label
+    labels = label
 
     print("input img shape: ", inputs.shape)
 
@@ -117,7 +117,7 @@ def main(image_path):
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    attack = CW_L2(paddle_model, learning_rate=0.01)
+    attack = CW_L2(paddle_model)
 
     attack_config = {"attack_iterations": 100,
                      "c_search_steps": 20}

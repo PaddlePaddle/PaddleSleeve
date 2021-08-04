@@ -41,7 +41,7 @@ advbox_model = PaddleWhiteBoxModel(
 
 # FGSM attack, init attack with the ensembled model
 # attack = FGSM(paddle_model)
-# attack = CW_L2(paddle_model, learning_rate=0.01)
+# attack = CW_L2(paddle_model)
 # attack = LOGITS_DISPERSION(advbox_model, norm='Linf', dispersion_type='softmax_kl')
 attack = LOGITS_DISPERSION(advbox_model, norm='L2', dispersion_type='softmax_kl')
 

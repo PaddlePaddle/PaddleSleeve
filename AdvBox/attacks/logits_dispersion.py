@@ -45,7 +45,7 @@ class LOGITS_DISPERSION(Attack):
         model: PaddleWhiteBoxModel.
         learning_rate: float. for adam optimizer.
     """
-    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255, dispersion_type=None):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
         super(LOGITS_DISPERSION, self).__init__(model, norm=norm,
                                                 epsilon_ball=epsilon_ball,
                                                 epsilon_stepsize=epsilon_stepsize)
@@ -57,8 +57,6 @@ class LOGITS_DISPERSION(Attack):
         assert self.box_constrains_lower_bound < self.box_constrains_upper_bound
 
         self.support_type = ('softmax_kl', 'logits_norm', 'difference_logits_ratio')
-        assert dispersion_type in self.support_type, self.support_type
-        self.dispersion_type = dispersion_type
         self.kldiv_criterion = paddle.nn.KLDivLoss(reduction='batchmean')
         self.logsoftmax = paddle.nn.LogSoftmax()
         self.softmax = paddle.nn.Softmax()
@@ -67,7 +65,7 @@ class LOGITS_DISPERSION(Attack):
                adversary,
                steps=10,
                verbose=False,
-               ):
+               dispersion_type=None):
         """
         Launch an attack process.
         Args:
@@ -78,6 +76,8 @@ class LOGITS_DISPERSION(Attack):
         Returns:
             Adversary instance with possible changed status.
         """
+        assert dispersion_type in self.support_type, self.support_type
+        norm = self.norm
         epsilon_ball = self.epsilon_ball
         # Unused
         # epsilon_stepsize = self.epsilon_stepsize
@@ -98,9 +98,8 @@ class LOGITS_DISPERSION(Attack):
             original_img_normalized = paddle.unsqueeze(original_img_normalized, axis=0)
         logits = self.model.predict_tensor(original_img_normalized)
 
-        dispersion_type = self.dispersion_type
         if dispersion_type == self.support_type[0]:
-            if self.norm == 'Linf':
+            if norm == 'Linf':
                 step_size = epsilon_ball / steps
                 for _ in range(steps):
                     adv_img.stop_gradient = False
@@ -128,7 +127,7 @@ class LOGITS_DISPERSION(Attack):
                     adv_img = paddle.clip(adv_img, original_img - epsilon_ball, original_img + epsilon_ball)
                     adv_img = paddle.clip(adv_img, box_constrains_lower_bound, box_constrains_upper_bound)
                     '''
-            elif self.norm == 'L2':
+            elif norm == 'L2':
                 delta = 0.001 * paddle.randn(original_img.shape).detach()
                 # Setup optimizers
                 # lr = epsilon_ball / steps * 2, because of the (v - epsilon_ball, v + epsilon_ball) limit within steps.

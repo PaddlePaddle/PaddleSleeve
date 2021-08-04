@@ -35,14 +35,17 @@ class CWL2Attack(Attack):
         model: PaddleWhiteBoxModel.
         learning_rate: float. for adam optimizer.
     """
-    def __init__(self, model, learning_rate=0.01):
-
-        super(CWL2Attack, self).__init__(model)
+    def __init__(self, model, norm='L2', epsilon_ball=8/255, epsilon_stepsize=2/255):
+        super(CWL2Attack, self).__init__(model,
+                                         norm=norm,
+                                         epsilon_ball=epsilon_ball,
+                                         epsilon_stepsize=epsilon_stepsize)
+        assert norm == 'L2', "Only support L2 CW for now."
         self.model = model
-        self.learning_rate = learning_rate
         self.safe_num = 0.999999
         # (float, float), It is used to map input float into (0, 1) for arctanh
         self.sample_float_range = self.model.bounds
+        assert self.sample_float_range[0] < self.sample_float_range[1]
 
     def _apply(self,
                adversary,
@@ -51,8 +54,7 @@ class CWL2Attack(Attack):
                c_range=(0.01, 100),
                c_accuracy=0.01,
                k_threshold=0,
-               verbose=True,
-               ):
+               verbose=True):
         """
         Launch an attack process.
         Args:
@@ -67,9 +69,12 @@ class CWL2Attack(Attack):
         Returns:
             Adversary instance with possible changed status.
         """
-        # TODO: fix norm and denormalization issue.
         if not adversary.is_targeted_attack:
             raise ValueError("This attack method only support targeted attack!")
+
+        norm = self.norm
+        learning_rate = self.epsilon_stepsize
+        epsilon_ball = self.epsilon_ball
 
         # one hot encoder
         target_class = adversary.target_label
@@ -80,7 +85,7 @@ class CWL2Attack(Attack):
 
         box_constrains_lower_bound = self.sample_float_range[0]
         box_constrains_upper_bound = self.sample_float_range[1]
-        assert box_constrains_lower_bound < box_constrains_upper_bound
+
         original_img = adversary.denormalized_original
         original_img = np.clip(original_img, box_constrains_lower_bound, box_constrains_upper_bound)
         mid_point = (box_constrains_upper_bound + box_constrains_lower_bound) * 0.5
@@ -102,17 +107,26 @@ class CWL2Attack(Attack):
             linear_to_01 = (original_img - mid_point) / half_range * self.safe_num
             arctanh_w = np.arctanh(linear_to_01)
             arctanh_w_tensor = paddle.to_tensor(arctanh_w, dtype='float32', place=self._device, stop_gradient=False)
-            optimizer = paddle.optimizer.Adam(learning_rate=self.learning_rate, parameters=[arctanh_w_tensor])
-            small_l2, current_pred_label, small_perturbed = self._cwb(arctanh_w_tensor,
-                                                                      original_img_tensor,
-                                                                      target_onehot,
-                                                                      confidence,
-                                                                      k_threshold,
-                                                                      attack_iterations,
-                                                                      half_range,
-                                                                      mid_point,
-                                                                      optimizer,
-                                                                      verbose=verbose)
+            optimizer = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=[arctanh_w_tensor])
+
+            if norm == 'L2':
+                result_turple = self._cwbL2(arctanh_w_tensor,
+                                            original_img_tensor,
+                                            target_onehot,
+                                            confidence,
+                                            k_threshold,
+                                            attack_iterations,
+                                            half_range,
+                                            mid_point,
+                                            optimizer,
+                                            epsilon_ball,
+                                            verbose=verbose)
+                small_l2, current_pred_label, small_perturbed, small_perturbed_normalized = result_turple
+            elif norm == 'Linf':
+                # TODO: add CW, Linf attack
+                print('developing')
+            else:
+                exit(1)
 
             if small_l2 is not None:
                 c_upper_bound = confidence
@@ -120,6 +134,7 @@ class CWL2Attack(Attack):
                     best_l2 = small_l2
                     best_pred_label = current_pred_label
                     best_perturb = small_perturbed
+                    best_perturb_normalized = small_perturbed_normalized
             else:
                 c_lower_bound = confidence
 
@@ -134,26 +149,27 @@ class CWL2Attack(Attack):
 
             if best_perturb is not None:
                 best_perturb = np.squeeze(best_perturb)
-                # TODO: fix here
+                best_perturb_normalized = np.squeeze(best_perturb_normalized)
                 adversary.try_accept_the_example(best_perturb,
-                                                 best_perturb,
+                                                 best_perturb_normalized,
                                                  best_pred_label)
             else:
                 pass
 
         return adversary
 
-    def _cwb(self,
-             arctanh_w_tensor,
-             original_img_tensor,
-             target_onehot,
-             confidence,
-             k_threshold,
-             attack_iterations,
-             half_range,
-             mid_point,
-             optimizer,
-             verbose=False):
+    def _cwbL2(self,
+               arctanh_w_tensor,
+               original_img_tensor,
+               target_onehot,
+               confidence,
+               k_threshold,
+               attack_iterations,
+               half_range,
+               mid_point,
+               optimizer,
+               epsilon_ball,
+               verbose=False):
         """
         Launch an attack process with a given CW confidence.
         Args:
@@ -166,6 +182,7 @@ class CWL2Attack(Attack):
             half_range: float. to compute or recover between hidden variable and img.
             mid_point: float. to compute or recover between hidden variable and img.
             optimizer: paddle.Optimizer. adam optimizer for CW.
+            epsilon_ball: float. Perturbation bounds.
             verbose: bool. log attack process if true.
 
         Returns:
@@ -176,15 +193,18 @@ class CWL2Attack(Attack):
         small_l2 = None
         current_pred_label = None
         small_perturbed = None
+        small_perturbed_normalized = None
 
         for iteration in range(attack_iterations):
             optimizer.clear_grad()
             perturbed_image = paddle.tanh(arctanh_w_tensor) * half_range + mid_point
-            perturbed_image = self.normalize(paddle.squeeze(perturbed_image))
-            if len(perturbed_image.shape) < 4:
-                perturbed_image = paddle.unsqueeze(perturbed_image, axis=0)
+            perturbed_image_normalized = self.normalize(paddle.squeeze(perturbed_image))
+            if len(perturbed_image_normalized.shape) < 4:
+                perturbed_image_normalized = paddle.unsqueeze(perturbed_image_normalized, axis=0)
 
-            logits = self.model.predict_tensor(perturbed_image)
+            logits = self.model.predict_tensor(perturbed_image_normalized)
+            eta = paddle.clip(perturbed_image - original_img_tensor, -epsilon_ball, epsilon_ball)
+            perturbed_image = original_img_tensor + eta
             l2_loss = paddle.sum((perturbed_image - original_img_tensor) ** 2)
 
             f6 = paddle.max(logits * (1 - target_onehot)) - paddle.max(logits * target_onehot)
@@ -199,12 +219,14 @@ class CWL2Attack(Attack):
             l2_loss_np = l2_loss.numpy()
             logits_np = logits.numpy()
             perturbed_image_np = perturbed_image.numpy()
+            perturbed_image_normalized_np = perturbed_image_normalized.numpy()
 
             if np.argmax(logits_np) == np.argmax(target_onehot):
                 if small_l2 is None or l2_loss_np < small_l2:
                     small_l2 = l2_loss_np
                     current_pred_label = np.argmax(logits_np)
                     small_perturbed = perturbed_image_np
+                    small_perturbed_normalized = perturbed_image_normalized_np
 
             if verbose:
                 print("iteration={}, target label={}, "
@@ -214,7 +236,7 @@ class CWL2Attack(Attack):
                                                                       loss.numpy(),
                                                                       l1.numpy(),
                                                                       l2_loss.numpy()))
-        return small_l2, current_pred_label, small_perturbed
+        return small_l2, current_pred_label, small_perturbed, small_perturbed_normalized
 
 
 CW_L2 = CWL2Attack

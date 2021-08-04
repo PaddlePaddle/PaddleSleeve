@@ -47,7 +47,7 @@ advbox_model = PaddleWhiteBoxModel(
 # will probably contain 5% adv trans augmented data.
 enhance_config1 = {"p": 0.1}
 enhance_config2 = {"p": 0.1}
-init_config3 = {"learning_rate": 0.01}
+init_config3 = {"norm": 'L2', "epsilon_ball": 8/255, "epsilon_stepsize": 2/255}
 enhance_config3 = {"p": 0.05,
                    "attack_iterations": 15,
                    "c_search_steps": 6,

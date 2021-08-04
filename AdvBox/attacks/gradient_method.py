@@ -74,6 +74,8 @@ class GradientMethodAttack(Attack):
 
         if adversary.is_targeted_attack:
             target_label = adversary.target_label
+            num_labels = self.model.num_classes()
+            assert target_label < num_labels
             target_label = paddle.to_tensor(target_label, dtype='int64', place=self._device)
 
         img = adversary.denormalized_original
@@ -313,6 +315,8 @@ class MomentumIteratorAttack(Attack):
 
         if adversary.is_targeted_attack:
             target_label = adversary.target_label
+            num_labels = self.model.num_classes()
+            assert target_label < num_labels
             target_label = paddle.to_tensor(target_label, dtype='int64', place=self._device)
 
         img = adversary.denormalized_original

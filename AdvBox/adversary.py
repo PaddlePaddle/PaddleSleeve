@@ -43,7 +43,6 @@ class Adversary(object):
         self._target_label = None
 
         self._denormalized_original = None
-        # TODO: finish this
         self._denormalized_adversarial_example = None
         self._denormalized_bad_adversarial_example = None
 

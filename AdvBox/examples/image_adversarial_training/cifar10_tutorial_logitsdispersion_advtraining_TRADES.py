@@ -43,6 +43,9 @@ else:
     paddle.set_device("cpu")
 paddle.seed(2021)
 
+import os
+os.environ[str("FLAGS_check_nan_inf")] = str("1")
+
 
 def adverarial_train_TRADES(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
     """
@@ -80,7 +83,6 @@ def adverarial_train_TRADES(model, cifar10_train, cifar10_test, save_path=None, 
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
             # adversarial training late start
-            # TODO: use kl between x_adv and x to compute x_data_augmented. attack method should add.w
             if epoch >= advtrain_start_num and adversarial_trans is not None:
                 x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
             else:
@@ -103,6 +105,12 @@ def adverarial_train_TRADES(model, cifar10_train, cifar10_test, save_path=None, 
             logits_advs = model(x_data_augmented)
             loss_logits_kl = kldiv_criterion(logsoftmax(logits_advs), softmax(logits))
             loss = loss_ce + beta * loss_logits_kl
+            # TODO: fix nan error
+            # if loss.isnan().any():
+            #     import pdb
+            #     pdb.set_trace()
+            # else:
+            #     pass
 
             acc = paddle.metric.accuracy(logits, y_data_augmented)
             acc_adv = paddle.metric.accuracy(logits_advs, y_data_augmented)
@@ -114,6 +122,7 @@ def adverarial_train_TRADES(model, cifar10_train, cifar10_test, save_path=None, 
             loss.backward()
             opt.step()
             opt.clear_grad()
+
         # evaluate model after one epoch
         model.eval()
         accuracies = []

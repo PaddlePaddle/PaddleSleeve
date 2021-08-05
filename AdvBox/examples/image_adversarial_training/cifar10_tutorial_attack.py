@@ -73,8 +73,8 @@ if attack_choice == attack_zoo[0]:
 elif attack_choice == attack_zoo[1]:
     from attacks.logits_dispersion import LD
     ATTACK_METHOD = LD
-    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255, "dispersion_type": "softmax_kl"}
-    ATTACK_CONFIG = {"steps": 10, "verbose": False}
+    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255}
+    ATTACK_CONFIG = {"steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
 else:
     exit(1)
 

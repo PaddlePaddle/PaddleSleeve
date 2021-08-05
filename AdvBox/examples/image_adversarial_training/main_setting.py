@@ -61,8 +61,8 @@ if model_choice == 'towernet':
         # model = TowerNet(3, 10, wide_scale=2)
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
     elif training_choice == training_zoo[3]:
-        init_config = {"norm": "Linf", "dispersion_type": "softmax_kl"}
-        enhance_config = {"p": 1, "steps": 10, "verbose": False}
+        init_config = {"norm": "Linf"}
+        enhance_config = {"p": 1, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
         model = TowerNet(3, 10, wide_scale=1)
         # experiment wide_scale=2 ^_^...
         # model = TowerNet(3, 10, wide_scale=2)
@@ -72,7 +72,8 @@ if model_choice == 'towernet':
     # training process value
     EPOCH_NUM = 60
     ADVTRAIN_START_NUM = 0
-    BATCH_SIZE = 256
+    # BATCH_SIZE = 256
+    BATCH_SIZE = 32
 
 elif model_choice == 'mobilenet':
     from examples.classifier.mobilenet_v3 import transform_train, transform_eval, MEAN, STD

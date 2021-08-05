@@ -72,8 +72,7 @@ if model_choice == 'towernet':
     # training process value
     EPOCH_NUM = 60
     ADVTRAIN_START_NUM = 0
-    # BATCH_SIZE = 256
-    BATCH_SIZE = 32
+    BATCH_SIZE = 256
 
 elif model_choice == 'mobilenet':
     from examples.classifier.mobilenet_v3 import transform_train, transform_eval, MEAN, STD

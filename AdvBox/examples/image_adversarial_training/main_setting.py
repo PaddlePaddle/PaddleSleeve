@@ -29,8 +29,7 @@ robust model in adversarial training, we have to adjust model structure (wider o
 #################################################################################################################
 # CHANGE HERE: try different data augmentation methods and model type.
 model_zoo = ("towernet", "mobilenet", "resnet")
-# training_zoo = ("base", "advtraining", "advtraining_TRADES_FGSM", "advtraining_TRADES_LD")
-training_zoo = ("base", "advtraining", "advtraining_TRADES", "advtraining_TRADES_LD")
+training_zoo = ("base", "advtraining", "advtraining_TRADES_FGSM", "advtraining_TRADES_LD")
 model_choice = input(f"choose {model_zoo}:")
 training_choice = input(f"choose {training_zoo}:")
 assert model_choice in model_zoo
@@ -81,11 +80,11 @@ elif model_choice == 'mobilenet':
     model_state_dict = paddle.load(path)
     # MobileNet V3
     if training_choice == "base":
-        enhance_config = {"p": 0, "norm_ord": np.inf, "epsilons": 0.005, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0}
         model = MobileNetV3_large_x1_0(class_dim=10)
         model.set_state_dict(model_state_dict)
     elif training_choice == "advtraining":
-        enhance_config = {"p": 0.05, "norm_ord": np.inf, "epsilons": 0.0005, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0.05}
         # adv trained model
         with paddle.utils.unique_name.guard():
             model = MobileNetV3_large_x1_0(class_dim=10)
@@ -107,11 +106,11 @@ elif model_choice == 'resnet':
     model_state_dict = paddle.load(path)
     # ResNet V50
     if training_choice == "base":
-        enhance_config = {"p": 0, "norm_ord": np.inf, "epsilons": 0.005, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0}
         model = ResNet50_vd(class_dim=10)
         model.set_state_dict(model_state_dict)
     elif training_choice == "advtraining":
-        enhance_config = {"p": 0.03, "norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
+        enhance_config = {"p": 0.03}
         # adv trained model
         with paddle.utils.unique_name.guard():
             model = ResNet50_vd(class_dim=10)

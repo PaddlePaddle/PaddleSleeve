@@ -112,7 +112,6 @@ class LOGITS_DISPERSION(Attack):
 
                     grad = paddle.autograd.grad(loss_logits_kl, adv_img)[0]
 
-                    # TODO: fix nan error
                     # avoid nan or inf if gradient is 0
                     if grad.isnan().any():
                         paddle.assign(0.001 * paddle.randn(grad.shape), grad)
@@ -120,11 +119,6 @@ class LOGITS_DISPERSION(Attack):
                     eta = paddle.clip(adv_img - original_img, - epsilon_ball, epsilon_ball)
                     adv_img = original_img + eta
                     adv_img = paddle.clip(adv_img, box_constrains_lower_bound, box_constrains_upper_bound)
-                    # if grad.isnan().any() or adv_img.isnan().any():
-                    #     import pdb
-                    #     pdb.set_trace()
-                    # else:
-                    #     pass
                     '''
                     loss_logits_kl = self.kldiv_criterion(self.logsoftmax(logits_advs), self.softmax(logits))
                     loss_logits_kl.backward()

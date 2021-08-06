@@ -105,12 +105,6 @@ def adverarial_train_TRADES(model, cifar10_train, cifar10_test, save_path=None, 
             logits_advs = model(x_data_augmented)
             loss_logits_kl = kldiv_criterion(logsoftmax(logits_advs), softmax(logits))
             loss = loss_ce + beta * loss_logits_kl
-            # TODO: fix nan error
-            # if loss.isnan().any():
-            #     import pdb
-            #     pdb.set_trace()
-            # else:
-            #     pass
 
             acc = paddle.metric.accuracy(logits, y_data_augmented)
             acc_adv = paddle.metric.accuracy(logits_advs, y_data_augmented)

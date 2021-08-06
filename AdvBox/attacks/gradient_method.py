@@ -353,7 +353,7 @@ class MomentumIteratorAttack(Attack):
                 exit(1)
 
             eta = epsilon_stepsize * normalized_momentum
-            adv_img = adv_img.detach() + eta.detact()
+            adv_img = adv_img.detach() + eta.detach()
             eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
             adv_img = adv_img + eta
             adv_img = paddle.clip(adv_img, min_, max_).detach()

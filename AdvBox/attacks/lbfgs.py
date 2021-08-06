@@ -37,11 +37,8 @@ class LBFGSAttack(Attack):
     def __init__(self, model):
         super(LBFGSAttack, self).__init__(model)
         self._predicts_normalized = None
-        self._adversary = None  # type: Adversary
 
     def _apply(self, adversary, epsilon=0.001, steps=10):
-        self._adversary = adversary
-
         if not adversary.is_targeted_attack:
             raise ValueError("This attack method only support targeted attack!")
 
@@ -52,7 +49,7 @@ class LBFGSAttack(Attack):
         for i in range(30):
             c = 2 * c
             logging.info('c={}'.format(c))
-            is_adversary = self._lbfgsb(x0, c, steps)
+            is_adversary = self._lbfgsb(adversary, x0, c, steps)
             if is_adversary:
                 break
         if not is_adversary:
@@ -67,7 +64,7 @@ class LBFGSAttack(Attack):
             logging.info('c_high={}, c_low={}, diff={}, epsilon={}'
                          .format(c_high, c_low, c_high - c_low, epsilon))
             c_half = (c_low + c_high) / 2
-            is_adversary = self._lbfgsb(x0, c_half, steps)
+            is_adversary = self._lbfgsb(adversary, x0, c_half, steps)
             if is_adversary:
                 c_high = c_half
             else:
@@ -98,15 +95,15 @@ class LBFGSAttack(Attack):
     #    assert self._predicts_normalized is not None
     #    return self._predicts_normalized
 
-    def _loss(self, adv_x, c):
+    def _loss(self, adv_x, c, adversary):
         """
         To get the loss and gradient.
         :param adv_x: the candidate adversarial example
         :param c: parameter 'C' in the paper
         :return: (loss, gradient)
         """
-        x = adv_x.reshape(self._adversary.original.shape)
-        img = adv_x.reshape([1] + [v for v in self._adversary.original.shape])
+        x = adv_x.reshape(adversary.original.shape)
+        img = adv_x.reshape([1] + [v for v in adversary.original.shape])
 
         # cross_entropy
         logits = self.model.predict(img)
@@ -115,31 +112,38 @@ class LBFGSAttack(Attack):
         e = np.exp(logits)
         s = np.sum(e)
 
-        ce = np.log(s) - logits[0, self._adversary.target_label]
+        ce = np.log(s) - logits[0, adversary.target_label]
 
         # L2 distance
         min_, max_ = self.model.bounds
-        d = np.sum((x - self._adversary.original).flatten() ** 2) \
+        d = np.sum((x - adversary.original).flatten() ** 2) \
             / ((max_ - min_) ** 2) / len(adv_x)
 
         # gradient
-        gradient = self.model.gradient(img, self._adversary.target_label)
+        gradient = self.model.gradient(img, adversary.target_label)
         result = (c * ce + d).astype(float), gradient.flatten().astype(float)
         return result
 
-    def _lbfgsb(self, x0, c, maxiter):
+    def _lbfgsb(self, adversary, x0, c, maxiter):
         min_, max_ = self.model.bounds
         bounds = [(min_, max_)] * len(x0)
         approx_grad_eps = (max_ - min_) / 100.0
 
-        x, f, d = fmin_l_bfgs_b(self._loss, x0, args=(c, ), bounds=bounds, maxiter=maxiter, epsilon=approx_grad_eps)
+        x, f, d = fmin_l_bfgs_b(self._loss, x0, args=(c, adversary, ), bounds=bounds, maxiter=maxiter, epsilon=approx_grad_eps)
 
         if np.amax(x) > max_ or np.amin(x) < min_:
             x = np.clip(x, min_, max_)
-        shape = [1] + [v for v in self._adversary.original.shape]
+        shape = [1] + [v for v in adversary.original.shape]
         adv_label = np.argmax(self.model.predict(x.reshape(shape)))
-        logging.info('pre_label = {}, adv_label={}'.format(self._adversary.target_label, adv_label))
-        return self._adversary.try_accept_the_example(np.squeeze(x.reshape(shape)), adv_label)
+        logging.info('pre_label = {}, adv_label={}'.format(adversary.target_label, adv_label))
+
+        adv_img_normalized = x.reshape(shape)
+        # TODO: finish adv_img and adv_img_normalized
+        is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized),
+                                                 np.squeeze(adv_img_normalized),
+                                                 adv_label)
+
+        return is_ok
 
 
 LBFGS = LBFGSAttack

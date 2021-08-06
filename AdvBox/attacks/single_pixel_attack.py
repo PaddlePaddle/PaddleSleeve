@@ -117,14 +117,17 @@ class SinglePixelAttack(Attack):
                     perturbed = np.copy(adv_img)
                     # 针对图像的每个信道的点[x,y]同时进行修改
                     perturbed[location] = value
-                    # import paddle
-                    # print(paddle.to_tensor(perturbed)) #show image like the char structure
                     # [1,28,28] -> [1,1,28,28]
                     perturbed = np.expand_dims(perturbed, axis=0)
                     pred = self.model.predict(perturbed)
+
                     adv_label = np.argmax(pred)
-                    # print("adv_label: ", adv_label, perturbed.shape, [x, y])
-                    if adversary.try_accept_the_example(np.squeeze(perturbed, axis=0), adv_label):
+                    adv_img_normalized = perturbed
+                    # TODO: finish adv_img and adv_img_normalized
+                    is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized, axis=0),
+                                                             np.squeeze(adv_img_normalized, axis=0),
+                                                             adv_label)
+                    if is_ok:
                         return adversary
             else:
                 # 图像经过预处理 取值为整数 通常范围为0-1
@@ -138,7 +141,13 @@ class SinglePixelAttack(Attack):
                     pred = self.model.predict(perturbed)
 
                     adv_label = np.argmax(pred)
-                    if adversary.try_accept_the_example(np.squeeze(perturbed, axis=0), adv_label):
+                    adv_img_normalized = perturbed
+                    # TODO: finish adv_img and adv_img_normalized
+
+                    is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized, axis=0),
+                                                             np.squeeze(adv_img_normalized, axis=0),
+                                                             adv_label)
+                    if is_ok:
                         return adversary
 
         return adversary

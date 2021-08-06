@@ -42,6 +42,7 @@ logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
 from adversary import Adversary
 from attacks.gradient_method import FGSMT
+from attacks.gradient_method import PGD
 from models.whitebox import PaddleWhiteBoxModel
 from utility import add_arguments, print_arguments, show_images_diff
 
@@ -153,9 +154,10 @@ def main(image_path):
     adversary = Adversary(inputs.numpy(), origin_label)
     adversary.set_status(is_targeted_attack=True, target_label=target_label)
 
-    attack = FGSMT(paddle_model)
+    # attack = FGSMT(paddle_model)
+    attack = PGD(paddle_model, norm="Linf", epsilon_ball=30/255, epsilon_stepsize=30/255)
     # 设定epsilons
-    attack_config = {"epsilons": 0.5, "epsilon_steps": 10, "steps": 50}
+    attack_config = {}
     adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():

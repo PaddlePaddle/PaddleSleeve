@@ -31,24 +31,29 @@ class Adversary(object):
         """
         Initialization for Adversary object.
         Args:
-            original: numpy.ndarray. The original sample, such as an image. Numpy
+            original: numpy.ndarray. The single original sample(no batch), such as an image.
             original_label: numpy.ndarray. The original sample's label.
         """
         assert isinstance(original, np.ndarray)
         assert isinstance(original_label, int) or isinstance(original_label, np.int64)
-        self.__original = original
-        self.__original_label = original_label
+        self._original = original
+        self._original_label = original_label
 
-        self.__is_targeted_attack = False
-        self.__target_label = None
-        self.adversarial_label = None
+        self._is_targeted_attack = False
+        self._target_label = None
 
-        self.__adversarial_example = None
-        self.__bad_adversarial_example = None
+        self._denormalized_original = None
+        self._denormalized_adversarial_example = None
+        self._denormalized_bad_adversarial_example = None
+
+        self._adversarial_label = None
+        self._adversarial_example = None
+        self._bad_adversarial_example = None
 
     def summary(self):
-        print("original label:", self.__original_label)
-        print("target label:", self.__target_label)
+        print("original label:", self.original_label)
+        print("target mode:", self.is_targeted_attack)
+        print("target label:", self.target_label)
         print("adversarial label:", self.adversarial_label)
         print("contains a successful AE:", self.is_successful())
 
@@ -67,14 +72,67 @@ class Adversary(object):
         """
         assert isinstance(is_targeted_attack, bool)
         assert isinstance(target_label, int) or isinstance(target_label, np.int64)
-        self.__is_targeted_attack = is_targeted_attack
-        if self.__is_targeted_attack:
+        self._is_targeted_attack = is_targeted_attack
+        if self._is_targeted_attack:
             # targeted status
-            assert target_label is not None
-            self.__target_label = target_label
+            self._target_label = target_label
         else:
             # untargeted status
-            self.__target_label = None
+            self._target_label = None
+
+    def routine_check(self, advbox_base_model):
+        """
+        Check model property is consistent with adversary property.
+        Args:
+            advbox_base_model: an instance of a models.base.Model
+
+        Returns:
+            None
+        """
+        # make sure model property is consistent with dataset
+        assert self.original.shape == advbox_base_model.input_shape
+
+    def generate_denormalized_original(self, input_channel_axis, mean, std):
+        """
+        Denormalize input sample with given mean & std if given.
+        We use denormalized original for perturbation process.
+        Args:
+            input_channel_axis: int. the channel index number of input sample.
+            mean: list. channelwise average values.
+            std: list. channelwise standard deviation values.
+
+        Returns:
+            None
+        """
+        assert self.original.shape[input_channel_axis] == len(mean)
+
+        self._denormalized_original = np.zeros(self.original.shape)
+        for channel in range(self.original.shape[input_channel_axis]):
+            self._denormalized_original[channel] = self.original[channel] * std[channel] + mean[channel]
+
+    # def generate_normalized_adversarial_example(self, input_channel_axis, mean, std):
+    #     """
+    #     Normalize generated adversarial sample from denormalized domain.
+    #     Args:
+    #         input_channel_axis: int. the channel index number of input sample.
+    #         mean: list. channelwise average values.
+    #         std: list. channelwise standard deviation values.
+    #     Returns:
+    #         None
+    #     """
+    #     assert self.original.shape[input_channel_axis] == len(mean)
+    #
+    #     ok = self.is_successful()
+    #     if ok:
+    #         self._adversarial_example = np.zeros(self.original.shape)
+    #         for channel in range(self.original.shape[input_channel_axis]):
+    #             self._adversarial_example[channel] = \
+    #                 (self._denormalized_adversarial_example[channel] - mean[channel]) / std[channel]
+    #     else:
+    #         self._bad_adversarial_example = np.zeros(self.original.shape)
+    #         for channel in range(self.original.shape[input_channel_axis]):
+    #             self._bad_adversarial_example[channel] = \
+    #                 (self._denormalized_bad_adversarial_example[channel] - mean[channel]) / std[channel]
 
     def reset(self):
         """
@@ -82,12 +140,16 @@ class Adversary(object):
         Returns:
             None.
         """
-        self.__is_targeted_attack = False
-        self.__target_label = None
-        self.adversarial_label = None
+        self._is_targeted_attack = False
+        self._target_label = None
 
-        self.__adversarial_example = None
-        self.__bad_adversarial_example = None
+        self._denormalized_original = None
+        self._denormalized_adversarial_example = None
+        self._denormalized_bad_adversarial_example = None
+
+        self._adversarial_label = None
+        self._adversarial_example = None
+        self._bad_adversarial_example = None
 
     def _is_successful(self, adversarial_label):
         """
@@ -101,10 +163,10 @@ class Adversary(object):
         if adversarial_label is None:
             return False
         assert isinstance(adversarial_label, int) or isinstance(adversarial_label, np.int64)
-        if self.__is_targeted_attack:
-            return adversarial_label == self.__target_label
+        if self._is_targeted_attack:
+            return adversarial_label == self._target_label
         else:
-            return adversarial_label != self.__original_label
+            return adversarial_label != self._original_label
 
     def is_successful(self):
         """
@@ -112,31 +174,36 @@ class Adversary(object):
         Returns:
             bool.
         """
-        return self._is_successful(self.adversarial_label)
+        return self._is_successful(self._adversarial_label)
 
-    def try_accept_the_example(self, adversarial_example, adversarial_label):
+    def try_accept_the_example(self, denormalized_adversarial_example, adversarial_example, adversarial_label):
         """
         If adversarial_label the target label that we are finding.
         The adversarial_example and adversarial_label will be accepted and
         True will be returned.
-        Else the adversarial_example will be stored in __bad_adversarial_example.
+        Else the adversarial_example will be stored in _bad_adversarial_example.
         Args:
+            denormalized_adversarial_example: numpy.ndarray.
             adversarial_example: numpy.ndarray.
             adversarial_label: int.
 
         Returns:
             bool.
         """
+        assert isinstance(denormalized_adversarial_example, np.ndarray)
         assert isinstance(adversarial_example, np.ndarray)
         assert isinstance(adversarial_label, int) or isinstance(adversarial_label, np.int64)
-        assert self.original.shape == adversarial_example.shape
+        assert self.denormalized_original.shape == adversarial_example.shape
+        assert self.denormalized_original.shape == denormalized_adversarial_example.shape
 
         ok = self._is_successful(adversarial_label)
         if ok:
-            self.__adversarial_example = adversarial_example
-            self.adversarial_label = adversarial_label
+            self._adversarial_example = adversarial_example
+            self._denormalized_adversarial_example = denormalized_adversarial_example
+            self._adversarial_label = adversarial_label
         else:
-            self.__bad_adversarial_example = adversarial_example
+            self._bad_adversarial_example = adversarial_example
+            self._denormalized_bad_adversarial_example = denormalized_adversarial_example
 
         return ok
 
@@ -149,36 +216,22 @@ class Adversary(object):
         Returns:
             numpy.ndarray. The perturbation that is multiplied by multiplying_factor.
         """
-        assert self.__original is not None
-        assert (self.__adversarial_example is not None) or \
-               (self.__bad_adversarial_example is not None)
-        if self.__adversarial_example is not None:
+        assert self._original is not None
+        assert (self._adversarial_example is not None) or \
+               (self._bad_adversarial_example is not None)
+        if self._adversarial_example is not None:
             return multiplying_factor * (
-                self.__adversarial_example - self.__original)
+                self._adversarial_example - self._original)
         else:
             return multiplying_factor * (
-                self.__bad_adversarial_example - self.__original)
-
-    @property
-    def is_targeted_attack(self):
-        """
-        :property: is_targeted_attack
-        """
-        return self.__is_targeted_attack
+                self._bad_adversarial_example - self._original)
 
     @property
     def original(self):
         """
         :property: original
         """
-        return self.__original
-
-    @property
-    def target_label(self):
-        """
-        :property: target
-        """
-        return self.__target_label
+        return self._original
 
     @property
     def original_label(self):
@@ -187,18 +240,60 @@ class Adversary(object):
         Returns:
             original label.
         """
-        return self.__original_label
+        return self._original_label
+
+    @property
+    def is_targeted_attack(self):
+        """
+        :property: is_targeted_attack
+        """
+        return self._is_targeted_attack
+
+    @property
+    def target_label(self):
+        """
+        :property: target
+        """
+        return self._target_label
+
+    @property
+    def denormalized_original(self):
+        """
+        :property: denormalized original
+        """
+        return self._denormalized_original
+
+    @property
+    def denormalized_adversarial_example(self):
+        """
+        :property: denormalized adversarial_example
+        """
+        return self._denormalized_adversarial_example
 
     @property
     def adversarial_example(self):
         """
         :property: adversarial_example
         """
-        return self.__adversarial_example
+        return self._adversarial_example
+
+    @property
+    def adversarial_label(self):
+        """
+        :property: adversarial_label
+        """
+        return self._adversarial_label
+
+    @property
+    def denormalized_bad_adversarial_example(self):
+        """
+        :property: denormalized bad adversarial example
+        """
+        return self._denormalized_bad_adversarial_example
 
     @property
     def bad_adversarial_example(self):
         """
         :property: bad_adversarial_example
         """
-        return self.__bad_adversarial_example
+        return self._bad_adversarial_example

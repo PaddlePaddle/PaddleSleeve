@@ -21,11 +21,11 @@ from builtins import str
 from builtins import range
 import logging
 from collections import Iterable
+
 logger = logging.getLogger(__name__)
 
 import numpy as np
 from .base import Attack
-
 
 __all__ = [
     'SinglePixelAttack'
@@ -38,6 +38,7 @@ class SinglePixelAttack(Attack):
     """
     SinglePixelAttack
     """
+
     def __init__(self, model, support_targeted=True):
         """
 
@@ -81,7 +82,7 @@ class SinglePixelAttack(Attack):
         adversary.adversarial_label  对抗样本的标签
         '''
 
-        axes = [i for i in range(adversary.original.ndim) if i != self.model.channel_axis]
+        axes = [i for i in range(adversary.original.ndim) if i != self.model.input_channel_axis]
 
         # 输入的图像必须具有长和宽属性
         assert len(axes) == 2
@@ -92,7 +93,7 @@ class SinglePixelAttack(Attack):
         # print("w={0},h={1}".format(w,h))
 
         # max_pixel为攻击点的最多个数 从原始图像中随机选择max_pixel个进行攻击
-        
+
         pixels = np.random.permutation(h * w)
         pixels = pixels[:max_pixels]
 
@@ -105,9 +106,8 @@ class SinglePixelAttack(Attack):
             if i % 50 == 0:
                 logging.info("Attack location x={0} y={1}".format(x, y))
 
-            location.insert(self.model.channel_axis, slice(None))
+            location.insert(self.model.input_channel_axis, slice(None))
             location = tuple(location)
-
 
             if not isPreprocessed:
                 # logger.info("value in [min_={0}, max_={1}]".format(min_, max_))
@@ -117,28 +117,37 @@ class SinglePixelAttack(Attack):
                     perturbed = np.copy(adv_img)
                     # 针对图像的每个信道的点[x,y]同时进行修改
                     perturbed[location] = value
-                    # import paddle
-                    # print(paddle.to_tensor(perturbed)) #show image like the char structure
                     # [1,28,28] -> [1,1,28,28]
                     perturbed = np.expand_dims(perturbed, axis=0)
                     pred = self.model.predict(perturbed)
+
                     adv_label = np.argmax(pred)
-                    # print("adv_label: ", adv_label, perturbed.shape, [x, y])
-                    if adversary.try_accept_the_example(np.squeeze(perturbed, axis=0), adv_label):
+                    adv_img_normalized = perturbed
+                    # TODO: finish adv_img and adv_img_normalized
+                    is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized, axis=0),
+                                                             np.squeeze(adv_img_normalized, axis=0),
+                                                             adv_label)
+                    if is_ok:
                         return adversary
-            else: 
+            else:
                 # 图像经过预处理 取值为整数 通常范围为0-1
                 for value in np.linspace(min_, max_, num=256):
                     # logger.info("value in [min_={0}, max_={1},step num=256]".format(min_, max_))
                     perturbed = np.copy(adv_img)
                     # 针对图像的每个信道的点[x,y]同时进行修改
-                    perturbed[location] = value 
+                    perturbed[location] = value
                     if len(perturbed.shape) < 4:
                         perturbed = np.expand_dims(perturbed, axis=0)
                     pred = self.model.predict(perturbed)
 
                     adv_label = np.argmax(pred)
-                    if adversary.try_accept_the_example(np.squeeze(perturbed, axis=0), adv_label):
+                    adv_img_normalized = perturbed
+                    # TODO: finish adv_img and adv_img_normalized
+
+                    is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized, axis=0),
+                                                             np.squeeze(adv_img_normalized, axis=0),
+                                                             adv_label)
+                    if is_ok:
                         return adversary
 
         return adversary

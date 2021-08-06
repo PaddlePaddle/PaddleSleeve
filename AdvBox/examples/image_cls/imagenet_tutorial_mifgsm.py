@@ -80,28 +80,30 @@ def main(image_path):
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
-    loss_fn = paddle.nn.CrossEntropyLoss()
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     # non-targeted attack
     attack = MIFGSM(paddle_model)
 
     predict = model(img)[0]
-    print (predict.shape)
+    print(predict.shape)
     label = np.argmax(predict)
     print("label={}".format(label))
 
     img = np.squeeze(img)
     inputs = img
-    labels = label #orig_label
+    labels = label # orig_label
 
     print("input img shape: ", inputs.shape)
 
@@ -113,10 +115,11 @@ def main(image_path):
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    attack = MIFGSM(paddle_model)
+    attack = MIFGSM(paddle_model, norm='L2', epsilon_ball=128/255, epsilon_stepsize=15/255)
+    # attack = MIFGSM(paddle_model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255)
 
     # 设定epsilons  
-    attack_config = {"epsilons": 0.3, "epsilon_steps": 10, "steps": 100}
+    attack_config = {"steps": 100}
     adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():

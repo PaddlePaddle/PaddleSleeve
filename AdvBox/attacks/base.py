@@ -27,13 +27,22 @@ class Attack(object):
     adversarial attack which search an adversarial example. Subclass should
     implement the _apply(self, adversary, **kwargs) method.
     Args:
-        model(Model): an instance of a paddle model
+        model(Model): an instance of a models.base.Model.
+        norm(str): 'Linf' or 'L2', the norm of the threat model.
+        epsilon_ball(float): the bound on the norm of the AE.
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, model):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
+        # norm='L2', epsilon_ball=128/255, epsilon_stepsize=15/255
         self.model = model
         self._device = paddle.get_device()
+        assert norm in ('Linf', 'L2')
+        self.norm = norm
+        self.epsilon_ball = epsilon_ball
+        self.epsilon_stepsize = epsilon_stepsize
+        self.normalize = paddle.vision.transforms.Normalize(mean=self.model.normalization_mean,
+                                                            std=self.model.normalization_std)
 
     def __call__(self, adversary, **kwargs):
         """
@@ -42,7 +51,14 @@ class Attack(object):
         adversary(object): The adversary object.
         **kwargs: Other named arguments.
         """
-        return self._apply(adversary, **kwargs)
+        # make sure data in adversary is compatible with self.model
+        adversary.routine_check(self.model)
+        adversary.generate_denormalized_original(self.model.input_channel_axis,
+                                                 self.model.normalization_mean,
+                                                 self.model.normalization_std)
+        # _apply generate denormalized AE to perturb adversarial in pre-normalized domain
+        adversary = self._apply(adversary, **kwargs)
+        return adversary
 
     @abstractmethod
     def _apply(self, adversary, **kwargs):
@@ -51,5 +67,7 @@ class Attack(object):
         Args:
         adversary(object): The adversary object.
         **kwargs: Other named arguments.
+
+        retun
         """
         raise NotImplementedError

@@ -51,29 +51,29 @@ def main():
     """
     Advbox demo which demonstrate how to use advbox.
     """
-
     args = parser.parse_args()
     print_arguments(args)
-
-    #normalize
-    transform = Compose([Normalize(mean=[127.5],
-                   std=[127.5],
-                   data_format='CHW')]) 
+    mean = [127.5]
+    std = [127.5]
+    # normalize
+    transform = Compose([Normalize(mean=mean,
+                                   std=std,
+                                   data_format='CHW')])
 
     test_dataset = paddle.vision.datasets.MNIST(mode='test', transform=transform)
     test_loader = paddle.io.DataLoader(test_dataset, batch_size=1)
 
     model = CNNModel()
-    loss_fn = paddle.nn.CrossEntropyLoss()
 
-    # init a paddle black box model
     paddle_model = PaddleBlackBoxModel(
         [model],
         [1],
-        loss_fn,
-        bounds=(0, 255),
-        #bounds=(-3, 3),
-        channel_axis=0,
+        (0, 255),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(1, 28, 28),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=10)
 
     # 形状为[1,28,28] channel_axis=0  形状为[28,28,1] channel_axis=2
@@ -107,7 +107,7 @@ def main():
         #print (predicts.shape)#[64,10]
         orig_label = np.argmax(predicts[0])
         #print ("=====pred label: ", np.argmax(predicts[0]))#[64,10]#2
-        
+
         #attack
         img = np.reshape(x_data.numpy(), [1, 28, 28])
         adversary = Adversary(img, int(y_data[0]))

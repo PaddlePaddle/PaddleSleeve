@@ -42,6 +42,7 @@ logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
 from adversary import Adversary
 from attacks.gradient_method import FGSMT
+from attacks.gradient_method import PGD
 from models.whitebox import PaddleWhiteBoxModel
 from utility import add_arguments, print_arguments, show_images_diff
 
@@ -141,18 +142,22 @@ def main(image_path):
     paddle_model = PaddleWhiteBoxModel(
         attack_models,
         [1, 1, 1, 1, 1, 1, 1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     inputs = np.squeeze(img)
     adversary = Adversary(inputs.numpy(), origin_label)
     adversary.set_status(is_targeted_attack=True, target_label=target_label)
 
-    attack = FGSMT(paddle_model)
+    # attack = FGSMT(paddle_model)
+    attack = PGD(paddle_model, norm="Linf", epsilon_ball=30/255, epsilon_stepsize=30/255)
     # 设定epsilons
-    attack_config = {"epsilons": 0.5, "epsilon_steps": 10, "steps": 50}
+    attack_config = {}
     adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():

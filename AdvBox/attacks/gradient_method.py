@@ -15,10 +15,6 @@
 This module provides the implementation for FGSM attack method.
 """
 from __future__ import division
-
-import logging
-from collections import Iterable
-
 import numpy as np
 import paddle
 from .base import Attack
@@ -36,119 +32,97 @@ __all__ = [
 
 class GradientMethodAttack(Attack):
     """
-    This class implements gradient attack method, and is the base of FGSM, BIM, ILCM, etc.
+    This class implements gradient attack method, and is the base of FGSM, BIM, ILCM.
     """
-    def __init__(self, model, support_targeted=True, pgd_flag=False):
+    def __init__(self, model, norm='Linf',
+                 epsilon_ball=8/255, epsilon_stepsize=2/255,
+                 support_targeted=True):
         """
         Args:
             model: An instance of a paddle model to be attacked.
             support_targeted(Does): this attack method support targeted.
-            pgd_flag: place it true if use pgd
         """
-        super(GradientMethodAttack, self).__init__(model)
+        super(GradientMethodAttack, self).__init__(model, norm=norm,
+                                                   epsilon_ball=epsilon_ball,
+                                                   epsilon_stepsize=epsilon_stepsize)
         self.support_targeted = support_targeted
-        self.pgd_flag = pgd_flag
 
     def _apply(self,
                adversary,
-               norm_ord=None,
-               epsilons=0.01,
-               epsilon_steps=10,
                steps=100,
-               perturb=16.0 / 256,
                ):
         """
         Apply the gradient attack method.
         Args:
             adversary: The Adversary object.
-            norm_ord: Order of the norm, such as np.inf, 1, 2, etc. It can't be 0.
-            epsilons: Attack step size (input variation). Largest step size if epsilons is not iterable.
-            epsilon_steps: The number of Epsilons' iteration for each attack iteration.
             steps: The number of attack iteration.
 
         Returns:
             adversary(Adversary): The Adversary object.
         """
-        if norm_ord is None:
-            norm_ord = np.inf
-
-        if norm_ord == 0:
-            raise ValueError("L0 norm is not supported!")
+        norm = self.norm
+        epsilon_ball = self.epsilon_ball
+        epsilon_stepsize = self.epsilon_stepsize
 
         if not self.support_targeted:
             if adversary.is_targeted_attack:
-                raise ValueError(
-                    "This attack method doesn't support targeted attack!")
-
-        if not isinstance(epsilons, Iterable):
-            if epsilon_steps == 1:
-                epsilons = [epsilons]
-            else:
-                epsilons = np.linspace(0, epsilons, num=epsilon_steps)
-        assert self.model.channel_axis == adversary.original.ndim
-        assert (self.model.channel_axis == 1 or
-                self.model.channel_axis == adversary.original.shape[0] or
-                self.model.channel_axis == adversary.original.shape[-1])
+                raise ValueError("This attack method doesn't support targeted attack!")
 
         original_label = adversary.original_label
+        original_label = paddle.to_tensor(original_label, dtype='int64', place=self._device)
         min_, max_ = self.model.bounds
-        adv_img = adversary.original
-        if len(adv_img.shape) < 4:
-            adv_img = np.expand_dims(adv_img, axis=0)
-
-        adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)
-        adv_img.stop_gradient = False
 
         if adversary.is_targeted_attack:
             target_label = adversary.target_label
+            num_labels = self.model.num_classes()
+            assert target_label < num_labels
             target_label = paddle.to_tensor(target_label, dtype='int64', place=self._device)
-        for epsilon in epsilons[:]:
-            if epsilon == 0.0:
-                continue
 
-            for step in range(steps):
-                if adversary.is_targeted_attack:
-                    gradient = - self.model.gradient(adv_img, target_label)
-                else:
-                    gradient = self.model.gradient(adv_img, original_label)
+        img = adversary.denormalized_original
+        img_tensor = paddle.to_tensor(img, dtype='float32', place=self._device)
+        adv_img = paddle.to_tensor(img, dtype='float32', place=self._device)
+        for step in range(steps):
+            adv_img.stop_gradient = False
+            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
+            if len(adv_img_normalized.shape) < 4:
+                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
 
-                gradient = paddle.to_tensor(gradient, dtype='float32', place=self._device)
-                if norm_ord == np.inf:
-                    gradient_norm = paddle.sign(gradient)
-                else:
-                    gradient_norm = gradient / self._norm(gradient.numpy(), ord=norm_ord)
+            if adversary.is_targeted_attack:
+                logits = self.model.predict_tensor(adv_img_normalized)
+                loss = self.model.loss(logits, target_label)
+                loss.backward(retain_graph=True)
+                gradient = - adv_img.grad
+            else:
+                logits = self.model.predict_tensor(adv_img_normalized)
+                loss = self.model.loss(logits, original_label)
+                loss.backward(retain_graph=True)
+                gradient = adv_img.grad
 
-                if len(adv_img.shape) < 4:
-                    adv_img = np.expand_dims(adv_img.numpy(), axis=0)
+            if norm == 'Linf':
+                normalized_gradient = paddle.sign(gradient)
+            elif norm == 'L2':
+                gradient_norm = paddle.norm(gradient, p=2)
+                normalized_gradient = gradient / gradient_norm
+            else:
+                exit(1)
 
-                if self.pgd_flag:
-                    # linf
-                    adv_img = adv_img + gradient_norm * epsilon
-                    clip_max = np.clip(adv_img.numpy() * (1.0 + perturb), min_, max_)
-                    clip_min = np.clip(adv_img.numpy() * (1.0 - perturb), min_, max_)
-                    adv_img = np.clip(adv_img.numpy(), clip_min, clip_max)  
-                    adv_label = np.argmax(self.model.predict(paddle.to_tensor(adv_img)))
-                    adv_img = paddle.to_tensor(adv_img)
-                else:
-                    adv_img = adv_img + gradient_norm * epsilon
-                    adv_label = np.argmax(self.model.predict(adv_img))
+            # control norm and clip in model.bounds domain.
+            eta = epsilon_stepsize * normalized_gradient
+            adv_img = adv_img.detach() + eta.detach()
+            eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
+            adv_img = img_tensor + eta
+            adv_img = paddle.clip(adv_img, min_, max_).detach()
 
-                if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()), adv_label):
-                    return adversary
+            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
+            if len(adv_img_normalized.shape) < 4:
+                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            adv_label = np.argmax(self.model.predict(adv_img_normalized))
 
+            if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
+                                                np.squeeze(adv_img_normalized.numpy()),
+                                                adv_label):
+                return adversary
         return adversary
-
-    @staticmethod
-    def _norm(a, ord):
-        if a.ndim == 1 or a.ndim == 2:
-            return np.linalg.norm(a, ord=ord)
-        # channel first
-        elif a.ndim == a.shape[0]:
-            norm_shape = a.ndim * a.shape[1:][0] * a.shape[1:][0]
-        # channel last
-        else:
-            norm_shape = a.ndim * a.shape[:-1][0] * a.shape[:-1][1]
-        return np.linalg.norm(a.reshape(norm_shape), ord=ord)
 
 
 class FastGradientSignMethodTargetedAttack(GradientMethodAttack):
@@ -159,6 +133,17 @@ class FastGradientSignMethodTargetedAttack(GradientMethodAttack):
 
     Paper link: https://arxiv.org/abs/1412.6572
     """
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
+        """
+        FGSM attack init.
+        Args:
+            model: PaddleWhiteBoxModel.
+        """
+        super(FastGradientSignMethodTargetedAttack, self).__init__(model,
+                                                                   norm=norm,
+                                                                   epsilon_ball=epsilon_ball,
+                                                                   epsilon_stepsize=epsilon_stepsize,
+                                                                   support_targeted=True)
 
     def _apply(self, adversary, **kwargs):
         """
@@ -170,26 +155,76 @@ class FastGradientSignMethodTargetedAttack(GradientMethodAttack):
         Returns:
             An adversary status with changed status.
         """
+        return GradientMethodAttack._apply(self,
+                                           adversary=adversary,
+                                           steps=1)
 
-        return GradientMethodAttack._apply(self, adversary=adversary, **kwargs)
 
-
-class FastGradientSignMethodAttack(FastGradientSignMethodTargetedAttack):
+class FastGradientSignMethodAttack(GradientMethodAttack):
     """
     This attack was originally implemented by Goodfellow et al. (2015) with the
     infinity norm, and is known as the "Fast Gradient Sign Method".
 
     Paper link: https://arxiv.org/abs/1412.6572
     """
-
-    def __init__(self, model):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
         """
         FGSM attack init.
         Args:
             model: PaddleWhiteBoxModel.
         """
+        super(FastGradientSignMethodAttack, self).__init__(model,
+                                                           norm=norm,
+                                                           epsilon_ball=epsilon_ball,
+                                                           epsilon_stepsize=epsilon_stepsize,
+                                                           support_targeted=False)
 
-        super(FastGradientSignMethodAttack, self).__init__(model, False)
+    def _apply(self, adversary, **kwargs):
+        """
+        Launch an attack process.
+        Args:
+            adversary: Adversary. An adversary instance with initial status.
+            **kwargs: Other named arguments.
+
+        Returns:
+            An adversary status with changed status.
+        """
+        return GradientMethodAttack._apply(self,
+                                           adversary=adversary,
+                                           steps=1)
+
+
+class ProjectedGradientDescentAttack(GradientMethodAttack):
+    """
+    Projected Gradient Descent
+    Towards deep learning models resistant to adversarial attacks, A. Madry, A. Makelov, L. Schmidt, D. Tsipras,
+    and A. Vladu, ICLR 2018
+    """
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
+        """
+        PGD attack init.
+        Args:
+            model: PaddleWhiteBoxModel.
+        """
+        super(ProjectedGradientDescentAttack, self).__init__(model,
+                                                             norm=norm,
+                                                             epsilon_ball=epsilon_ball,
+                                                             epsilon_stepsize=epsilon_stepsize,
+                                                             support_targeted=True)
+
+    def _apply(self, adversary, **kwargs):
+        """
+        Launch an attack process.
+        Args:
+            adversary: Adversary. An adversary instance with initial status.
+            **kwargs: Other named arguments.
+
+        Returns:
+            An adversary status with changed status.
+        """
+        return GradientMethodAttack._apply(self,
+                                           adversary=adversary,
+                                           **kwargs)
 
 
 class IterativeLeastLikelyClassMethodAttack(GradientMethodAttack):
@@ -202,7 +237,7 @@ class IterativeLeastLikelyClassMethodAttack(GradientMethodAttack):
     Paper link: https://arxiv.org/abs/1607.02533
     """
 
-    def _apply(self, adversary, epsilons=0.01, steps=1000):
+    def _apply(self, adversary, steps=1000):
         """
         Launch an attack process.
         Args:
@@ -213,12 +248,9 @@ class IterativeLeastLikelyClassMethodAttack(GradientMethodAttack):
         Returns:
             An adversary status with changed status.
         """
-        return GradientMethodAttack._apply(
-            self,
-            adversary=adversary,
-            norm_ord=np.inf,
-            epsilons=epsilons,
-            steps=steps)
+        return GradientMethodAttack._apply(self,
+                                           adversary=adversary,
+                                           steps=steps)
 
 
 class BasicIterativeMethodAttack(IterativeLeastLikelyClassMethodAttack):
@@ -227,17 +259,19 @@ class BasicIterativeMethodAttack(IterativeLeastLikelyClassMethodAttack):
     take multiple small steps while adjusting the direction after each step.
     Paper link: https://arxiv.org/abs/1607.02533
     """
-
-    def __init__(self, model):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
         """
 
         Args:
             model: PaddleWhiteBoxModel.
         """
-        super(BasicIterativeMethodAttack, self).__init__(model, False)
+        super(BasicIterativeMethodAttack, self).__init__(model, norm=norm,
+                                                         epsilon_ball=epsilon_ball,
+                                                         epsilon_stepsize=epsilon_stepsize,
+                                                         support_targeted=False)
 
 
-class MomentumIteratorAttack(GradientMethodAttack):
+class MomentumIteratorAttack(Attack):
     """
     The Momentum Iterative Fast Gradient Sign Method (Dong et al. 2017).
     This method won the first places in NIPS 2017 Non-targeted Adversarial
@@ -245,50 +279,34 @@ class MomentumIteratorAttack(GradientMethodAttack):
     hard labels for this attack; no label smoothing. inf norm.
     Paper link: https://arxiv.org/pdf/1710.06081.pdf
     """
-
-    def __init__(self, model, support_targeted=True):
+    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
         """
         MIFGSM attack init.
         Args:
             model: PaddleWhiteBoxModel.
-            support_targeted: bool.
         """
-        super(MomentumIteratorAttack, self).__init__(model)
-        self.support_targeted = support_targeted
+        super(MomentumIteratorAttack, self).__init__(model,
+                                                     norm=norm,
+                                                     epsilon_ball=epsilon_ball,
+                                                     epsilon_stepsize=epsilon_stepsize)
 
     def _apply(self,
                adversary,
-               norm_ord=None,
-               epsilons=0.1,
                steps=100,
-               epsilon_steps=100,
-               decay_factor=1):
+               decay_factor=0.9):
         """
         Apply the momentum iterative gradient attack method.
         Args:
             adversary: Adversary. An adversary instance with initial status.
-            norm_ord: int. Order of the norm, such as np.inf, 1, 2, etc. It can't be 0.
-            epsilons: (list|tuple|float). Attack step size (input variation). Largest step size if epsilons is not iterable.
             steps: int. The number of attack iteration.
-            epsilon_steps: int. The number of Epsilons' iteration for each attack iteration.
             decay_factor: float. The decay factor for the momentum term.
 
         Returns:
             An adversary status with changed status.
         """
-        if norm_ord is None:
-            norm_ord = np.inf
-
-        if norm_ord == 0:
-            raise ValueError("L0 norm is not supported!")
-
-        if not self.support_targeted:
-            if adversary.is_targeted_attack:
-                raise ValueError(
-                    "This attack method doesn't support targeted attack!")
-
-        if not isinstance(epsilons, Iterable):
-            epsilons = np.linspace(0, epsilons, num=epsilon_steps)
+        norm = self.norm
+        epsilon_ball = self.epsilon_ball
+        epsilon_stepsize = self.epsilon_stepsize
 
         min_, max_ = self.model.bounds
 
@@ -297,68 +315,59 @@ class MomentumIteratorAttack(GradientMethodAttack):
 
         if adversary.is_targeted_attack:
             target_label = adversary.target_label
+            num_labels = self.model.num_classes()
+            assert target_label < num_labels
             target_label = paddle.to_tensor(target_label, dtype='int64', place=self._device)
 
-        for epsilon in epsilons[:]:
-            if epsilon == 0.0:
-                continue
+        img = adversary.denormalized_original
+        img_tensor = paddle.to_tensor(img, dtype='float32', place=self._device)
+        adv_img = paddle.to_tensor(img, dtype='float32', place=self._device)
 
-            adv_img = adversary.original
-            if len(adv_img.shape) < 4:
-                adv_img = np.expand_dims(adv_img, axis=0)
-            adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)
+        momentum = 0
+        for step in range(steps):
             adv_img.stop_gradient = False
+            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
+            if len(adv_img_normalized.shape) < 4:
+                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            if adversary.is_targeted_attack:
+                logits = self.model.predict_tensor(adv_img_normalized)
+                loss = self.model.loss(logits, target_label)
+                loss.backward(retain_graph=True)
+                gradient = - adv_img.grad
 
-            momentum = 0
-            for step in range(steps):
+            else:
+                logits = self.model.predict_tensor(adv_img_normalized)
+                loss = self.model.loss(logits, original_label)
+                loss.backward(retain_graph=True)
+                gradient = adv_img.grad
 
-                if adversary.is_targeted_attack:
-                    gradient = - self.model.gradient(adv_img, target_label)
-                else:
-                    gradient = self.model.gradient(adv_img, original_label)
+            gradient_norm = paddle.norm(gradient, p=1)
+            velocity = gradient / gradient_norm
+            momentum = decay_factor * momentum + velocity
+            if norm == 'Linf':
+                normalized_momentum = paddle.sign(momentum)
+            elif norm == 'L2':
+                momentum_norm = paddle.norm(momentum, p=2)
+                normalized_momentum = momentum / momentum_norm
+            else:
+                exit(1)
 
-                gradient = np.squeeze(gradient)
-                velocity = gradient / self._norm(gradient, ord=1)
-                velocity = np.expand_dims(velocity, axis=0)
+            eta = epsilon_stepsize * normalized_momentum
+            adv_img = adv_img.detach() + eta.detach()
+            eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
+            adv_img = adv_img + eta
+            adv_img = paddle.clip(adv_img, min_, max_).detach()
 
-                momentum = decay_factor * momentum + velocity
-                if norm_ord == np.inf:
-                    normalized_grad = np.sign(momentum)
-                else:
-                    normalized_grad = self._norm(momentum, ord=norm_ord)
+            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
+            if len(adv_img_normalized.shape) < 4:
+                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            adv_label = np.argmax(self.model.predict(adv_img_normalized))
 
-                perturbation = epsilon * normalized_grad
-                perturbation = paddle.to_tensor(perturbation)
-                adv_img = adv_img + perturbation
-                adv_label = np.argmax(self.model.predict(adv_img))
-
-                logging.info('step={}, epsilon = {:.5f}, pre_label = {}, adv_label={}' .format(step,
-                                                                                               epsilon,
-                                                                                               original_label,
-                                                                                               adv_label))
-
-                if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()), adv_label):
-                    return adversary
-
+            if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
+                                                np.squeeze(adv_img_normalized.numpy()),
+                                                adv_label):
+                return adversary
         return adversary
-
-
-class ProjectedGradientDescentAttack(GradientMethodAttack):
-    """
-    Projected Gradient Descent
-    Towards deep learning models resistant to adversarial attacks, A. Madry, A. Makelov, L. Schmidt, D. Tsipras, 
-    and A. Vladu, ICLR 2018
-    """
-
-    def __init__(self, model, support_targeted=True, pgd_flag=True):
-        """
-        PGD attack init.
-        Args:
-            model: PaddleWhiteBoxModel.
-        """
-        super(ProjectedGradientDescentAttack, self).__init__(model)
-        self.support_targeted = support_targeted
-        self.pgd_flag = pgd_flag 
 
 
 FGSM = FastGradientSignMethodAttack

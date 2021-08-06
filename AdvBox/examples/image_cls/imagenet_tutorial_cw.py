@@ -85,15 +85,17 @@ def main(image_path):
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
-    loss_fn = paddle.nn.CrossEntropyLoss()
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     predict = model(img)[0]
@@ -103,7 +105,7 @@ def main(image_path):
 
     img = np.squeeze(img)
     inputs = img
-    labels = label #orig_label
+    labels = label
 
     print("input img shape: ", inputs.shape)
 
@@ -115,7 +117,7 @@ def main(image_path):
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    attack = CW_L2(paddle_model, learning_rate=0.01)
+    attack = CW_L2(paddle_model)
 
     attack_config = {"attack_iterations": 100,
                      "c_search_steps": 20}

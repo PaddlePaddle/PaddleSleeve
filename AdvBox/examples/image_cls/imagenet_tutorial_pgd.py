@@ -76,55 +76,56 @@ def main(image_path):
     img /= 255.0
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
-    
+
     img = np.expand_dims(img, axis=0) 
     img = paddle.to_tensor(img, dtype='float32', place=paddle.CUDAPlace(0), stop_gradient=False)
 
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
-    loss_fn = paddle.nn.CrossEntropyLoss()
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 224, 224),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
     # non-targeted attack
-    attack = PGD(paddle_model)
+    attack = PGD(paddle_model, epsilon_ball=16/255)
 
     predict = model(img)[0]
-    print (predict.shape)
     label = np.argmax(predict)
-    print("label={}".format(label))
-
     img = np.squeeze(img)
     inputs = img
     labels = label
-
+    print(predict.shape)
+    print("label={}".format(label))
     print("input img shape: ", inputs.shape)
     adversary = Adversary(inputs.numpy(), labels)
 
     # targeted attack
     target_class = args.target
+
     if target_class != -1:
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    attack = PGD(paddle_model)
+    # attack = PGD(paddle_model, norm='Linf', epsilon_ball=16/255, epsilon_stepsize=2/255)
+    attack = PGD(paddle_model, norm='L2', epsilon_ball=100/255, epsilon_stepsize=100/255)
 
-    # 设定epsilons  
-    attack_config = {"epsilons": 20.0 / 256, "epsilon_steps": 10, "steps": 100, 'perturb': 16.0 / 256}
+    # 设定epsilons
+    attack_config = {"steps": 20}
     adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():
-        print(
-            'attack success, adversarial_label=%d'
-            % adversary.adversarial_label)
+        print('attack success, adversarial_label=%d'
+              % adversary.adversarial_label)
 
         adv = adversary.adversarial_example
         adv = np.squeeze(adv)
@@ -143,4 +144,5 @@ def main(image_path):
 
 
 if __name__ == '__main__':
-    main("input/pickup_truck.jpeg")
+    # main("input/pickup_truck.jpeg")
+    main("output/img_adv_pgd.png")

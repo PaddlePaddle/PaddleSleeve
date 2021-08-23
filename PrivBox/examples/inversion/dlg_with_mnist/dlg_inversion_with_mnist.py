@@ -31,7 +31,7 @@ from paddle.vision.transforms import Compose, Normalize
 import paddle.nn.functional as F
 
 from inversion import DLGInversionAttack
-from metrics import MSE, Accuracy
+from metrics import MSE, Accuracy, PSNR, SSIM
 
 
 def parse_args():
@@ -133,13 +133,15 @@ def train_and_attack(args):
         rec_data = ret[i][0]
         rec_labels = ret[i][1]
 
-        x_loss = dlg_attack.evaluate(target_x, rec_data, [MSE()])[0]
+        eval_x = dlg_attack.evaluate(target_x.reshape([-1, 1, 28, 28]),
+                                     rec_data.reshape([-1, 1, 28, 28]),
+                                     [MSE(), PSNR(), SSIM()])
         y_loss = dlg_attack.evaluate(target_y, rec_labels, [Accuracy()])[0]
 
         iteration = i * args.return_epoch
 
-        print("Attack Iteration {}: data_mse_loss = {}, labels_acc = {}"
-            .format(iteration, x_loss,
+        print("Attack Iteration {}: data_mse_loss = {}, data_psnr = {}, data_ssim = {}, labels_acc = {}"
+            .format(iteration, eval_x[0], eval_x[1], eval_x[2],
             y_loss))
         
         save_shape = (28, 28)
@@ -153,4 +155,5 @@ def train_and_attack(args):
 
 if __name__ == "__main__":
     arguments = parse_args()
+    print("args: ", arguments)
     train_and_attack(arguments)

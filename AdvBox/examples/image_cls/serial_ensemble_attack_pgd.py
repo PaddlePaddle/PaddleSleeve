@@ -14,9 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """
-The tutorial of weighted ensemble models blackbox attack based on FGSM.
+The tutorial of serial ensemble models blackbox attack based on FGSM.
 """
 
 from __future__ import division
@@ -28,7 +27,7 @@ sys.path.append("../..")
 from past.utils import old_div
 import logging
 logging.basicConfig(level=logging.INFO, format="%(filename)s[line:%(lineno)d] %(levelname)s %(message)s")
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 import argparse
 import cv2
@@ -44,7 +43,7 @@ from adversary import Adversary
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import PGD
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -64,7 +63,7 @@ def predict(image_path, model):
     Args:
         image_path: path of the image
         model: the classification model
-    Returns: 
+    Returns:
         the classification result label
     """
     model.eval()
@@ -79,40 +78,33 @@ def predict(image_path, model):
     img = img.transpose(2, 0, 1)
 
     img = np.expand_dims(img, axis=0)
-    img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
+    img = paddle.to_tensor(img, dtype='float32',
+                           place=paddle.get_device(), stop_gradient=False)
 
-    # Initialize the network
     predict_result = model(img)[0]
-    print(predict_result.shape)
     label = np.argmax(predict_result)
     return label
 
 
-def main(image_path):
+def target_attack_fgsm(input_image_path, output_image_path, model, tlabel):
     """
-    Use several models' logits to generate a adversary example for blackbox attack.
+    Use iterative target FGSM attack for a model.
     Args:
-        image_path: the path of image to be tested
+        input_image_path: the path of the input image
+        output_image_path: the path of the output image
+        model: the image classification model
+        tlabel: the target label
     Returns:
     """
-    # parse args
-    args = parser.parse_args()
-    print_arguments(args)
-    target_label = args.target
-    if target_label == -1:
-        print("ERROR: need a target")
-        sys.exit(0)
-
-    # Define what device we are using
-    logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
-
-    orig = cv2.imread(image_path)[..., ::-1]
-    H, W, _ = orig.shape
-    orig = cv2.resize(orig, (224, 224))
-    img = orig.copy().astype(np.float32)
+    label = predict(input_image_path, model)
+    print("original label={}".format(label))
 
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
+    orig = cv2.imread(input_image_path)[..., ::-1]
+    orig = cv2.resize(orig, (224, 224))
+    img = orig.copy().astype(np.float32)
+
     img /= 255.0
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
@@ -121,27 +113,10 @@ def main(image_path):
     img = paddle.to_tensor(img, dtype='float32',
                            place=paddle.get_device(), stop_gradient=False)
 
-    # get origin label of the victim model
-    predict_model = paddle.vision.models.mobilenet_v2(pretrained=True)
-    origin_label = predict(image_path, predict_model)
-    print("mobilenet_v2 origin label={}".format(origin_label))
-
-    # Initialize the attack models
-    model1 = paddle.vision.models.resnet18(pretrained=True)
-    model2 = paddle.vision.models.resnet34(pretrained=True)
-    model3 = paddle.vision.models.resnet50(pretrained=True)
-    model4 = paddle.vision.models.resnet101(pretrained=True)
-    model5 = paddle.vision.models.resnet152(pretrained=True)
-    model6 = paddle.vision.models.vgg16(pretrained=True)
-    model7 = paddle.vision.models.mobilenet_v1(pretrained=True)
-
-    attack_models = [model1, model2, model3, model4, model5, model6, model7]
-    loss_fn = paddle.nn.CrossEntropyLoss()
-
-    # init a paddle adv model
+    # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
-        attack_models,
-        [1, 1, 1, 1, 1, 1, 1],
+        [model],
+        [1],
         (0, 1),
         mean=mean,
         std=std,
@@ -151,11 +126,10 @@ def main(image_path):
         nb_classes=1000)
 
     inputs = np.squeeze(img)
-    adversary = Adversary(inputs.numpy(), origin_label)
-    adversary.set_status(is_targeted_attack=True, target_label=target_label)
+    adversary = Adversary(inputs.numpy(), label)
+    adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    # attack = FGSMT(paddle_model)
-    attack = PGD(paddle_model, norm="Linf", epsilon_ball=30/255, epsilon_stepsize=30/255)
+    attack = PGD(paddle_model, norm="Linf", epsilon_ball=40/255, epsilon_stepsize=15/255)
     # 设定epsilons
     attack_config = {}
     adversary = attack(adversary, **attack_config)
@@ -173,24 +147,52 @@ def main(image_path):
         adv = np.clip(adv, 0, 255).astype(np.uint8)
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
-        adv_cv = cv2.resize(adv_cv, (W, H))
-        output_path = 'output/img_adv.png'
-        cv2.imwrite(output_path, adv_cv)
-
-        # transfer attack done
-        adv_label = predict(output_path, predict_model)
-        print("victim mobilenet_v2 predict label={}".format(adv_label))
-
-        # show_images_diff(orig, origin_label, adv, adv_label)
-
+        cv2.imwrite(output_image_path, adv_cv)
+        # show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
+
+    print("FGSMT attack done")
+
+
+def main():
+    """
+    Use several models' logits to generate a adversary example for blackbox attack.
+    Args:
+        image_path: the path of image to be tested
+    Returns:
+    """
+    input_path = "input/cat_example.png"
+    output_path = "output/img_adv.png"
+
+    # parse args
+    args = parser.parse_args()
+    print_arguments(args)
+    target_label = args.target
+    if target_label == -1:
+        print("ERROR: need a target")
         sys.exit(0)
 
-    print("ensemble attack done")
+    attack_model = paddle.vision.models.resnet50(pretrained=True)
+    target_attack_fgsm(input_path, output_path, attack_model, target_label)
+    label = predict(output_path, attack_model)
+    print("resnet50 adv label={}".format(label))
+
+    attack_model = paddle.vision.models.mobilenet_v1(pretrained=True)
+    target_attack_fgsm(output_path, output_path, attack_model, target_label)
+    label = predict(output_path, attack_model)
+    print("mobilenet_v1 adv label={}".format(label))
+
+    attack_model = paddle.vision.models.resnet18(pretrained=True)
+    target_attack_fgsm(output_path, output_path, attack_model, target_label)
+    label = predict(output_path, attack_model)
+    print("resnet18 adv label={}".format(label))
+
+    # victim model
+    victim_model = paddle.vision.models.vgg16(pretrained=True)
+    label = predict(output_path, victim_model)
+    print("victim vgg16 predict label={}".format(label))
 
 
 if __name__ == '__main__':
-    input_path = "input/cat_example.png"
-    print("input file:{}".format(input_path))
-    main(input_path)
+    main()

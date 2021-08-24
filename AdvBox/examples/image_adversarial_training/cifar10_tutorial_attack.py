@@ -27,6 +27,7 @@ sys.path.append("../..")
 from adversary import Adversary
 from models.whitebox import PaddleWhiteBoxModel
 from skimage.metrics import structural_similarity
+from examples.utils import get_best_weigthts_from_folder
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):
@@ -34,21 +35,6 @@ if USE_GPU.startswith('gpu'):
 else:
     paddle.set_device("cpu")
 paddle.seed(2021)
-
-
-def get_best_weigthts_from_folder(folder, pdparams_file_starter):
-    import pdb
-    pdb.set_trace()
-    pdparams_files = [filename for filename in os.listdir(folder) if filename.lower().endswith('.pdparams')
-                      and filename.lower().startswith(pdparams_file_starter.lower())]
-    if not pdparams_files:
-        return None
-    else:
-        acc_list = [filename.split('.')[1] for filename in pdparams_files]
-        max_index = acc_list.index(max(acc_list))
-        best_weight_path = os.path.join(folder, pdparams_files[max_index])
-        print('Loaded: ', best_weight_path)
-    return best_weight_path
 
 
 # Initialize model structure and load trained parameters
@@ -224,6 +210,9 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
 
 
 if __name__ == '__main__':
+    test_loader = paddle.io.DataLoader(cifar10_test, batch_size=BATCH_SIZE)
+    data = test_loader().next()
+
     # init a paddle model
     advbox_model = PaddleWhiteBoxModel(
         [MODEL],
@@ -232,11 +221,9 @@ if __name__ == '__main__':
         mean=MEAN,
         std=STD,
         input_channel_axis=0,
-        input_shape=(3, 256, 256),
+        input_shape=tuple(data[0].shape[1:]),
         loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=10)
-
-    test_loader = paddle.io.DataLoader(cifar10_test, batch_size=BATCH_SIZE)
 
     attack = ATTACK_METHOD(advbox_model, **INIT_CONFIG)
 

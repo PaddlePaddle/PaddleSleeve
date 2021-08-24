@@ -37,7 +37,7 @@ print(paddle.in_dynamic_mode())
 from adversary import Adversary
 from attacks.gradient_method import PGD
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -77,7 +77,7 @@ def main(image_path):
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0) 
+    img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32', place=paddle.CUDAPlace(0), stop_gradient=False)
 
     # Initialize the network
@@ -97,7 +97,7 @@ def main(image_path):
         nb_classes=1000)
 
     # non-targeted attack
-    attack = PGD(paddle_model, epsilon_ball=16/255)
+    attack = PGD(paddle_model, epsilon_ball=16 / 255)
 
     predict = model(img)[0]
     label = np.argmax(predict)
@@ -116,8 +116,8 @@ def main(image_path):
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    # attack = PGD(paddle_model, norm='Linf', epsilon_ball=16/255, epsilon_stepsize=2/255)
-    attack = PGD(paddle_model, norm='L2', epsilon_ball=100/255, epsilon_stepsize=100/255)
+    attack = PGD(paddle_model, norm='Linf', epsilon_ball=16 / 255, epsilon_stepsize=2 / 255)
+    # attack = PGD(paddle_model, norm='L2', epsilon_ball=100 / 255, epsilon_stepsize=100 / 255)
 
     # 设定epsilons
     attack_config = {"steps": 20}

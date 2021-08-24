@@ -34,7 +34,7 @@ import paddle
 from adversary import Adversary
 from attacks.gradient_method import MIFGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -115,10 +115,10 @@ def main(image_path):
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    attack = MIFGSM(paddle_model, norm='L2', epsilon_ball=128/255, epsilon_stepsize=15/255)
-    # attack = MIFGSM(paddle_model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255)
+    attack = MIFGSM(paddle_model, norm='L2', epsilon_ball=50/255, epsilon_stepsize=10/255)
+    # attack = MIFGSM(paddle_model, norm='Linf', epsilon_ball=10/255, epsilon_stepsize=5/255)
 
-    # 设定epsilons  
+    # 设定epsilons
     attack_config = {"steps": 100}
     adversary = attack(adversary, **attack_config)
 

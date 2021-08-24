@@ -46,8 +46,8 @@ class Model(with_metaclass(ABCMeta, object)):
 
         # mean and std are channel wise.
         if mean is None or std is None:
-            self.__MEAN = [0]
-            self.__STD = [1]
+            self.__MEAN = [0] * input_shape[input_channel_axis]
+            self.__STD = [1] * input_shape[input_channel_axis]
         else:
             assert isinstance(mean, list)
             assert isinstance(std, list)

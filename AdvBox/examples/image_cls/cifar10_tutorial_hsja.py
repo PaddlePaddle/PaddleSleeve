@@ -96,6 +96,7 @@ def main():
         total_count += 1
         data = test_loader[i]
         x_data = data[0]
+        x_data = paddle.to_tensor(x_data)
         x_data = paddle.unsqueeze(x_data, axis=0)
         y_data = data[1]
         label = data[1]

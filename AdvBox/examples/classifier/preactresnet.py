@@ -16,7 +16,8 @@ class ToArray(object):
         img = np.array(img)
         img = np.transpose(img, [2, 0, 1])
         img = img / 255.
-        return img.astype('float32')
+        img = img.astype('float32')
+        return img
 
 
 MEAN = None

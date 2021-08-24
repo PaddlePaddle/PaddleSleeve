@@ -23,6 +23,7 @@ import os
 from paddle.vision.transforms import Compose, Normalize
 from mnist_cnn_model import CNNModel
 
+
 transform = Compose([Normalize(mean=[127.5],
                                std=[127.5],
                                data_format='CHW')])

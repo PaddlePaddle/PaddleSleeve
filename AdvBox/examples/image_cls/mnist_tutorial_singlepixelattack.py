@@ -29,11 +29,10 @@ from paddle.vision.transforms import Compose, Normalize
 from paddle.vision.transforms import ToTensor
 
 from adversary import Adversary
-from utils import add_arguments, print_arguments
 from attacks.single_pixel_attack import SinglePixelAttack
 from mnist_cnn_model import CNNModel
 from models.blackbox import PaddleBlackBoxModel
-from utils import add_arguments, print_arguments
+from examples.utils import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

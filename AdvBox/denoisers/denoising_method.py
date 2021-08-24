@@ -25,6 +25,10 @@ from .base import Denoise
 from PIL import Image
 from paddle.vision.transforms import functional as F
 
+
+__all__ = ['DCTCompress', 'DCTCompression']
+
+
 class GaussianBlur(Denoise):
     """
     This class implements denoise method.
@@ -182,6 +186,7 @@ class BilateralFilter(Denoise):
                 return denoising
 
         return denoising
+
 
 class MeanFilter(Denoise):
     """
@@ -657,3 +662,6 @@ def opencv2ndarray(img):
     img = np.transpose(img, (2, 0, 1))
     img = np.expand_dims(img, axis=0)
     return img
+
+
+DCTCompress = DCTCompression

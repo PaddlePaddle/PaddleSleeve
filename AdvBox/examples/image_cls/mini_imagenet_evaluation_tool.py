@@ -41,7 +41,7 @@ from denoisers.denoising_method import ResizePadding
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utils import add_arguments, print_arguments
+from examples.utils import add_arguments, print_arguments
 from miniimagenet import MINIIMAGENET
 from paddle.vision.transforms import Compose, Normalize
 from tqdm import tqdm

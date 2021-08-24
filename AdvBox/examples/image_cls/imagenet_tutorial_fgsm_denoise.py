@@ -51,9 +51,9 @@ from denoisers.denoising_method import ResizePadding
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utils import add_arguments, print_arguments
-from utils import  show_input_adv_and_denoise
-from utils import bcolors
+from examples.utils import add_arguments, print_arguments
+from examples.utils import  show_input_adv_and_denoise
+from examples.utils import bcolors
 
 # parse args
 parser = argparse.ArgumentParser(description=__doc__)
@@ -126,6 +126,7 @@ def main(orig):
     model = paddle.vision.models.resnet50(pretrained=True)
 
     # init a paddle model
+    # TODO: check later
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],

@@ -13,8 +13,8 @@
 # limitations under the License.
 
 """
-Attack methods 
+denoisers methods
 __init__.py
 """
-from .cw import CW_L2
-from .cw import CWL2Attack
+
+from .denoising_method import DCTCompress

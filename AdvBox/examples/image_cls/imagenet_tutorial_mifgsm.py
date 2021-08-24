@@ -34,7 +34,7 @@ import paddle
 from adversary import Adversary
 from attacks.gradient_method import MIFGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utils import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)

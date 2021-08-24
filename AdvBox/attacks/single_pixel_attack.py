@@ -26,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 import numpy as np
 from .base import Attack
+import paddle
+
 
 __all__ = [
     'SinglePixelAttack'
@@ -39,7 +41,7 @@ class SinglePixelAttack(Attack):
     SinglePixelAttack
     """
 
-    def __init__(self, model, support_targeted=True):
+    def __init__(self, model):
         """
 
         Args:
@@ -47,40 +49,26 @@ class SinglePixelAttack(Attack):
             support_targeted:
         """
         super(SinglePixelAttack, self).__init__(model)
-        self.support_targeted = support_targeted
-        self.mean = 127.5
-        self.std = 127.5
 
     # 如果输入的原始数据，isPreprocessed为False，如果驶入的图像数据被归一化了，设置为True
-    def _apply(self, adversary, max_pixels=1000, isPreprocessed=False):
+    def _apply(self, adversary, max_pixels=1000):
         """
 
         Args:
             adversary:
             max_pixels:
-            isPreprocessed:
 
         Returns:
 
         """
-
-        if not self.support_targeted:
-            if adversary.is_targeted_attack:
-                raise ValueError(
-                    "This attack method doesn't support targeted attack!")
+        if adversary.is_targeted_attack:
+            raise ValueError(
+                "This attack method doesn't support targeted attack!")
 
         min_, max_ = self.model.bounds
 
         # 强制拷贝 避免针对adv_img的修改也影响adversary.original
-        adv_img = np.copy(adversary.original)
-
-        '''
-        adversary.original  原始数据
-        adversary.original_label  原始数据的标签
-        adversary.target_label       定向攻击的目标值
-        adversary.__adversarial_example 保存生成的对抗样本
-        adversary.adversarial_label  对抗样本的标签
-        '''
+        adv_img = np.copy(adversary.denormalized_original)
 
         axes = [i for i in range(adversary.original.ndim) if i != self.model.input_channel_axis]
 
@@ -91,14 +79,12 @@ class SinglePixelAttack(Attack):
         w = adv_img.shape[axes[1]]
 
         # print("w={0},h={1}".format(w,h))
-
-        # max_pixel为攻击点的最多个数 从原始图像中随机选择max_pixel个进行攻击
+        # max_pixels为攻击点的最多个数 从原始图像中随机选择max_pixels个进行攻击
 
         pixels = np.random.permutation(h * w)
         pixels = pixels[:max_pixels]
 
         for i, pixel in enumerate(pixels):
-
             x = pixel % w
             y = pixel // w
 
@@ -109,46 +95,23 @@ class SinglePixelAttack(Attack):
             location.insert(self.model.input_channel_axis, slice(None))
             location = tuple(location)
 
-            if not isPreprocessed:
-                # logger.info("value in [min_={0}, max_={1}]".format(min_, max_))
-                # 图像没有经过预处理 取值为整数 范围为0-255
-                for value in [min_, max_]:
-                    # print("(0~255) ", value)
-                    perturbed = np.copy(adv_img)
-                    # 针对图像的每个信道的点[x,y]同时进行修改
-                    perturbed[location] = value
-                    # [1,28,28] -> [1,1,28,28]
-                    perturbed = np.expand_dims(perturbed, axis=0)
-                    pred = self.model.predict(perturbed)
+            # TODO: add differential evolution
+            for value in [min_, max_]:
+                perturbed = np.copy(adv_img)
+                # 针对图像的每个信道的点[x,y]同时进行修改
+                perturbed[location] = value
 
-                    adv_label = np.argmax(pred)
-                    adv_img_normalized = perturbed
-                    # TODO: finish adv_img and adv_img_normalized
-                    is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized, axis=0),
-                                                             np.squeeze(adv_img_normalized, axis=0),
-                                                             adv_label)
-                    if is_ok:
-                        return adversary
-            else:
-                # 图像经过预处理 取值为整数 通常范围为0-1
-                for value in np.linspace(min_, max_, num=256):
-                    # logger.info("value in [min_={0}, max_={1},step num=256]".format(min_, max_))
-                    perturbed = np.copy(adv_img)
-                    # 针对图像的每个信道的点[x,y]同时进行修改
-                    perturbed[location] = value
-                    if len(perturbed.shape) < 4:
-                        perturbed = np.expand_dims(perturbed, axis=0)
-                    pred = self.model.predict(perturbed)
+                perturbed = paddle.to_tensor(perturbed, dtype='float32', place=self._device)
 
-                    adv_label = np.argmax(pred)
-                    adv_img_normalized = perturbed
-                    # TODO: finish adv_img and adv_img_normalized
+                perturbed_normalized = self.input_preprocess(perturbed)
+                adv_label = np.argmax(self.model.predict(perturbed_normalized))
 
-                    is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized, axis=0),
-                                                             np.squeeze(adv_img_normalized, axis=0),
-                                                             adv_label)
-                    if is_ok:
-                        return adversary
+                perturbed = self.safe_delete_batchsize_dimension(perturbed)
+                perturbed_normalized = self.safe_delete_batchsize_dimension(perturbed_normalized)
+                is_ok = adversary.try_accept_the_example(perturbed.numpy(),
+                                                         perturbed_normalized.numpy(),
+                                                         adv_label)
+                if is_ok:
+                    return adversary
 
         return adversary
-

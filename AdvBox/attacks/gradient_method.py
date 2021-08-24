@@ -50,12 +50,13 @@ class GradientMethodAttack(Attack):
     def _apply(self,
                adversary,
                steps=100,
-               ):
+               stop_early=False):
         """
         Apply the gradient attack method.
         Args:
             adversary: The Adversary object.
             steps: The number of attack iteration.
+            stop_early: bool. iteration attack will stop early if true.
 
         Returns:
             adversary(Adversary): The Adversary object.
@@ -83,9 +84,7 @@ class GradientMethodAttack(Attack):
         adv_img = paddle.to_tensor(img, dtype='float32', place=self._device)
         for step in range(steps):
             adv_img.stop_gradient = False
-            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
-            if len(adv_img_normalized.shape) < 4:
-                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            adv_img_normalized = self.input_preprocess(adv_img)
 
             if adversary.is_targeted_attack:
                 logits = self.model.predict_tensor(adv_img_normalized)
@@ -113,15 +112,20 @@ class GradientMethodAttack(Attack):
             adv_img = img_tensor + eta
             adv_img = paddle.clip(adv_img, min_, max_).detach()
 
-            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
-            if len(adv_img_normalized.shape) < 4:
-                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            adv_img_normalized = self.input_preprocess(adv_img)
             adv_label = np.argmax(self.model.predict(adv_img_normalized))
+            adv_img = self.safe_delete_batchsize_dimension(adv_img)
+            adv_img_normalized = self.safe_delete_batchsize_dimension(adv_img_normalized)
 
-            if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
-                                                np.squeeze(adv_img_normalized.numpy()),
-                                                adv_label):
-                return adversary
+            if stop_early:
+                if adversary.try_accept_the_example(adv_img.numpy(),
+                                                    adv_img_normalized.numpy(),
+                                                    adv_label):
+                    return adversary
+
+        adversary.try_accept_the_example(adv_img.numpy(),
+                                         adv_img_normalized.numpy(),
+                                         adv_label)
         return adversary
 
 
@@ -279,7 +283,7 @@ class MomentumIteratorAttack(Attack):
     hard labels for this attack; no label smoothing. inf norm.
     Paper link: https://arxiv.org/pdf/1710.06081.pdf
     """
-    def __init__(self, model, norm='Linf', epsilon_ball=8/255, epsilon_stepsize=2/255):
+    def __init__(self, model, norm='Linf', epsilon_ball=100/255, epsilon_stepsize=2/255):
         """
         MIFGSM attack init.
         Args:
@@ -293,7 +297,8 @@ class MomentumIteratorAttack(Attack):
     def _apply(self,
                adversary,
                steps=100,
-               decay_factor=0.9):
+               decay_factor=1,
+               stop_early=False):
         """
         Apply the momentum iterative gradient attack method.
         Args:
@@ -326,9 +331,8 @@ class MomentumIteratorAttack(Attack):
         momentum = 0
         for step in range(steps):
             adv_img.stop_gradient = False
-            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
-            if len(adv_img_normalized.shape) < 4:
-                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            adv_img_normalized = self.input_preprocess(adv_img)
+
             if adversary.is_targeted_attack:
                 logits = self.model.predict_tensor(adv_img_normalized)
                 loss = self.model.loss(logits, target_label)
@@ -355,18 +359,21 @@ class MomentumIteratorAttack(Attack):
             eta = epsilon_stepsize * normalized_momentum
             adv_img = adv_img.detach() + eta.detach()
             eta = paddle.clip(adv_img - img_tensor, -epsilon_ball, epsilon_ball)
-            adv_img = adv_img + eta
+            adv_img = img_tensor + eta
             adv_img = paddle.clip(adv_img, min_, max_).detach()
 
-            adv_img_normalized = self.normalize(paddle.squeeze(adv_img))
-            if len(adv_img_normalized.shape) < 4:
-                adv_img_normalized = paddle.unsqueeze(adv_img_normalized, axis=0)
+            adv_img_normalized = self.input_preprocess(adv_img)
             adv_label = np.argmax(self.model.predict(adv_img_normalized))
-
-            if adversary.try_accept_the_example(np.squeeze(adv_img.numpy()),
-                                                np.squeeze(adv_img_normalized.numpy()),
-                                                adv_label):
-                return adversary
+            adv_img = self.safe_delete_batchsize_dimension(adv_img)
+            adv_img_normalized = self.safe_delete_batchsize_dimension(adv_img_normalized)
+            if stop_early:
+                if adversary.try_accept_the_example(adv_img.numpy(),
+                                                    adv_img_normalized.numpy(),
+                                                    adv_label):
+                    return adversary
+        adversary.try_accept_the_example(adv_img.numpy(),
+                                         adv_img_normalized.numpy(),
+                                         adv_label)
         return adversary
 
 

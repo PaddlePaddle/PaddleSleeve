@@ -64,8 +64,8 @@ class LOGITS_DISPERSION(Attack):
     def _apply(self,
                adversary,
                steps=10,
-               verbose=False,
-               dispersion_type=None):
+               dispersion_type=None,
+               verbose=False):
         """
         Launch an attack process.
         Args:
@@ -93,9 +93,12 @@ class LOGITS_DISPERSION(Attack):
         adv_img = original_img + 0.001 * np.random.standard_normal(original_img.shape)
         adv_img = paddle.to_tensor(adv_img, dtype='float32', place=self._device)
         original_img = paddle.to_tensor(original_img, dtype='float32', place=self._device)
+
+        # TODO: use self.normalization
         original_img_normalized = self.normalize(paddle.squeeze(original_img))
         if len(original_img_normalized.shape) < 4:
             original_img_normalized = paddle.unsqueeze(original_img_normalized, axis=0)
+
         logits = self.model.predict_tensor(original_img_normalized)
 
         if dispersion_type == self.support_type[0]:

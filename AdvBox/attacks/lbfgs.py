@@ -21,8 +21,8 @@ import logging
 
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
-
 from .base import Attack
+import paddle
 
 __all__ = ['LBFGSAttack', 'LBFGS']
 
@@ -34,22 +34,25 @@ class LBFGSAttack(Attack):
     Paper link: https://arxiv.org/abs/1510.05328
     """
 
-    def __init__(self, model):
-        super(LBFGSAttack, self).__init__(model)
+    def __init__(self, model, norm='L2', epsilon_ball=8/255, epsilon_stepsize=2/255):
+        super(LBFGSAttack, self).__init__(model,
+                                          norm=norm,
+                                          epsilon_ball=epsilon_ball,
+                                          epsilon_stepsize=epsilon_stepsize)
         self._predicts_normalized = None
 
-    def _apply(self, adversary, epsilon=0.001, steps=10):
+    def _apply(self, adversary, confidence=0.01, steps=10):
         if not adversary.is_targeted_attack:
             raise ValueError("This attack method only support targeted attack!")
 
         # finding initial c
         logging.info('finding initial c...')
-        c = epsilon
-        x0 = np.copy(adversary.original.flatten())
+        confidence_current = confidence
+        x0 = np.copy(adversary.denormalized_original.flatten())
         for i in range(30):
-            c = 2 * c
-            logging.info('c={}'.format(c))
-            is_adversary = self._lbfgsb(adversary, x0, c, steps)
+            confidence_current = 2 * confidence_current
+            logging.info('c={}'.format(confidence_current))
+            is_adversary = self._lbfgsb(adversary, x0, confidence_current, steps)
             if is_adversary:
                 break
         if not is_adversary:
@@ -59,10 +62,10 @@ class LBFGSAttack(Attack):
         # binary search c
         logging.info('binary search c...')
         c_low = 0
-        c_high = c
-        while c_high - c_low >= epsilon:
+        c_high = confidence_current
+        while c_high - c_low >= confidence:
             logging.info('c_high={}, c_low={}, diff={}, epsilon={}'
-                         .format(c_high, c_low, c_high - c_low, epsilon))
+                         .format(c_high, c_low, c_high - c_low, confidence))
             c_half = (c_low + c_high) / 2
             is_adversary = self._lbfgsb(adversary, x0, c_half, steps)
             if is_adversary:
@@ -95,52 +98,69 @@ class LBFGSAttack(Attack):
     #    assert self._predicts_normalized is not None
     #    return self._predicts_normalized
 
-    def _loss(self, adv_x, c, adversary):
+    def _loss(self, adv_img, confidence, adversary):
         """
         To get the loss and gradient.
         :param adv_x: the candidate adversarial example
         :param c: parameter 'C' in the paper
         :return: (loss, gradient)
         """
-        x = adv_x.reshape(adversary.original.shape)
-        img = adv_x.reshape([1] + [v for v in adversary.original.shape])
+        adv_img_reshaped = adv_img.reshape(adversary.original.shape)
+        # x = adv_img.reshape(adversary.original.shape)
+        # img = adv_img.reshape([1] + [v for v in adversary.original.shape])
+        adv_img_reshaped_tensor = paddle.to_tensor(adv_img_reshaped, dtype='float32', place=self._device)
+        adv_img_reshaped_tensor.stop_gradient = False
+        adv_img_reshaped_tensor_normalized = self.input_preprocess(adv_img_reshaped_tensor)
 
-        # cross_entropy
-        logits = self.model.predict(img)
-        e = np.exp(logits)
-        logits = e / np.sum(e)
-        e = np.exp(logits)
+        # numpy computation
+        logits_np = self.model.predict(adv_img_reshaped_tensor_normalized.numpy())
+        e = np.exp(logits_np)
+        logits_np = e / np.sum(e)
+        e = np.exp(logits_np)
         s = np.sum(e)
+        ce = np.log(s) - logits_np[0, adversary.target_label]
 
-        ce = np.log(s) - logits[0, adversary.target_label]
-
-        # L2 distance
         min_, max_ = self.model.bounds
-        d = np.sum((x - adversary.original).flatten() ** 2) \
-            / ((max_ - min_) ** 2) / len(adv_x)
+        if self.norm == 'L2':
+            d = np.sum((adv_img_reshaped - adversary.denormalized_original).flatten() ** 2) \
+                / ((max_ - min_) ** 2) / len(adv_img)
+        elif self.norm == 'Linf':
+            # TODO: add Linf distance attack
+            exit(1)
+        else:
+            exit(1)
 
         # gradient
-        gradient = self.model.gradient(img, adversary.target_label)
-        result = (c * ce + d).astype(float), gradient.flatten().astype(float)
+        logits_tensor = self.model.predict_tensor(adv_img_reshaped_tensor_normalized)
+        target_label = paddle.to_tensor(adversary.target_label, dtype='int64', place=self._device)
+        loss = self.model.loss(logits_tensor, target_label)
+        loss.backward(retain_graph=True)
+        gradient = adv_img_reshaped_tensor.grad.numpy()
+        # gradient = self.model.gradient(img_normalized, adversary.target_label)
+        result = (confidence * ce + d).astype(float), gradient.flatten().astype(float)
         return result
 
-    def _lbfgsb(self, adversary, x0, c, maxiter):
+    def _lbfgsb(self, adversary, img0, confidence, maxiter):
         min_, max_ = self.model.bounds
-        bounds = [(min_, max_)] * len(x0)
+        bounds = [(min_, max_)] * len(img0)
         approx_grad_eps = (max_ - min_) / 100.0
 
-        x, f, d = fmin_l_bfgs_b(self._loss, x0, args=(c, adversary, ), bounds=bounds, maxiter=maxiter, epsilon=approx_grad_eps)
+        adv_img, f, d = fmin_l_bfgs_b(self._loss, img0, args=(confidence, adversary, ), bounds=bounds, maxiter=maxiter, epsilon=approx_grad_eps)
+        if np.amax(adv_img) > max_ or np.amin(adv_img) < min_:
+            adv_img = np.clip(adv_img, min_, max_)
 
-        if np.amax(x) > max_ or np.amin(x) < min_:
-            x = np.clip(x, min_, max_)
-        shape = [1] + [v for v in adversary.original.shape]
-        adv_label = np.argmax(self.model.predict(x.reshape(shape)))
+        # TODO：use epsilon_ball and epsilon_stepsize control
+        shape = adversary.original.shape
+        adv_img_reshaped = adv_img.reshape(shape)
+        adv_img_tensor = paddle.to_tensor(adv_img_reshaped, dtype='float32', place=self._device)
+        adv_img_reshaped_tensor_normalized = self.input_preprocess(adv_img_tensor)
+        adv_label = np.argmax(self.model.predict(adv_img_reshaped_tensor_normalized))
         logging.info('pre_label = {}, adv_label={}'.format(adversary.target_label, adv_label))
 
-        adv_img_normalized = x.reshape(shape)
-        # TODO: finish adv_img and adv_img_normalized
-        is_ok = adversary.try_accept_the_example(np.squeeze(adv_img_normalized),
-                                                 np.squeeze(adv_img_normalized),
+        adv_img_tensor = self.safe_delete_batchsize_dimension(adv_img_tensor)
+        adv_img_normalized = self.safe_delete_batchsize_dimension(adv_img_reshaped_tensor_normalized)
+        is_ok = adversary.try_accept_the_example(adv_img_tensor.numpy(),
+                                                 adv_img_normalized.numpy(),
                                                  adv_label)
 
         return is_ok

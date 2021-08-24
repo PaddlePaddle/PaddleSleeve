@@ -48,8 +48,8 @@ class Attack(object):
         """
         Generate the adversarial sample.
         Args:
-        adversary(object): The adversary object.
-        **kwargs: Other named arguments.
+            adversary(object): The adversary object.
+            **kwargs: Other named arguments.
         """
         # make sure data in adversary is compatible with self.model
         adversary.routine_check(self.model)
@@ -59,6 +59,42 @@ class Attack(object):
         # _apply generate denormalized AE to perturb adversarial in pre-normalized domain
         adversary = self._apply(adversary, **kwargs)
         return adversary
+
+    def input_preprocess(self, img):
+        """
+        Normalize img and add batchsize dimension safely.
+        Args:
+            img: paddle.tensor. initial input before normalization.
+
+        Returns:
+            unaked_img_normalized: paddle.tensor. normalized img that covered with batchsize dimension.
+        """
+        assert isinstance(img, paddle.Tensor)
+        img_normalized = self.normalize(img)
+        if len(self.model.input_shape) < img_normalized.ndim:
+            unaked_img_normalized = img_normalized
+        else:
+            unaked_img_normalized = paddle.unsqueeze(img_normalized, axis=0)
+
+        return unaked_img_normalized
+
+    def safe_delete_batchsize_dimension(self, img):
+        """
+        Compare dimension setting in model, delete batchsize,
+        dimension (axis=0) if there's dimension redundancy.
+        Args:
+            img: paddle.tensor
+
+        Returns:
+            naked_img: paddle.tensor. img that deleted redundant batchsize dimension.
+        """
+        assert isinstance(img, paddle.Tensor)
+        if len(self.model.input_shape) < img.ndim:
+            naked_img = paddle.squeeze(img, axis=0)
+        else:
+            naked_img = img
+
+        return naked_img
 
     @abstractmethod
     def _apply(self, adversary, **kwargs):

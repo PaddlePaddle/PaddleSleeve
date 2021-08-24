@@ -50,6 +50,8 @@ class Adversary(object):
         self._adversarial_example = None
         self._bad_adversarial_example = None
 
+        self._sample_channel_num = None
+
     def summary(self):
         print("original label:", self.original_label)
         print("target mode:", self.is_targeted_attack)
@@ -91,6 +93,7 @@ class Adversary(object):
         """
         # make sure model property is consistent with dataset
         assert self.original.shape == advbox_base_model.input_shape
+        self._sample_channel_num = self.original.shape[advbox_base_model.input_channel_axis]
 
     def generate_denormalized_original(self, input_channel_axis, mean, std):
         """
@@ -297,3 +300,10 @@ class Adversary(object):
         :property: bad_adversarial_example
         """
         return self._bad_adversarial_example
+
+    @property
+    def sample_channel_num(self):
+        """
+          :property: sample_channel_num
+        """
+        return self._sample_channel_num

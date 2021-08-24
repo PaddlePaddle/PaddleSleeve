@@ -38,7 +38,7 @@ from adversary import Adversary
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -56,7 +56,7 @@ def main(image_path):
     """
 
     Args:
-        image_path: path of image to be test 
+        image_path: path of image to be test
 
     Returns:
 
@@ -78,7 +78,7 @@ def main(image_path):
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0) 
+    img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
 
     # Initialize the network
@@ -116,6 +116,7 @@ def main(image_path):
     if target_class != -1:
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
+
         attack = FGSMT(paddle_model, norm='Linf',
                        epsilon_ball=100 / 255, epsilon_stepsize=100/255)
 

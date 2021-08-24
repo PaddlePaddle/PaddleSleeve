@@ -18,6 +18,7 @@ import paddle
 import paddle.nn.functional as F
 
 
+# TODO: move it to classifier folder.
 class CNNModel(paddle.nn.Layer):
     """
     paddle CNN model

@@ -20,23 +20,7 @@ import paddle
 import paddle.nn.functional as F
 import numpy as np
 import copy
-from collections import OrderedDict
-from attacks.gradient_method import FGSM
-from defences.adversarial_transform import ClassificationAdversarialTransform
-from models.whitebox import PaddleWhiteBoxModel
-
-from main_setting import cifar10_train, cifar10_test, advtrain_settings, enhance_config
-CIFAR10_TRAIN = cifar10_train
-CIFAR10_TEST = cifar10_test
-ADVTRAIN_SETTINGS = advtrain_settings
-ENHANCE_CONFIG = enhance_config
-
-from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME
-MODEL = MODEL
-MODEL_PATH = MODEL_PATH
-MODEL_PARA_NAME = MODEL_PARA_NAME
-MODEL_OPT_PARA_NAME = MODEL_OPT_PARA_NAME
-
+import collections
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):
@@ -45,12 +29,14 @@ else:
     paddle.set_device("cpu")
 paddle.seed(2021)
 
-def adverarial_train_AWP(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
+
+def adversarial_train_awp(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
     """
     A demo for adversarial training based on data augmentation.
     Reference Implementation: https://arxiv.org/abs/2004.05884
     Adversarial Weight Perturbation Helps Robust Generalization.
 
+    Author: Wu Dongxian.
     Args:
         model: paddle model.
         cifar10_train: paddle dataloader.
@@ -68,12 +54,15 @@ def adverarial_train_AWP(model, cifar10_train, cifar10_test, save_path=None, **k
     advtrain_start_num = kwargs["advtrain_start_num"]
     batch_size = kwargs["batch_size"]
     adversarial_trans = kwargs["adversarial_trans"]
-    awp_adversary = ADVTRAIN_SETTINGS["AWP_adversary"]
     opt = kwargs["optimizer"]
+    model_para_name = kwargs["model_para_name"]
+    model_opt_para_name = kwargs["model_opt_para_name"]
+    # awp_adversary = kwargs["AWP_adversary"]
+    awp_adversary = AdvWeightPerturb(model, gamma=0.005)
+
     train_loader = paddle.io.DataLoader(cifar10_train, shuffle=True, batch_size=batch_size)
     valid_loader = paddle.io.DataLoader(cifar10_test, batch_size=batch_size)
     max_acc = 0
-
     for epoch in range(epoch_num):
         for batch_id, data in enumerate(train_loader()):
             x_data = data[0]
@@ -131,8 +120,8 @@ def adverarial_train_AWP(model, cifar10_train, cifar10_test, save_path=None, **k
         avg_loss = round(avg_loss, 6)
         if avg_acc > max_acc:
             max_acc = avg_acc
-            paddle.save(model.state_dict(), save_path + MODEL_PARA_NAME + str(max_acc) + '.pdparams')
-            paddle.save(opt.state_dict(), save_path + MODEL_OPT_PARA_NAME + str(max_acc) + '.pdopt')
+            paddle.save(model.state_dict(), save_path + model_para_name + str(max_acc) + '.pdparams')
+            paddle.save(opt.state_dict(), save_path + model_opt_para_name + str(max_acc) + '.pdopt')
             print("best saved at: ", save_path)
         else:
             pass
@@ -147,8 +136,18 @@ def adverarial_train_AWP(model, cifar10_train, cifar10_test, save_path=None, **k
 # Below is the core module for AWP.
 EPS = 1e-20
 
+
 def diff_in_weights(model_state_dict, proxy_state_dict):
-    diff_dict = OrderedDict()
+    """
+    Calculate model weights value difference.
+    Args:
+        model_state_dict: original model file.
+        proxy_state_dict: the next status model file.
+
+    Returns:
+        Dict. model weights difference.
+    """
+    diff_dict = collections.OrderedDict()
     for (old_k, old_w), (new_k, new_w) in zip(model_state_dict.items(), proxy_state_dict.items()):
         if len(old_w.shape) <= 1:
             continue
@@ -159,6 +158,16 @@ def diff_in_weights(model_state_dict, proxy_state_dict):
 
 
 def add_into_weights(model, diff, coeff=1.0):
+    """
+    add diff onto model weight.
+    Args:
+        model: paddle2 model.
+        diff: dict. normalized difference of model parameter value.
+        coeff: float. constant for adding value.
+
+    Returns:
+        None
+    """
     names_in_diff = diff.keys()
     state_dict = model.state_dict()
     with paddle.no_grad():
@@ -169,12 +178,14 @@ def add_into_weights(model, diff, coeff=1.0):
 
 
 class AdvWeightPerturb(object):
+    """
+    Perturb model weight.
+    Args:
+        model: A Paddlepaddle model which supports state_dict() and set_state_dict().
+        gamma: The relative size of weight perturbation.
+        loss: The loss should be the same as the training loss (at_loss | trades_loss).
+    """
     def __init__(self, model, gamma, loss='at_loss'):
-        """
-        :param model: A Paddlepaddle model which supports state_dict() and set_state_dict()
-        :param gamma: The relative size of weight perturbation
-        :param loss: The loss should be the same as the training loss (at_loss | trades_loss).
-        """
         super(AdvWeightPerturb, self).__init__()
         self.model = model
         self.awp_optim = paddle.optimizer.SGD(learning_rate=0.001, parameters=self.model.parameters())
@@ -184,12 +195,23 @@ class AdvWeightPerturb(object):
         self.orig_state_dict = None
 
     def calc_awp(self, inputs_adv, targets):
+        """
+        Make the model weights to a direction.
+        Args:
+            inputs_adv: input samples.
+            targets: input labels.
+
+        Returns:
+            Dict. difference of model weights.
+        """
+        # TODO: use proxy or remain this way? copy.deepcopy could be much slower.
         self.orig_state_dict = copy.deepcopy(self.model.state_dict())
         self.model.train()
 
         if self.loss == 'at_loss':
-            loss = -F.cross_entropy(self.model(inputs_adv), targets)
+            loss = - F.cross_entropy(self.model(inputs_adv), targets)
         elif self.loss == 'trades_loss':
+            # TODO: add trades loss
             loss = None
         else:
             raise ValueError('Please use the valid loss, ( at_loss | trades_loss )')
@@ -203,32 +225,25 @@ class AdvWeightPerturb(object):
         return diff
 
     def perturb(self, diff):
+        """
+        Impose effect on model with given diff.
+        Args:
+            diff: Dict. the difference of model weights.
+
+        Returns:
+            None
+        """
         add_into_weights(self.model, diff, coeff=1.0 * self.gamma)
 
     def restore(self, diff):
+        """
+        Use it after model perturbation.
+        Args:
+            diff: Dict. the difference of model weights.
+
+        Returns:
+            None
+        """
         add_into_weights(self.model, diff, coeff=-1.0 * self.gamma)
 
 # Above is the core module for AWP.
-
-
-def main():
-    # init a paddle model
-    paddle_model = PaddleWhiteBoxModel(
-        [MODEL],
-        [1],
-        mean=[0., 0., 0.],
-        std=[1., 1., 1.],
-        loss=paddle.nn.CrossEntropyLoss(),
-        bounds=(-3, 3),
-        input_channel_axis=0,
-        input_shape=(3, 32, 32),
-        nb_classes=10)
-    adversarial_trans = ClassificationAdversarialTransform(paddle_model, [FGSM], [None], [ENHANCE_CONFIG])
-    ADVTRAIN_SETTINGS["adversarial_trans"] = adversarial_trans
-    ADVTRAIN_SETTINGS["AWP_adversary"] = AdvWeightPerturb(MODEL, gamma=0.005)
-    val_acc_history, val_loss_history = adverarial_train_AWP(MODEL, CIFAR10_TRAIN, CIFAR10_TEST,
-                                                             save_path=MODEL_PATH, **ADVTRAIN_SETTINGS)
-
-
-if __name__ == '__main__':
-    main()

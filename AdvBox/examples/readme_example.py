@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-temp script
+script for readme example.
 """
 import sys
 sys.path.append("..")
@@ -42,8 +42,8 @@ advbox_model = PaddleWhiteBoxModel(
 # FGSM attack, init attack with the ensembled model
 # attack = FGSM(paddle_model)
 # attack = CW_L2(paddle_model)
-# attack = LOGITS_DISPERSION(advbox_model, norm='Linf', dispersion_type='softmax_kl')
-attack = LOGITS_DISPERSION(advbox_model, norm='L2', dispersion_type='softmax_kl')
+# attack = LOGITS_DISPERSION(advbox_model, norm='Linf')
+attack = LOGITS_DISPERSION(advbox_model, norm='L2')
 
 cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
 test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)
@@ -63,7 +63,7 @@ adversary = Adversary(img.numpy(), int(label))
 # launch attack
 # adversary = attack(adversary, norm_ord=np.inf, epsilons=0.003, epsilon_steps=1, steps=1)
 # adversary = attack(adversary, attack_iterations=100, verbose=True)
-adversary = attack(adversary, verbose=True)
+adversary = attack(adversary, dispersion_type='softmax_kl', verbose=True)
 
 if adversary.is_successful():
     original_img = adversary.original

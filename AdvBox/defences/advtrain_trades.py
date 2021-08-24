@@ -19,21 +19,6 @@ sys.path.append("../..")
 import paddle
 import paddle.nn.functional as F
 import numpy as np
-from attacks.gradient_method import FGSM
-from defences.adversarial_transform import ClassificationAdversarialTransform
-from models.whitebox import PaddleWhiteBoxModel
-
-from main_setting import cifar10_train, cifar10_test, advtrain_settings, enhance_config
-CIFAR10_TRAIN = cifar10_train
-CIFAR10_TEST = cifar10_test
-ADVTRAIN_SETTINGS = advtrain_settings
-ENHANCE_CONFIG = enhance_config
-
-from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME, MEAN, STD
-MODEL = MODEL
-MODEL_PATH = MODEL_PATH
-MODEL_PARA_NAME = MODEL_PARA_NAME
-MODEL_OPT_PARA_NAME = MODEL_OPT_PARA_NAME
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):
@@ -43,9 +28,12 @@ else:
 paddle.seed(2021)
 
 
-def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
+def adverarial_train_trades(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
     """
     A demo for adversarial training based on data augmentation.
+    Reference Implementation: https://arxiv.org/abs/1901.08573
+    Theoretically Principled Trade-off between Robustness and Accuracy.
+
     Args:
         model: paddle model.
         cifar10_train: paddle dataloader.
@@ -64,6 +52,13 @@ def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwarg
     batch_size = kwargs["batch_size"]
     adversarial_trans = kwargs["adversarial_trans"]
     opt = kwargs["optimizer"]
+    beta = kwargs["TRADES_beta"]
+    model_para_name = kwargs["model_para_name"]
+    model_opt_para_name = kwargs["model_opt_para_name"]
+
+    kldiv_criterion = paddle.nn.KLDivLoss(reduction='batchmean')
+    logsoftmax = paddle.nn.LogSoftmax()
+    softmax = paddle.nn.Softmax()
     train_loader = paddle.io.DataLoader(cifar10_train, shuffle=True, batch_size=batch_size)
     valid_loader = paddle.io.DataLoader(cifar10_test, batch_size=batch_size)
     max_acc = 0
@@ -75,6 +70,7 @@ def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwarg
             if epoch >= advtrain_start_num and adversarial_trans is not None:
                 x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
             else:
+                print("adversarial_trans is None!!")
                 x_data_augmented, y_data_augmented = x_data, y_data
             # turn model into training mode
             model.train()
@@ -87,13 +83,22 @@ def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwarg
             y_data_augmented = paddle.to_tensor(y_data_augmented, dtype='int64', place=USE_GPU)
             y_data_augmented = paddle.unsqueeze(y_data_augmented, 1)
 
-            logits = model(x_data_augmented)
-            loss = F.cross_entropy(logits, y_data_augmented)
+            # TODO: seperate trades loss out for awp to call.
+            logits = model(x_data)
+            loss_ce = F.cross_entropy(logits, y_data_augmented)
+            # guaranteed 100% of batch samples have been adv augmented in main_setting
+            # regardless of attack success rate.
+            logits_advs = model(x_data_augmented)
+            loss_logits_kl = kldiv_criterion(logsoftmax(logits_advs), softmax(logits))
+            loss = loss_ce + beta * loss_logits_kl
+
             acc = paddle.metric.accuracy(logits, y_data_augmented)
-            acc = acc.numpy()
-            acc = round(acc[0], 3)
+            acc_adv = paddle.metric.accuracy(logits_advs, y_data_augmented)
+            acc, acc_adv = acc.numpy(), acc_adv.numpy()
+            acc, acc_adv = round(acc[0], 3), round(acc_adv[0], 3)
             if batch_id % 10 == 0:
-                print("epoch:{}, batch_id:{}, loss:{}, acc:{}".format(epoch, batch_id, loss.numpy(), acc))
+                print("epoch:{}, batch_id:{}, loss:{}, acc:{}, acc_adv:{}"
+                      .format(epoch, batch_id, loss.numpy(), acc, acc_adv))
             loss.backward()
             opt.step()
             opt.clear_grad()
@@ -115,8 +120,8 @@ def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwarg
         avg_loss = round(avg_loss, 6)
         if avg_acc > max_acc:
             max_acc = avg_acc
-            paddle.save(model.state_dict(), save_path + MODEL_PARA_NAME + str(max_acc) + '.pdparams')
-            paddle.save(opt.state_dict(), save_path + MODEL_OPT_PARA_NAME + str(max_acc) + '.pdopt')
+            paddle.save(model.state_dict(), save_path + model_para_name + str(max_acc) + '.pdparams')
+            paddle.save(opt.state_dict(), save_path + model_opt_para_name + str(max_acc) + '.pdopt')
             print("best saved at: ", save_path)
         else:
             pass
@@ -126,26 +131,3 @@ def adverarial_train(model, cifar10_train, cifar10_test, save_path=None, **kwarg
         model.train()
 
     return val_acc_history, val_loss_history
-
-
-def main():
-    # init a paddle model
-    paddle_model = PaddleWhiteBoxModel(
-        [MODEL],
-        [1],
-        (0, 1),
-        mean=MEAN,
-        std=STD,
-        input_channel_axis=0,
-        input_shape=(3, 256, 256),
-        loss=paddle.nn.CrossEntropyLoss(),
-        nb_classes=10)
-
-    adversarial_trans = ClassificationAdversarialTransform(paddle_model, [FGSM], [None], [ENHANCE_CONFIG])
-    ADVTRAIN_SETTINGS["adversarial_trans"] = adversarial_trans
-    val_acc_history, val_loss_history = adverarial_train(MODEL, CIFAR10_TRAIN, CIFAR10_TEST,
-                                                         save_path=MODEL_PATH, **ADVTRAIN_SETTINGS)
-
-
-if __name__ == '__main__':
-    main()

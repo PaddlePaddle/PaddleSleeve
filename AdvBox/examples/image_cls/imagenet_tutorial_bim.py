@@ -35,7 +35,7 @@ import paddle
 from adversary import Adversary
 from attacks.gradient_method import BIM
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -113,7 +113,7 @@ def main(image_path):
     attack = BIM(paddle_model, norm='Linf', epsilon_ball=16 / 255, epsilon_stepsize=2 / 255)
     # attack = BIM(paddle_model, norm='L2', epsilon_ball=16 / 255, epsilon_stepsize=2 / 255)
 
-    # 设定epsilons  
+    # 设定epsilons
     attack_config = {"steps": 100}
     adversary = attack(adversary, **attack_config)
 

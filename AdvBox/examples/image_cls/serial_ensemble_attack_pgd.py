@@ -43,7 +43,7 @@ from adversary import Adversary
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import PGD
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -63,7 +63,7 @@ def predict(image_path, model):
     Args:
         image_path: path of the image
         model: the classification model
-    Returns: 
+    Returns:
         the classification result label
     """
     model.eval()
@@ -90,18 +90,17 @@ def target_attack_fgsm(input_image_path, output_image_path, model, tlabel):
     """
     Use iterative target FGSM attack for a model.
     Args:
-        input_image_path: the path of the input image 
-        output_image_path: the path of the output image 
-        model: the image classification model 
+        input_image_path: the path of the input image
+        output_image_path: the path of the output image
+        model: the image classification model
         tlabel: the target label
-    Returns: 
+    Returns:
     """
     label = predict(input_image_path, model)
     print("original label={}".format(label))
 
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
-
     orig = cv2.imread(input_image_path)[..., ::-1]
     orig = cv2.resize(orig, (224, 224))
     img = orig.copy().astype(np.float32)
@@ -130,8 +129,7 @@ def target_attack_fgsm(input_image_path, output_image_path, model, tlabel):
     adversary = Adversary(inputs.numpy(), label)
     adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
-    # attack = FGSMT(paddle_model, norm="Linf", epsilon_ball=30/255, epsilon_stepsize=30/255)
-    attack = PGD(paddle_model, norm="Linf", epsilon_ball=30/255, epsilon_stepsize=30/255)
+    attack = PGD(paddle_model, norm="Linf", epsilon_ball=40/255, epsilon_stepsize=15/255)
     # 设定epsilons
     attack_config = {}
     adversary = attack(adversary, **attack_config)

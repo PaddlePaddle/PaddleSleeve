@@ -50,10 +50,13 @@ class AdvTransform(object):
         self._attack_instances = []
 
         for i, attack_method in enumerate(self._attack_methods):
-            if self._init_config_list[i] is None:
-                self._attack_instances.append(attack_method(self._paddlewhiteboxmodel))
+            if attack_method is not None:
+                if self._init_config_list[i] is None:
+                    self._attack_instances.append(attack_method(self._paddlewhiteboxmodel))
+                else:
+                    self._attack_instances.append(attack_method(self._paddlewhiteboxmodel, **self._init_config_list[i]))
             else:
-                self._attack_instances.append(attack_method(self._paddlewhiteboxmodel, **self._init_config_list[i]))
+                pass
 
     def __call__(self, x_batch, y_batch):
         """

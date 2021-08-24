@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-temp script
+script for readme example.
 """
 import sys
 sys.path.append("..")

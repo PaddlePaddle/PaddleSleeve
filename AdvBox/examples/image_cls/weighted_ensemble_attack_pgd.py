@@ -44,7 +44,7 @@ from adversary import Adversary
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import PGD
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -64,7 +64,7 @@ def predict(image_path, model):
     Args:
         image_path: path of the image
         model: the classification model
-    Returns: 
+    Returns:
         the classification result label
     """
     model.eval()
@@ -154,8 +154,7 @@ def main(image_path):
     adversary = Adversary(inputs.numpy(), origin_label)
     adversary.set_status(is_targeted_attack=True, target_label=target_label)
 
-    # attack = FGSMT(paddle_model)
-    attack = PGD(paddle_model, norm="Linf", epsilon_ball=30/255, epsilon_stepsize=30/255)
+    attack = PGD(paddle_model, norm="Linf", epsilon_ball=40/255, epsilon_stepsize=15/255)
     # 设定epsilons
     attack_config = {}
     adversary = attack(adversary, **attack_config)

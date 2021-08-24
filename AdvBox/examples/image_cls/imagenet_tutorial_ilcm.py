@@ -35,7 +35,7 @@ import paddle
 from adversary import Adversary
 from attacks.gradient_method import ILCM
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -75,7 +75,7 @@ def main(image_path):
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0) 
+    img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
 
     # Initialize the network
@@ -118,7 +118,7 @@ def main(image_path):
     attack = ILCM(paddle_model, norm='Linf', epsilon_ball=16/255, epsilon_stepsize=2/255)
     # attack = ILCM(paddle_model, norm='L2', epsilon_ball=100/255, epsilon_stepsize=100/255)
 
-    # 设定epsilons  
+    # 设定epsilons
     attack_config = {"steps": 100}
     adversary = attack(adversary, **attack_config)
 

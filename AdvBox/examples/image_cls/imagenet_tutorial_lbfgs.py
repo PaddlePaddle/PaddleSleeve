@@ -36,11 +36,11 @@ print(paddle.in_dynamic_mode())
 from adversary import Adversary
 from attacks.lbfgs import LBFGS
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
+from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
-add_arg('target', int, 803, "target class.")
+add_arg('target', int, -1, "target class.")
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):
@@ -54,7 +54,7 @@ def main(image_path):
     """
 
     Args:
-        image_path: path of image to be test 
+        image_path: path of image to be test
 
     Returns:
 
@@ -76,7 +76,7 @@ def main(image_path):
     img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0) 
+    img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
 
     # Initialize the network
@@ -98,11 +98,11 @@ def main(image_path):
     predict = model(img)[0]
     print (predict.shape)
     label = np.argmax(predict)
-    print("label={}".format(label)) 
+    print("label={}".format(label))
 
     img = np.squeeze(img)
     inputs = img
-    labels = label 
+    labels = label
 
     print("input img shape: ", inputs.shape)
 
@@ -115,8 +115,8 @@ def main(image_path):
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
     attack = LBFGS(paddle_model)
-    # 设定epsilons  
-    attack_config = {"epsilon": 0.001, "steps": 100}
+    # 设定epsilons
+    attack_config = {"steps": 100}
     adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():

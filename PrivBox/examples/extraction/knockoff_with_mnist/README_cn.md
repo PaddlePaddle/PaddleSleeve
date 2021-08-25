@@ -44,7 +44,7 @@ batch_size=128, epochs=2, knockoff_net='linear', knockoff_dataset='fmnist', lear
 ```
 
 评估结果：
-```shell
+```
 Victim model's evaluate result:  [0.906]
 Knockoff model's evaluate result:  [0.862]
 ```
@@ -56,7 +56,7 @@ batch_size=128, epochs=2, knockoff_dataset='mnist', knockoff_net='linear', learn
 ```
 
 评估结果：
-```shell
+```
 Victim model's evaluate result:  [0.8905]
 Knockoff model's evaluate result:  [0.886]
 ```

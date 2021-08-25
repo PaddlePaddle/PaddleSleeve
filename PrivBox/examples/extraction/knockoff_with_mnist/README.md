@@ -32,7 +32,7 @@ The example provides the following parameters that the user can customize the se
 - `--epochs` (int, default=2): The iterations of training for victim and adversary.
 - `--learning_rate` (float, default=0.01): The learning rate of training for victim and adversary.
 - `--num_queries` (int, default=2000): The number of queries allowed for adversary.
-- `--knockoff_net` (str, default="linear"): The newwork for knockoff model, can be chosen from 'linear' and 'resnet'.
+- `--knockoff_net` (str, default="linear"): The network for knockoff model, can be chosen from 'linear' and 'resnet'.
 - `--knockoff_dataset` (str, default="mnist"): The dataset for training knockoff model, can be chosen from 'mnist' (100% labels overlap) or 'fmnist' (0% labels overlap).
 - `--policy` (str, default="random"):Sampling policy. One can choose "random" or "adaptive" policy. "random" sampling policy randomly samples input data to query victim model, while "adaptive" sampling policy samples input data based on its feedback of rewards.
 - `--reward` (str, default="all"): Reward strategy, only for "adaptive" policy. One can choose "certainty", "diversity", "loss" and "all". "certainty" reward is used margin-based certainty measure, "diversity" is used for preventing the degenerate case of image exploitation, "loss" strategy reward high loss images, and "all" strategy uses all three reward strategies.
@@ -45,7 +45,7 @@ batch_size=128, epochs=2, knockoff_net='linear', knockoff_dataset='fmnist', lear
 ```
 
 Evaluation Result
-```shell
+```
 Victim model's evaluate result:  [0.906]
 Knockoff model's evaluate result:  [0.862]
 ```
@@ -53,12 +53,12 @@ Knockoff model's evaluate result:  [0.862]
 **Example Result 2**：
 
 Input Parameters：
-```shell
+```
 batch_size=128, epochs=2, knockoff_dataset='mnist', knockoff_net='linear', learning_rate=0.01, num_queries=6000, policy='adaptive', reward='all'
 ```
 
 Evaluation Result：
-```shell
+```
 Victim model's evaluate result:  [0.8905]
 Knockoff model's evaluate result:  [0.886]
 ```

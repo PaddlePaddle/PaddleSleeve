@@ -21,7 +21,7 @@ python3 knockoff_extraction_with_mnist.py
 
 After program finished, the accuracy for victim's model and adversary's model is print as follows:
 
-```shell
+```
 Victim model's evaluate result:  [xxx]
 Knockoff model's evaluate result:  [xxx]
 ```
@@ -53,7 +53,7 @@ Knockoff model's evaluate result:  [0.862]
 **Example Result 2**：
 
 Input Parameters：
-```
+```shell
 batch_size=128, epochs=2, knockoff_dataset='mnist', knockoff_net='linear', learning_rate=0.01, num_queries=6000, policy='adaptive', reward='all'
 ```
 

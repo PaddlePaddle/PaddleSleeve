@@ -21,7 +21,7 @@ python3 knockoff_extraction_with_mnist.py
 
 运行结束后, 可以看到程序输出如下，输出被攻击模型和攻击模型的accuracy
 
-```shell
+```
 Victim model's evaluate result:  [xxx]
 Knockoff model's evaluate result:  [xxx]
 ```

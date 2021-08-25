@@ -1,9 +1,9 @@
 # Metrics
 English | [简体中文](./README_cn.md)
 
-There are some metrics implemented in the directory, they are Accuracy、Recall、Precision、AUC (Area under the curve)、MSE (Mean squared error)、PSNR (Peak signal-to-noise ratio) and SSIM (Structural similarity).
+There are some metrics implemented in the directory, they are Accuracy, Recall, Precision, AUC (Area under the curve), MSE (Mean squared error), PSNR (Peak signal-to-noise ratio) and SSIM (Structural similarity).
 
-## Accuracy、Recall、Precision and AUC
+## Accuracy, Recall, Precision and AUC
 Let:
 ```
 TP: True positive
@@ -50,7 +50,7 @@ PSNR measures the difference between two images, it is computed as:
 
 $$PSNR = 20 * log10(MAX / \sqrt{MSE})$$
 
-$MSE$ means squared error， $MAX$ is max value for image pixels.
+$MSE$ means squared error, $MAX$ is max value for image pixels.
 
 ## SSIM (Structural similarity)
 

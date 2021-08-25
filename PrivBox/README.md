@@ -41,9 +41,9 @@ PrivBox is a Python library for testing AI model privacy leaking risk, which is 
       <td></td>
    </tr>
    <tr>
-      <td rowspan="1">Model Extraction</td>
-      <td></td>
-      <td></td>
+      <td rowspan="2">Model Extraction</td>
+      <td>Knockoff Nets: Stealing Functionality of Black-Box Models</td>
+      <td><a href=http://openaccess.thecvf.com/content_CVPR_2019/papers/Orekondy_Knockoff_Nets_Stealing_Functionality_of_Black-Box_Models_CVPR_2019_paper.pdf>[OSF19]</td>
    </tr>
 </table>
 
@@ -77,3 +77,5 @@ PrivBox is under continuous development. Contributions, bug reports and other fe
 \[YGFJ18\] Samuel Yeom, Irene Giacomelli, Matt Fredrikson, Somesh Jha. Privacy risk in machine learning: Analyzing the connection to overfitting. Computer Security Foundations Symposium (CSF), 2018.
 
 \[SZHB19\] Ahmed Salem, Yang Zhang, Mathias Humbert, Pascal Berrang, Mario Fritz, Michael Backes. ML-Leaks: Model and Data Independent Membership Inference Attacks and Defenses on Machine Learning Models. Network and Distributed Systems Security Symposium (NDSS) 2019.
+
+\[OSF19\]Tribhuvanesh Orekondy, Bernt Schiele, and Mario Fritz. Knockoff nets: Stealing functionality of black-box models[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2019

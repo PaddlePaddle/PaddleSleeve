@@ -18,5 +18,7 @@ from .auc import AUC
 from .precision import Precision
 from .recall import Recall
 from .metric import Metric
+from .psnr import PSNR
+from .ssim import SSIM
 
-__all__ = ["Metric", "Accuracy", "MSE", "AUC", "Precision", "Recall"]
+__all__ = ["Metric", "Accuracy", "MSE", "AUC", "Precision", "Recall", "PSNR", "SSIM"]

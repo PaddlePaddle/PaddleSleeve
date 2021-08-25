@@ -16,3 +16,16 @@ python3 baseline_with_cifar10.py
 - `--batch_size` (int, default=128): 训练目标模型使用数据的batch size。
 - `--train_epoch` (int, default=10): 训练目标模型的epoch数量。
 - `--train_lr` (float, default=0.0002): 训练目标模型的学习率。
+
+**结果示例1**：
+
+输入参数：
+```shell
+batch_size=128, train_epoch=10, train_lr=0.0002
+```
+
+评估结果：
+```shell
+Evaluate result of baseline membership attack on cifar10 is: acc: 0.72394,
+          auc: 0.7993062947773256, precision: 0.97484， recall: 0.6491143960580636
+```

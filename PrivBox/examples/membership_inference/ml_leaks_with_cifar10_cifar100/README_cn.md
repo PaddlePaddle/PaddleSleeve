@@ -27,3 +27,17 @@ python3 ml_leaks_with_cifar10_cifar100.py
 - `--shadow_dataset` (str, default=cifar10): 影子数据集，可选cifar10、cifar100。
 - `--target_dataset` (str, default=cifar10): 目标数据集，可选cifar10、cifar100。
 - `--shadow_model` (str, default=resnet18): 影子模型的结构，可选resnet18、resnet34。
+
+
+**结果示例1**：
+
+输入参数：
+```shell
+batch_size=128, classifier_epoch=10, classifier_lr=0.0002, shadow_dataset='cifar10', shadow_epoch=10, shadow_lr=0.0002, shadow_model='resnet18', target_dataset='cifar10', target_epoch=10, target_lr=0.0002, topk=10
+```
+
+评估结果：
+```shell
+Evaluate result of ML-Leaks membership attack is: acc: 0.7527333333333334,
+          auc: 0.733478836, precision: 0.9001112842198976， recall: 0.80884
+```

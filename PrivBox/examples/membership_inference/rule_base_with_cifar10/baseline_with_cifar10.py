@@ -79,8 +79,8 @@ def get_data():
                     Normalize(mean=[127.5], std=[127.5], data_format='CHW'),
                     paddle.vision.transforms.Transpose()])
     train_data = paddle.vision.datasets.Cifar10(mode='train', transform=transform)
-    test_data = paddle.vision.datasets.Cifar10(mode='test', transform=transform)
-    return train_data, test_data
+    l = len(train_data)
+    return paddle.io.random_split(train_data, [l // 2, l - l // 2])
 
 
 def get_all_labels(data_list):

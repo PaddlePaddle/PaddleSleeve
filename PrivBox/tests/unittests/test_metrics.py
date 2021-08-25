@@ -26,7 +26,7 @@ import paddle
 import numpy as np
 from paddle import nn
 
-from metrics import MSE, Accuracy, AUC, Recall, Precision
+from metrics import MSE, Accuracy, AUC, Recall, Precision, PSNR, SSIM
 
 
 class TestMSE(unittest.TestCase):
@@ -154,6 +154,100 @@ class TestRecall(unittest.TestCase):
         paddle_rec.update(actual[:, 1], expected)
 
         self.assertTrue(np.allclose(result0, paddle_rec.accumulate(), atol=0.0001))
+
+
+class TestPSNR(unittest.TestCase):
+    """
+    Test PSNR metric
+    """
+    
+    def test_main(self):
+        """
+        main test case for psnr
+        """
+        psnr = PSNR()
+        image0 = paddle.rand([1, 1, 64, 64])
+        image1 = image0.clone()
+        image1[0, 0, 1, 1] = image0[0, 0, 1, 1] + 0.00001
+        
+        # two similar images have high PSNR
+        result = psnr.compute(image0, image1)
+        self.assertTrue(result > 50)
+
+        result1 = psnr.compute(image0, image0)
+        self.assertTrue(result1 > 50)
+        
+        # two random images have low PSNR
+        image2 = paddle.rand([1, 1, 64, 64])
+        result2 = psnr.compute(image0, image2)
+        self.assertTrue(result2 < 10)
+
+    def test_channel3(self):
+        """
+        psnr test case for 3 channel image
+        """
+        psnr = PSNR()
+        image0 = paddle.rand([1, 3, 64, 64])
+        image1 = image0.clone()
+        image1[0, 0, 1, 1] = image0[0, 0, 1, 1] + 0.00001
+
+        # two similar images have high PSNR
+        result = psnr.compute(image0, image1)
+        self.assertTrue(result > 50)
+
+        result1 = psnr.compute(image0, image0)
+        self.assertTrue(result1 > 50)
+
+        # two random images have low PSNR
+        image2 = paddle.rand([1, 3, 64, 64])
+        result2 = psnr.compute(image0, image2)
+        self.assertTrue(result2 < 10)
+
+
+class TestSSIM(unittest.TestCase):
+    """
+    Test SSIM metric
+    """
+    
+    def test_main(self):
+        """
+        main test case for ssim
+        """
+        ssim = SSIM()
+        image0 = paddle.rand([1, 1, 64, 64])
+        image1 = image0.clone()
+        image1[0, 0, 1, 1] = image0[0, 0, 1, 1] + 0.00001
+        # two similar images have high SSIM
+        result = ssim.compute(image0, image1)
+        self.assertTrue(result > 0.9)
+
+        result1 = ssim.compute(image0, image0)
+        self.assertTrue(result1 > 0.9)
+        
+        # two random images have low PSNR
+        image2 = paddle.rand([1, 1, 64, 64])
+        result2 = ssim.compute(image0, image2)
+        self.assertTrue(result2 < 0.1)
+
+    def test_channel3(self):
+        """
+        ssim test case for 3 channel image
+        """
+        ssim = SSIM(channel=3)
+        image0 = paddle.rand([1, 3, 64, 64])
+        image1 = image0.clone()
+        image1[0, 0, 1, 1] = image0[0, 0, 1, 1] + 0.00001
+        # two similar images have high SSIM
+        result = ssim.compute(image0, image1)
+        self.assertTrue(result > 0.9)
+
+        result1 = ssim.compute(image0, image0)
+        self.assertTrue(result1 > 0.9)
+        
+        # two random images have low PSNR
+        image2 = paddle.rand([1, 3, 64, 64])
+        result2 = ssim.compute(image0, image2)
+        self.assertTrue(result2 < 0.1)
 
 
 if __name__ == '__main__':

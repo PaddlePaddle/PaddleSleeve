@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-A tutorial for LD attack adv sample generation on CIFAR10 dataset.
+A tutorial for model evaluation on dataset.
 """
 from __future__ import print_function
 from __future__ import absolute_import
@@ -44,10 +44,10 @@ path = get_best_weigthts_from_folder(MODEL_PATH, MODEL_PARA_NAME)
 model_state_dict = paddle.load(path)
 MODEL.set_state_dict(model_state_dict)
 
-from main_setting import cifar10_test, MEAN, STD
+from main_setting import test_set, MEAN, STD
 MEAN = MEAN
 STD = STD
-CIFAR10_TEST = cifar10_test
+CIFAR10_TEST = test_set
 
 attack_zoo = ("FGSM", "LD")
 attack_choice = input(f"choose {attack_zoo}:")
@@ -210,7 +210,7 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
 
 
 if __name__ == '__main__':
-    test_loader = paddle.io.DataLoader(cifar10_test, batch_size=BATCH_SIZE)
+    test_loader = paddle.io.DataLoader(test_set, batch_size=BATCH_SIZE)
     data = test_loader().next()
 
     # init a paddle model

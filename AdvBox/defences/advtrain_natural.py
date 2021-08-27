@@ -28,7 +28,7 @@ else:
 paddle.seed(2021)
 
 
-def adverarial_train_base(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
+def adverarial_train_natural(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
     """
     A demo for adversarial training based on data augmentation.
     Args:
@@ -59,6 +59,7 @@ def adverarial_train_base(model, cifar10_train, cifar10_test, save_path=None, **
         for batch_id, data in enumerate(train_loader()):
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
+
             # adversarial training late start
             if epoch >= advtrain_start_num and adversarial_trans is not None:
                 x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())

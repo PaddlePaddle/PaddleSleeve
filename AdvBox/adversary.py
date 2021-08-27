@@ -113,6 +113,9 @@ class Adversary(object):
         for channel in range(self.original.shape[input_channel_axis]):
             self._denormalized_original[channel] = self.original[channel] * std[channel] + mean[channel]
 
+    # TODO: leave it as it is or delete?
+    #  when adding new attack and implementing the _apply, the graceful way is to try to
+    #  accept denormalized_adversarial_example & adversarial_example simultaneously?
     # def generate_normalized_adversarial_example(self, input_channel_axis, mean, std):
     #     """
     #     Normalize generated adversarial sample from denormalized domain.

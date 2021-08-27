@@ -221,6 +221,6 @@ def test():
                                          DE_AE_ACC = '{:.3f}'.format(DE_AE_ACC), \
                                          DE_ORI_ACC = '{:.3f}'.format(DE_ORI_ACC)))
 
+
 if __name__ == '__main__':
     test()
-

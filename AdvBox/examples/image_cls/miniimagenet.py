@@ -24,6 +24,8 @@ from six.moves import cPickle as pickle
 
 __all__ = []
 
+
+# TODO: place the file somewhere else...
 class MINIIMAGENET(Dataset):
     """
     Implementation of `MINI-IMAGENET <https://github.com/yaoyao-liu/mini-imagenet-tools>`_ dataset

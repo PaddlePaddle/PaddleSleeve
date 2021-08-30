@@ -28,3 +28,18 @@ The example provides the following parameters that the user can customize the se
 - `--shadow_dataset` (str, default=cifar10): Shadow dataset(cifar10 or cifar100).
 - `--target_dataset` (str, default=cifar10): Target dataset(cifar10 or cifar100).
 - `--shadow_model` (str, default=resnet18): Shadow model(resnet18 or resnet34).
+
+
+**Example Result 1**：
+
+Input Parameters：
+
+```shell
+batch_size=128, classifier_epoch=10, classifier_lr=0.0002, shadow_dataset='cifar10', shadow_epoch=10, shadow_lr=0.0002, shadow_model='resnet18', target_dataset='cifar10', target_epoch=10, target_lr=0.0002, topk=10
+```
+
+Evaluation Result：
+```shell
+Evaluate result of ML-Leaks membership attack is: acc: 0.7527333333333334,
+          auc: 0.733478836, precision: 0.9001112842198976， recall: 0.80884
+```

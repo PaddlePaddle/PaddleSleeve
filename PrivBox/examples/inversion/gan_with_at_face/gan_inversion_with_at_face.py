@@ -285,4 +285,5 @@ def train_and_attack(args):
 
 if __name__ == "__main__":
     arguments = parse_args()
+    print("args: ", arguments)
     train_and_attack(arguments)

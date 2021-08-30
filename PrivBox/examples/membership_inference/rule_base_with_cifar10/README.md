@@ -16,3 +16,18 @@ The example provides the following parameters that the user can customize the se
 - `--batch_size` (int, default=128): The batch size for training target model.
 - `--train_epoch` (int, default=10): The epoch for training target model
 - `--train_lr` (float, default=0.0002): The learning rate for training target model。
+
+
+**Example Result 1**：
+
+Input Parameters：
+
+```shell
+batch_size=128, train_epoch=10, train_lr=0.0002
+```
+
+Evaluation Result：
+```shell
+Evaluate result of baseline membership attack on cifar10 is: acc: 0.72394,
+          auc: 0.7993062947773256, precision: 0.97484， recall: 0.6491143960580636
+```

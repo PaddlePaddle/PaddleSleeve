@@ -29,3 +29,19 @@ python3 gan_inversion_with_at_face.py
 
 
 默认地，程序运行结束后，结果保存在运行目录所在的`att_results/`目录下, 用户也可以通过`--result_dir`自行指定保存位置。
+
+**结果示例1**：
+
+输入参数：
+```shell
+attack_epoch=100, batch_size=32, learning_rate_fake=0.0002, learning_rate_gen=0.0002, learning_rate_real=0.0002, num_pic_save=4, result_dir='./att_results', target_label=1
+```
+
+攻击结果：
+
+目标图像与攻击恢复的图像如下图所示（左右为目标图像，右图为攻击恢复的图像）。
+
+<p align="center">
+  <img src="../../../docs/images/gan_target.png?raw=true" width="50" title="GAN target image"/>           
+  <img src="../../../docs/images/gan_reconstruct.png?raw=true" width="50" height="60" title="GAN attack reconstructed image"/>
+</p>

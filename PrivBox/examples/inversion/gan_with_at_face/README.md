@@ -30,3 +30,21 @@ The example provides the following parameters that the user can customize the se
 
 
 By default, the results are saved in the 'att_results/' directory where the running directory is located. User can also specify the location by `--result_dir`.
+
+
+**Result Example 1**：
+
+Input Parameters：
+
+```shell
+attack_epoch=100, batch_size=32, learning_rate_fake=0.0002, learning_rate_gen=0.0002, learning_rate_real=0.0002, num_pic_save=4, result_dir='./att_results', target_label=1
+```
+
+Attack Result：
+
+Images for target (left picture) and reconstructed (right picture) are list as follows.
+
+<p align="center">
+  <img src="../../../docs/images/gan_target.png?raw=true" width="50" title="GAN target image"/>           
+  <img src="../../../docs/images/gan_reconstruct.png?raw=true" width="50" height="60" title="GAN attack reconstructed image"/>
+</p>

@@ -30,7 +30,7 @@ else:
 paddle.seed(2021)
 
 
-def adversarial_train_awp(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
+def adversarial_train_awp(model, train_set, test_set, save_path=None, **kwargs):
     """
     A demo for adversarial training based on data augmentation.
     Reference Implementation: https://arxiv.org/abs/2004.05884
@@ -39,8 +39,8 @@ def adversarial_train_awp(model, cifar10_train, cifar10_test, save_path=None, **
     Author: Wu Dongxian.
     Args:
         model: paddle model.
-        cifar10_train: paddle dataloader.
-        cifar10_test: paddle dataloader.
+        train_set: paddle dataloader.
+        test_set: paddle dataloader.
         save_path: str. path for saving model.
         **kwargs: Other named arguments.
     Returns:
@@ -60,8 +60,8 @@ def adversarial_train_awp(model, cifar10_train, cifar10_test, save_path=None, **
     # awp_adversary = kwargs["AWP_adversary"]
     awp_adversary = AdvWeightPerturb(model, gamma=0.005)
 
-    train_loader = paddle.io.DataLoader(cifar10_train, shuffle=True, batch_size=batch_size)
-    valid_loader = paddle.io.DataLoader(cifar10_test, batch_size=batch_size)
+    train_loader = paddle.io.DataLoader(train_set, shuffle=True, batch_size=batch_size)
+    valid_loader = paddle.io.DataLoader(test_set, batch_size=batch_size)
     max_acc = 0
     for epoch in range(epoch_num):
         for batch_id, data in enumerate(train_loader()):

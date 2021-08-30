@@ -44,10 +44,11 @@ path = get_best_weigthts_from_folder(MODEL_PATH, MODEL_PARA_NAME)
 model_state_dict = paddle.load(path)
 MODEL.set_state_dict(model_state_dict)
 
-from main_setting import test_set, MEAN, STD
+from main_setting import test_set, MEAN, STD, CLASS_NUM
 MEAN = MEAN
 STD = STD
 CIFAR10_TEST = test_set
+CLASS_NUM = CLASS_NUM
 
 attack_zoo = ("FGSM", "LD")
 attack_choice = input(f"choose {attack_zoo}:")
@@ -210,7 +211,7 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
 
 
 if __name__ == '__main__':
-    test_loader = paddle.io.DataLoader(test_set, batch_size=BATCH_SIZE)
+    test_loader = paddle.io.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True)
     data = test_loader().next()
 
     # init a paddle model
@@ -223,7 +224,7 @@ if __name__ == '__main__':
         input_channel_axis=0,
         input_shape=tuple(data[0].shape[1:]),
         loss=paddle.nn.CrossEntropyLoss(),
-        nb_classes=10)
+        nb_classes=CLASS_NUM)
 
     attack = ATTACK_METHOD(advbox_model, **INIT_CONFIG)
 

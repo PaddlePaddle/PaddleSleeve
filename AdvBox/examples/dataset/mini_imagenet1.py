@@ -59,20 +59,46 @@ class MiniImageNet1(Dataset):
         subclass_folders = os.listdir(parent_folder)
 
         self.image_2_label = []
+        # TODO: shrink this...
         for i, folder in enumerate(subclass_folders):
-            image_folder = os.path.join(parent_folder, folder, mode)
-            image_filenames = os.listdir(image_folder)
-            for image_filename in image_filenames:
-                image_path = os.path.join(image_folder, image_filename)
-                self.image_2_label.append((image_path, i))
+            if mode == 'train':
+                image_folder = os.path.join(parent_folder, folder, mode)
+                image_filenames = os.listdir(image_folder)
+                for image_filename in image_filenames:
+                    image_path = os.path.join(image_folder, image_filename)
+                    self.image_2_label.append((image_path, i))
+                # mix train & val together.
+                mode = 'val'
+                image_folder = os.path.join(parent_folder, folder, mode)
+                image_filenames = os.listdir(image_folder)
+                for image_filename in image_filenames:
+                    image_path = os.path.join(image_folder, image_filename)
+                    self.image_2_label.append((image_path, i))
+            else:
+                mode = 'test'
+                image_folder = os.path.join(parent_folder, folder, mode)
+                image_filenames = os.listdir(image_folder)
+                for image_filename in image_filenames:
+                    image_path = os.path.join(image_folder, image_filename)
+                    self.image_2_label.append((image_path, i))
 
     def __getitem__(self, idx):
         image_filepath, label = self.image_2_label[idx]
-        image = cv2.imread(image_filepath)
-        if self.transform is not None:
-            transformed_image = self.transform(image)
-        else:
-            transformed_image = image
+        reading_success = False
+        while not reading_success:
+            try:
+                image = cv2.imread(image_filepath)
+                if self.transform is not None:
+                    # TODO: fix bug here.
+                    transformed_image = self.transform(image)
+                else:
+                    transformed_image = image
+                reading_success = True
+            except Exception as e:
+                print(e)
+                import pdb
+                pdb.set_trace()
+
         return transformed_image, label
 
     def __len__(self):

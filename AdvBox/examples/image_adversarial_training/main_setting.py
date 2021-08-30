@@ -183,7 +183,13 @@ elif model_choice == 'preactresnet':
                          "model_opt_para_name": MODEL_OPT_PARA_NAME}
 
     from examples.classifier.preactresnet import transform_train, transform_eval, MEAN, STD, preactresnet18
-    model = preactresnet18(num_classes=10)
+    if dataset_choice == dataset_zoo[0]:
+        model = preactresnet18(num_classes=10)
+    elif dataset_choice == dataset_zoo[1]:
+        model = preactresnet18(num_classes=100)
+    else:
+        exit(0)
+
     if training_choice == training_zoo[0]:
         attack_method = None
         adverarial_train = adverarial_train_natural

@@ -24,6 +24,8 @@ from six.moves import cPickle as pickle
 
 __all__ = []
 
+
+# TODO: place the file in dataset folder...
 class MINIIMAGENET(Dataset):
     """
     Implementation of `MINI-IMAGENET <https://github.com/yaoyao-liu/mini-imagenet-tools>`_ dataset
@@ -105,7 +107,7 @@ class MINIIMAGENET(Dataset):
             label_dict = dict['class_dict']
         # find the corresponding labels
         with open(self.label_path) as info:
-            mini_imagenet_labels = eval(info.read())
+             mini_imagenet_labels = eval(info.read())
 
         new_label_dict = {}
         for k, v in label_dict.items():

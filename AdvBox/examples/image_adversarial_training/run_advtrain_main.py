@@ -20,9 +20,9 @@ import paddle
 from defences.adversarial_transform import ClassificationAdversarialTransform
 from models.whitebox import PaddleWhiteBoxModel
 
-from main_setting import cifar10_train, cifar10_test, adverarial_train, advtrain_settings
-TRAIN_SET = cifar10_train
-TEST_SET = cifar10_test
+from main_setting import train_set, test_set, adverarial_train, advtrain_settings
+TRAIN_SET = train_set
+TEST_SET = test_set
 ADVTRAIN_SETTINGS = advtrain_settings
 ADVSERARIAL_TRAIN = adverarial_train
 
@@ -31,11 +31,12 @@ INIT_CONFIG = init_config
 ENHANCE_CONFIG = enhance_config
 ATTACK_METHOD = attack_method
 
-from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME, MEAN, STD
+from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME, MODEL_OPT_PARA_NAME, MEAN, STD, CLASS_NUM
 MODEL = MODEL
 MODEL_PATH = MODEL_PATH
 MODEL_PARA_NAME = MODEL_PARA_NAME
 MODEL_OPT_PARA_NAME = MODEL_OPT_PARA_NAME
+CLASS_NUM = CLASS_NUM
 
 
 def main():
@@ -57,7 +58,7 @@ def main():
         input_channel_axis=0,
         input_shape=tuple(data[0].shape[1:]),
         loss=paddle.nn.CrossEntropyLoss(),
-        nb_classes=10)
+        nb_classes=CLASS_NUM)
 
     adversarial_trans = ClassificationAdversarialTransform(paddle_model, [ATTACK_METHOD],
                                                            [INIT_CONFIG], [ENHANCE_CONFIG])

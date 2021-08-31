@@ -27,9 +27,6 @@ from classifier.definednet import transform_train, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
-# set fgsm attack configuration
-fgsm_attack_config = {"norm_ord": np.inf, "epsilons": 0.003, "epsilon_steps": 1, "steps": 1}
-
 advbox_model = PaddleWhiteBoxModel(
     [model_0, model_1],
     [1, 1.8],

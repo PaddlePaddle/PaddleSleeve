@@ -28,13 +28,13 @@ else:
 paddle.seed(2021)
 
 
-def adverarial_train_base(model, cifar10_train, cifar10_test, save_path=None, **kwargs):
+def adverarial_train_natural(model, train_set, test_set, save_path=None, **kwargs):
     """
     A demo for adversarial training based on data augmentation.
     Args:
         model: paddle model.
-        cifar10_train: paddle dataloader.
-        cifar10_test: paddle dataloader.
+        train_set: paddle dataloader.
+        test_set: paddle dataloader.
         save_path: str. path for saving model.
         **kwargs: Other named arguments.
     Returns:
@@ -52,13 +52,14 @@ def adverarial_train_base(model, cifar10_train, cifar10_test, save_path=None, **
     model_para_name = kwargs["model_para_name"]
     model_opt_para_name = kwargs["model_opt_para_name"]
 
-    train_loader = paddle.io.DataLoader(cifar10_train, shuffle=True, batch_size=batch_size)
-    valid_loader = paddle.io.DataLoader(cifar10_test, batch_size=batch_size)
+    train_loader = paddle.io.DataLoader(train_set, shuffle=True, batch_size=batch_size)
+    valid_loader = paddle.io.DataLoader(test_set, batch_size=batch_size)
     max_acc = 0
     for epoch in range(epoch_num):
         for batch_id, data in enumerate(train_loader()):
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
+
             # adversarial training late start
             if epoch >= advtrain_start_num and adversarial_trans is not None:
                 x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())

@@ -22,10 +22,13 @@ class ToArray(object):
 
 MEAN = None
 STD = None
-transform_train = T.Compose([T.RandomCrop(size=32, padding=4),
+transform_train = T.Compose([T.Resize((32, 32)),
+                             T.RandomHorizontalFlip(0.5),
+                             T.RandomVerticalFlip(0.5),
+                             T.RandomCrop(size=32, padding=4),
                              T.RandomHorizontalFlip(0.5),
                              ToArray()])
-transform_eval = T.Compose([T.Resize(size=32),
+transform_eval = T.Compose([T.Resize((32, 32)),
                             ToArray()])
 
 

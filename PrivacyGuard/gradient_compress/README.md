@@ -3,13 +3,13 @@ English | [简体中文](./README_cn.md)
 
 Gradient compress algorithm only uses important gradients (larger than the threshold) to update network parameters. Grandient compress not only can reduce commmunication cost in federated learning, but also can prevent gradient-based attack (such as DLG attack, see `PrivBox/inversion/dlg.py` file).
 
-DGC (Deep Gradient Compress) is one of the famous gradient compress algorithm. Detail algorithm is shown as follows [1].
+DGC (Deep Gradient Compress) is one of the famous gradient compress algorithm. Detailed algorithm is shown as follows [1].
 
 <p align="center">
   <img src="../docs/images/dgc.png?raw=true" width="700" title="DGC algorithm"/>
 </p>
 
-We implement DGC as paddle optimizer (DGCMomentum) to simple the method of usage, just as same with other paddle optimizer, such as SGD. We also give an example for DGCMomentum optimizer. Meanwhile, DLG attack is append for evaluating the defense of gradient compress.
+We implement DGC as a Paddle optimizer (DGCMomentum) just as other Paddle optimizer like SGD. We also give an example for DGCMomentum optimizer. Meanwhile, DLG attack is append for evaluating the defense of gradient compress.
 
 ## Run example
 

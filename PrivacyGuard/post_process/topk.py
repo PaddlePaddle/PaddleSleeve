@@ -33,6 +33,8 @@ class TopKNet(PostProcessor):
 
         Parameters:
             network (Layer): trained paddle network.
+            topk (int): output top k values.
+            use_softmax (bool): Whether to do softmax before topk operation.
             axes (list|tuple): The data type is ``int32`` . Axes that `starts` and `ends` apply to .
             starts (list|tuple|Tensor): The data type is ``int32`` . If ``starts`` is a list or tuple, the elements of
                     it should be integers or Tensors with shape [1]. If ``starts`` is an Tensor, it should be an 1-D Tensor.

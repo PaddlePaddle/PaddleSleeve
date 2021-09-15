@@ -28,7 +28,7 @@ from perceptron.utils.tools import get_distance
 from perceptron.utils.tools import get_criteria
 from perceptron.utils.tools import get_model
 from perceptron.utils.tools import plot_image
-from perceptron.utils.tools import plot_image_objectdetection
+from perceptron.utils.tools import plot_image_objectdetection, plot_image_objectdetection_hub
 from perceptron.utils.tools import bcolors
 import argparse
 import numpy as np
@@ -60,9 +60,12 @@ def validate_cmd(args):
 
     # step 3. check the criterion
     valid_detection_models = []
-    if args.framework == 'keras':
+    if (args.framework == 'keras' and args.model == 'ssd300') or args.framework == 'paddlehub' or args.framework == 'pytorchhub':
         valid_detection_models = summary['detection_models']
-    is_objectdetection = (args.framework == 'keras' and args.model in valid_detection_models)
+    is_objectdetection = (((args.framework == 'keras' and args.model == 'ssd300')
+                           or args.framework == 'paddlehub'
+                           or args.framework == 'pytorchhub')
+                          and args.model in valid_detection_models)
     if is_objectdetection:
         hint_criterion_string = 'Your should choose criterion that supports object detection model.'
         valid_criterions = summary['detection_criterions']
@@ -124,18 +127,45 @@ def run_attack(args, summary):
     """Run the attack."""
     model = get_model(args.model, args.framework, summary)
     distance = get_distance(args.distance)
-    criteria = get_criteria(args.criteria, args.target_class)
 
     channel_axis = 'channels_first' if (args.framework == 'pytorch' or args.framework == 'paddle') else 'channels_last'
     image_path = os.path.join(os.path.dirname(__file__), 'utils/images/%s' % args.image)
     image = get_image(image_path, args.framework, args.model, channel_axis)
-    if args.target_class is None and args.framework != 'cloud':
+
+    if args.framework == 'paddlehub':
+        predictions = model.predictions(image)
+        if 'data' in predictions[0]:  # object detection
+            if predictions[0]['data'] == []:
+                print("Detection failed.")
+                exit(-1)
+            label = predictions[0]['data'][0]['label']
+        else:  # classification
+            label = list(predictions[0].keys())[0]
+    elif args.framework == 'pytorchhub':
+        predictions = model.predictions(image)
+        if len(predictions.pred[0]) == 0:
+            print("Detection failed.")
+            exit(-1)
+        label = predictions.pred[0][0, 5]
+    elif args.framework == 'keras':
+        predictions = model.predictions(image)
+        if args.model == 'ssd300':
+            label = predictions['classes'][0]
+        else:
+            label = np.argmax(predictions)
+    elif args.target_class is None and args.framework != 'cloud':
         label = np.argmax(model.predictions(image))
     elif args.framework == 'cloud':
         label = model.predictions(image)
     else:
         label = args.target_class
 
+    if args.framework == 'paddlehub' or \
+            args.framework == 'pytorchhub' or \
+            args.framework == 'keras':
+        criteria = get_criteria(args.criteria, label, predictions, model_name=args.model)
+    else:
+        criteria = get_criteria(args.criteria, args.target_class)
     metric = get_metric(args.metric, model, criteria, distance)
 
     print(bcolors.BOLD + 'Process start' + bcolors.ENDC)
@@ -145,7 +175,7 @@ def run_attack(args, summary):
         if args.metric in summary['verifiable_metrics']:
             adversary = metric(image, label, unpack=False, verify=args.verify)
         else:
-            adversary = metric(image, label, unpack=False, epsilons=1000)
+            adversary = metric(image, label, unpack=False, epsilons=10)
     else:
         adversary = metric(image, label, unpack=False, binary_search_steps=10, max_iterations=5)
     print(bcolors.BOLD + 'Process finished' + bcolors.ENDC)
@@ -157,11 +187,21 @@ def run_attack(args, summary):
     ###################  print summary info  #####################################
     keywords = [args.framework, args.model, args.criteria, args.metric, args.distance]
 
-    if args.model not in ["yolo_v3", "keras_ssd300", "retina_resnet_50"]:  # classification
+    # classification models
+    if args.model not in summary['detection_models']:
         # interpret the label as human language
         with open('perceptron/utils/labels.txt') as info:
             imagenet_dict = eval(info.read())
-        if args.framework != 'cloud':
+        if args.model is 'paddlehub_mobilenet_v2_animals':
+            print(args.framework)
+            true_label = label
+            fake_label = list(adversary.output[0].keys())[0]
+        elif args.framework == 'keras':
+            print(args.framework)
+            true_label = imagenet_dict[label]
+            fake_label = imagenet_dict[np.argmax(adversary.output)]
+        elif args.framework != 'cloud':
+            print(args.framework)
             true_label = imagenet_dict[np.argmax(model.predictions(image))]
             fake_label = imagenet_dict[np.argmax(model.predictions(adversary.image))]
         else:
@@ -185,10 +225,36 @@ def run_attack(args, summary):
                   + str(adversary.verifiable_bounds) + bcolors.ENDC)
         print('\n')
 
+        if not os.path.exists('examples/images'):
+            os.makedirs('examples/images')
         plot_image(adversary,
                    title=', '.join(keywords),
                    figname='examples/images/%s.png' % '_'.join(keywords))
-    else:  # object detection
+    # paddlehub and pytorch object detection models
+    elif args.model in summary['paddlehub_models'] or \
+            args.model in summary['pytorchhub_models'] or \
+            args.model in summary['keras_models']:
+        print(bcolors.HEADER + bcolors.UNDERLINE + 'Summary:' + bcolors.ENDC)
+        print('Configuration:' + bcolors.CYAN + ' --framework %s '
+                                                '--model %s --criterion %s '
+                                                '--metric %s --distance %s' % tuple(keywords) + bcolors.ENDC)
+
+        if adversary.image is not None:
+            print('Minimum perturbation required: %s' % bcolors.BLUE
+                  + str(adversary.distance) + bcolors.ENDC)
+            print('\n')
+            if not os.path.exists('examples/images'):
+                os.makedirs('examples/images')
+            if args.model in summary['keras_models']:
+                class_names = model.get_class()
+            else:
+                class_names = None
+            plot_image_objectdetection_hub(adversary, predictions, args.model, class_names=class_names, title=", ".join(keywords),
+                                                 figname='examples/images/%s.png' % '_'.join(keywords))
+        else:
+            print(bcolors.BLUE + 'Attack failed' + bcolors.ENDC)
+    # other object detection models
+    else:
         print(bcolors.HEADER + bcolors.UNDERLINE + 'Summary:' + bcolors.ENDC)
         print('Configuration:' + bcolors.CYAN + ' --framework %s '
                                                 '--model %s --criterion %s '
@@ -200,9 +266,6 @@ def run_attack(args, summary):
 
         plot_image_objectdetection(adversary, model, title=", ".join(keywords),
                                    figname='examples/images/%s.png' % '_'.join(keywords))
-    if args.framework == 'keras':
-        from perceptron.utils.func import clear_keras_session
-        clear_keras_session()
 
 
 if __name__ == "__main__":
@@ -212,24 +275,24 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m", "--model",
         help="specify the name of the model you want to evaluate",
-        default="resnet18"
+        default="paddlehub_mobilenet_v2_animals"
     )
     parser.add_argument(
         "-e", "--metric",
         help="specify the name of the metric",
-        default="carlini_wagner_l2"
+        default="salt_and_pepper_noise"
     )
     parser.add_argument(
         "-d", "--distance",
         help="specify the distance metric to evaluate adversarial examples",
         choices=summary['distances'],
-        default="mse"
+        default="l2"
     )
     parser.add_argument(
         "-f", "--framework",
         help="specify the deep learning framework used by the target model",
         choices=summary['frameworks'],
-        default="pytorch"
+        default="paddlehub"
     )
     parser.add_argument(
         "-c", "--criteria",
@@ -256,7 +319,19 @@ if __name__ == "__main__":
         "--target_class",
         help="Used for detection/target-attack tasks, indicating the class you want to vanish",
         type=int
+        # default=-1
     )
     args = parser.parse_args()
     validate_cmd(args)
     run_attack(args, summary)
+
+    # #  given some images
+    # folder_name = 'examples/'
+    #
+    # image_file_path = 'perceptron/utils/images/' + folder_name
+    # for item in os.listdir(image_file_path):
+    #
+    #     print(item)
+    #     args.image = folder_name + item
+    #     validate_cmd(args)
+    #     run_attack(args, summary)

@@ -1,21 +1,36 @@
 {
   "frameworks": [
     "paddle",
-    "pytorch"
+    "paddlehub",
+    "pytorch",
+    "pytorchhub",
+    "keras"
   ],
   "paddle_models": [
     "resnet18",
     "resnet50",
     "vgg16"
   ],
+  "paddlehub_models": [
+	"paddlehub_yolov3_darknet53_pedestrian",
+	"paddlehub_yolov3_darknet53_vehicles",
+    "paddlehub_ssd_vgg16_300_coco2017",
+    "paddlehub_mobilenet_v2_animals"
+  ],
+  "pytorchhub_models": [
+	"pytorchhub_yolov5s"
+  ],
   "pytorch_models": [
     "vgg11",
-    "resnet18"
+    "resnet18",
+    "resnet50",
+    "resnext50_32x4d"
   ],
   "keras_models": [
     "xception",
     "vgg16",
     "vgg19",
+    "resnet18",
     "resnet50",
     "inception_v3",
     "yolo_v3",
@@ -30,7 +45,11 @@
   "detection_models": [
     "yolo_v3",
     "ssd300",
-    "retina_resnet_50"
+    "retina_resnet_50",
+	"paddlehub_yolov3_darknet53_pedestrian",
+	"paddlehub_yolov3_darknet53_vehicles",
+    "paddlehub_ssd_vgg16_300_coco2017",
+    "pytorchhub_yolov5s"
   ],
   "metrics": [
     "additive_gaussian_noise",
@@ -91,6 +110,7 @@
     "topk_misclassification",
     "target_class",
     "original_class_probability",
+	"det_obj_prob_decrease",
     "target_class_probability",
     "misclassification_antiporn",
     "misclassification_safesearch",
@@ -113,7 +133,8 @@
   ],
   "detection_criterions": [
     "target_class_miss",
-    "weighted_ap"
+    "weighted_ap",
+	"det_obj_prob_decrease"
   ],
   "aip_antiporn_criterions": [
     "misclassification_antiporn"

@@ -24,7 +24,7 @@ from attacks.cw import CW_L2
 from attacks.logits_dispersion import LOGITS_DISPERSION
 from models.whitebox import PaddleWhiteBoxModel
 
-from classifier.definednet import transform_eval, TowerNet, MEAN, STD
+from classifier.towernet import transform_eval, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
@@ -39,11 +39,11 @@ advbox_model = PaddleWhiteBoxModel(
     loss=paddle.nn.CrossEntropyLoss(),
     nb_classes=10)
 
-# FGSM attack, init attack with the ensembled model
-# attack = FGSM(paddle_model)
-# attack = CW_L2(paddle_model)
+# init attack with the ensembled model
+# attack = FGSM(advbox_model)
+attack = CW_L2(advbox_model)
 # attack = LOGITS_DISPERSION(advbox_model, norm='Linf')
-attack = LOGITS_DISPERSION(advbox_model, norm='L2')
+# attack = LOGITS_DISPERSION(advbox_model, norm='L2')
 
 cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
 test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)
@@ -54,16 +54,16 @@ label = data[1]
 
 # init adversary status
 adversary = Adversary(img.numpy(), int(label))
-# target = np.random.randint(paddle_model.num_classes())
-# while label == target:
-#     target = np.random.randint(paddle_model.num_classes())
-# print(label, target)
-# adversary.set_status(is_targeted_attack=True, target_label=target)
+target = np.random.randint(advbox_model.num_classes())
+while label == target:
+    target = np.random.randint(advbox_model.num_classes())
+print(label, target)
+adversary.set_status(is_targeted_attack=True, target_label=target)
 
 # launch attack
 # adversary = attack(adversary, norm_ord=np.inf, epsilons=0.003, epsilon_steps=1, steps=1)
-# adversary = attack(adversary, attack_iterations=100, verbose=True)
-adversary = attack(adversary, dispersion_type='softmax_kl', verbose=True)
+adversary = attack(adversary, attack_iterations=50, verbose=True)
+# adversary = attack(adversary, dispersion_type='softmax_kl', verbose=True)
 
 if adversary.is_successful():
     original_img = adversary.original

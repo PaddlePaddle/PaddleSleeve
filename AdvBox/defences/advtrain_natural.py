@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-paddle2 model adversarial training demo on CIFAR10 data
+paddle2 model natural adversarial training demo.
+* implemented random sampling adversarial augmentation.
 """
 import sys
 sys.path.append("../..")

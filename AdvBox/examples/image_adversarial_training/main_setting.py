@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Main settings for adversarial training tutorial.
+Main settings for adversarial training tutorials.
+Contains:
+* preactresnet adversarial training benchmark experiment.
+* towernet finetuning with advtraining mode with PGD augmentation.
+* the other experiments to be finished.
 """
 import paddle
 from paddle.regularizer import L2Decay
@@ -20,7 +24,7 @@ print(paddle.__version__)
 from defences.advtrain_natural import adverarial_train_natural
 from defences.advtrain_trades import adverarial_train_trades
 from defences.advtrain_awp import adversarial_train_awp
-from attacks.gradient_method import FGSM
+from attacks.gradient_method import FGSM, PGD
 from attacks.logits_dispersion import LOGITS_DISPERSION
 
 """
@@ -32,18 +36,20 @@ robust model in adversarial training, we have to adjust model structure (wider o
 
 #################################################################################################################
 # CHANGE HERE: try different data augmentation methods and model type.
+# TODO: use parse_args...
 model_zoo = ("towernet", "preactresnet", "mobilenet", "resnet", "pretrained_vgg16")
-training_zoo = ("base", "advtraining", "advtraining_TRADES_FGSM", "advtraining_TRADES_LD", "advtraining_AWP_FGSM")
+training_zoo = ("base", "advtraining", "advtraining_TRADES_PGD", "advtraining_TRADES_LD", "advtraining_AWP_FGSM")
 dataset_zoo = ("cifar10", "mini-imagenet")
+pretrain_choices = ('yes', 'no')
 
 model_choice = input("choose {model_zoo}:".format(model_zoo=model_zoo))
 training_choice = input("choose {training_zoo}:".format(training_zoo=training_zoo))
 dataset_choice = input("choose {dataset_zoo}:".format(dataset_zoo=dataset_zoo))
+use_pretrain = input("choose if pretrain {pretrain_choices}:".format(pretrain_choices=pretrain_choices))
 
 assert model_choice in model_zoo
 assert training_choice in training_zoo
 assert dataset_choice in dataset_zoo
-
 
 MODEL_PARA_NAME = training_choice + '_net_'
 MODEL_OPT_PARA_NAME = training_choice + '_optimizer_'
@@ -58,7 +64,7 @@ if model_choice == 'towernet':
                          "model_para_name": MODEL_PARA_NAME,
                          "model_opt_para_name": MODEL_OPT_PARA_NAME}
 
-    from examples.classifier.definednet import transform_train, transform_eval, MEAN, STD, TowerNet
+    from examples.classifier.towernet import transform_train, transform_eval, MEAN, STD, TowerNet
     if dataset_choice == dataset_zoo[0]:
         model = TowerNet(3, 10, wide_scale=1)
     elif dataset_choice == dataset_zoo[1]:
@@ -76,7 +82,19 @@ if model_choice == 'towernet':
         enhance_config = {"p": 0}
         opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
     elif training_choice == training_zoo[1]:
-        attack_method = FGSM
+        # use adversarial training in finetuning scenario.
+        if use_pretrain == 'yes':
+            import sys
+            sys.path.append("../..")
+            from examples.utils import get_best_weigthts_from_folder
+            # in examples.image_adversarial_training, run `python run_advtrain_main.py` to train a pretrain model.
+            model_path = get_best_weigthts_from_folder("../cifar10/towernet_base_cifar10_tutorial_result", "base_net_")
+            model_state_dict = paddle.load(model_path)
+            model.set_state_dict(model_state_dict)
+        else:
+            pass
+
+        attack_method = PGD
         adverarial_train = adverarial_train_natural
         init_config = None
         # for adv trained model, we set "p" == 0.05, which means each batch
@@ -84,18 +102,20 @@ if model_choice == 'towernet':
         enhance_config = {"p": 0.1}
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
     elif training_choice == training_zoo[2]:
-        attack_method = FGSM
+        attack_method = PGD
         adverarial_train = adverarial_train_trades
         init_config = None
         # 100% of each input batch will be convert into adv augmented data.
         enhance_config = {"p": 1}
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
+        advtrain_settings["TRADES_beta"] = 1
     elif training_choice == training_zoo[3]:
         attack_method = LOGITS_DISPERSION
         adverarial_train = adverarial_train_trades
         init_config = {"norm": "Linf"}
         enhance_config = {"p": 1, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
+        advtrain_settings["TRADES_beta"] = 1
     else:
         exit(0)
     advtrain_settings["optimizer"] = opt
@@ -197,13 +217,13 @@ elif model_choice == 'preactresnet':
         enhance_config = {"p": 0}
         opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
     elif training_choice == training_zoo[1]:
-        attack_method = FGSM
+        attack_method = PGD
         adverarial_train = adverarial_train_natural
         init_config = None
         enhance_config = {"p": 0.1}
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
     elif training_choice == training_zoo[2]:
-        attack_method = FGSM
+        attack_method = PGD
         adverarial_train = adverarial_train_trades
         init_config = None
         enhance_config = {"p": 1}
@@ -217,7 +237,7 @@ elif model_choice == 'preactresnet':
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
         advtrain_settings["TRADES_beta"] = 1
     elif training_choice == training_zoo[4]:
-        attack_method = FGSM
+        attack_method = PGD
         adverarial_train = adversarial_train_awp
         init_config = {"norm": "Linf"}
         enhance_config = {"p": 0.5, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
@@ -319,7 +339,10 @@ else:
 MODEL = model
 # all model weights will be saved under MODEL_PATH
 p = enhance_config['p']
-MODEL_PATH = '../cifar10/' + str(model_choice) + '_' + str(training_choice) + '_tutorial_result/'
+if use_pretrain == 'yes':
+    MODEL_PATH = '../cifar10/' + str(model_choice) + '_' + str(training_choice) + '_finetuned' + '_' + str(dataset_choice) + '_tutorial_result/'
+else:
+    MODEL_PATH = '../cifar10/' + str(model_choice) + '_' + str(training_choice) + '_' + str(dataset_choice) +'_tutorial_result/'
 # dataset
 MEAN = MEAN
 STD = STD

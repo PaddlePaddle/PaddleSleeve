@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-paddle2 model adversarial training demo on CIFAR10 data
+paddle2 model adversarial training based on TRADES.
+* Theoretically Principled Trade-off between Robustness and Accuracy.
+* https://arxiv.org/abs/1901.08573
 """
 import sys
 sys.path.append("../..")

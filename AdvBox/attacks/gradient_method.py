@@ -49,7 +49,7 @@ class GradientMethodAttack(Attack):
 
     def _apply(self,
                adversary,
-               steps=100,
+               steps=20,
                stop_early=False):
         """
         Apply the gradient attack method.

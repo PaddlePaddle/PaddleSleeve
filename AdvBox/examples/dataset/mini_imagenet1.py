@@ -96,8 +96,6 @@ class MiniImageNet1(Dataset):
                 reading_success = True
             except Exception as e:
                 print(e)
-                import pdb
-                pdb.set_trace()
 
         return transformed_image, label
 
@@ -124,11 +122,11 @@ def main():
                                  T.Normalize(mean, std, data_format='CHW')
                                  ])
     transform_eval = T.Compose([T.Resize((224, 224)),
-                                 T.Transpose(),
-                                 T.Normalize(
+                                T.Transpose(),
+                                T.Normalize(
                                      mean=[0, 0, 0],
                                      std=[255, 255, 255]),
-                                 T.Normalize(mean, std, data_format='CHW')
+                                T.Normalize(mean, std, data_format='CHW')
                                 ])
 
     # Set the classification network

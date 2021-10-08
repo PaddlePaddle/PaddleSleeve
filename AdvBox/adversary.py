@@ -16,6 +16,7 @@ A Finite-state Machine for AEs management.
 It defines a class that contains the original object, the target and the
 adversarial example.
 """
+# TODO: support batch input
 import numpy as np
 
 

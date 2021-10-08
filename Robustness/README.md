@@ -129,6 +129,12 @@ python perceptron/launcher.py  --framework pytorch --model resnet18 --criteria m
 
 # pytorchhub: The results can be found under Robustness/images.
 python perceptron/launcher.py  --framework pytorchhub --model pytorchhub_yolov5s --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+# keras: The results can be found under Robustness/images.
+python perceptron/launcher.py --framework keras --model ssd300 --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+python perceptron/launcher.py  --framework keras --model resnet50 --criteria misclassification --metric gaussian_blur --image example.jpg
+
 ```
 
 - **Results**

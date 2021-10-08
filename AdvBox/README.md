@@ -348,7 +348,7 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | DCTCompress     | 43.9%  | 7.3%  | % | % |
 | PCACompress     | 43.9%  | 7.3%  | 19.5% | 43.7% |
 | GaussianNoise   | 43.9%  | 7.3%  | 20.0% | 43.7% |
-| SaltPepperNoise | 43.9%  | 7.3%  | % | % |
+| SaltPepperNoise | 43.9%  | 7.3%  | 19.5% | 43.6% | 
 | ResizePadding   | 43.9%  | 7.3%  | 33.0% | 42.8% |
 
 

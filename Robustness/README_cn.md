@@ -130,6 +130,13 @@ python perceptron/launcher.py  --framework pytorch --model resnet18 --criteria m
 
 # pytorchhub命令：
 python perceptron/launcher.py  --framework pytorchhub --model pytorchhub_yolov5s --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+#keras命令：
+python perceptron/launcher.py --framework keras --model ssd300 --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+python perceptron/launcher.py  --framework keras --model resnet50 --criteria misclassification --metric gaussian_blur --image example.jpg
+
+
 ```
 
 - **效果展示**

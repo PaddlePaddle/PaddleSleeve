@@ -26,9 +26,6 @@ from PIL import Image
 from paddle.vision.transforms import functional as F
 
 
-__all__ = ['DCTCompress', 'DCTCompression']
-
-
 class GaussianBlur(Denoise):
     """
     This class implements denoise method.
@@ -57,10 +54,8 @@ class GaussianBlur(Denoise):
         denoising_image = ndarray2opencv(denoising.input)
 
         for step in range(steps):
-            kernel_size = step * 2 + 1
-            if kernel_size == 1:
-                continue
-            img = cv2.GaussianBlur(denoising_image, (kernel_size, kernel_size), 0)
+            sigma = 9.9 / (steps - 1) * step + 0.1
+            img = cv2.GaussianBlur(denoising_image, (0, 0), sigma, sigma)
             img = opencv2ndarray(img)
             img_label = np.argmax(self.model.predict(img))
             if denoising.try_accept_the_example(np.squeeze(img), img_label):
@@ -96,9 +91,7 @@ class MedianBlur(Denoise):
         denoising_image = ndarray2opencv(denoising.input)
 
         for step in range(steps):
-            kernel_size = step * 2 + 1
-            if kernel_size == 1:
-                continue
+            kernel_size = (step + 1) * 2 + 1
             img = cv2.medianBlur(denoising_image, kernel_size)
             img = opencv2ndarray(img)
             img_label = np.argmax(self.model.predict(img))
@@ -135,9 +128,7 @@ class BoxFilter(Denoise):
         denoising_image = ndarray2opencv(denoising.input)
 
         for step in range(steps):
-            kernel_size = step * 2 + 1
-            if kernel_size == 1:
-                continue
+            kernel_size = (step + 1) * 2 + 1
             img = cv2.boxFilter(src=denoising_image, ddepth=-1, ksize=(kernel_size, kernel_size), normalize=True)
             img = opencv2ndarray(img)
             img_label = np.argmax(self.model.predict(img))
@@ -172,14 +163,11 @@ class BilateralFilter(Denoise):
             denoising(denoising): The denoising object.
         """
 
-        denoising_image = denoising.input
-        denoising_image = np.transpose(denoising_image, (1, 2, 0))
-        denoising_image = (denoising_image * 255).astype(np.uint8)
-        denoising_image = Image.fromarray(denoising_image)
-        denoising_image = cv2.cvtColor(np.asarray(denoising_image), cv2.COLOR_RGB2BGR)
+        denoising_image = ndarray2opencv(denoising.input)
 
         for step in range(steps):
-            img = cv2.bilateralFilter(denoising_image, 1, 50, 50)
+            sigma = 254.0 / (steps-1) * step + 1.0
+            img = cv2.bilateralFilter(denoising_image, 0, sigma, sigma)
             img = opencv2ndarray(img)
             img_label = np.argmax(self.model.predict(img))
             if denoising.try_accept_the_example(np.squeeze(img), img_label):
@@ -217,9 +205,7 @@ class MeanFilter(Denoise):
         denoising_image = ndarray2opencv(denoising.input)
 
         for step in range(steps):
-            kernel_size = step * 2 + 1
-            if kernel_size == 1:
-                continue
+            kernel_size = (step + 1) * 2 + 1
             img = cv2.blur(denoising_image, (kernel_size, kernel_size))
             img = opencv2ndarray(img)
             img_label = np.argmax(self.model.predict(img))
@@ -254,13 +240,10 @@ class PixelDeflection(Denoise):
             denoising(denoising): The denoising object.
         """
 
-        # denoising_image = ndarray2opencv(denoising.input)
         denoising_image = denoising.input
-        for i in range(steps):
-            if i == 0:
-                continue
-            img = self.pixel_deflection(denoising_image, i / 100)
-            # img = opencv2ndarray(img)
+        for step in range(steps):
+            proportion = 0.99 / (steps - 1) * step + 0.01
+            img = self.pixel_deflection(denoising_image, proportion)
             img_label = np.argmax(self.model.predict(np.expand_dims(img, axis=0)))
             if denoising.try_accept_the_example(img, img_label):
                 return denoising
@@ -323,11 +306,9 @@ class JPEGCompression(Denoise):
         """
 
         denoising_image = ndarray2opencv(denoising.input)
-        # the maximum compression rate is 20, this different from other methods, better modify this in future work
-        newstep = steps * 2
-        for step in range(newstep):
-            # the maximum compression rate is 100 - 19 * 5
-            rate = 100 - step * 5
+
+        for step in range(steps):
+            rate = 100 - step * 10
             encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), rate]
             result, encimg = cv2.imencode('.jpg', denoising_image, encode_param)
             decimg = cv2.imdecode(encimg, 1)
@@ -340,7 +321,7 @@ class JPEGCompression(Denoise):
 
 class DCTCompression(Denoise):
     """
-    This class implements DCTCompress method.
+    This class implements DCTCompression method.
     """
     def __init__(self, model):
         """
@@ -367,42 +348,19 @@ class DCTCompression(Denoise):
         """
 
         denoising_image = ndarray2opencv(denoising.input)
-        newsteps = steps * 2
+
         for patch_size in range(2):
             psize = (patch_size + 1) * 8
-            for step in range(newsteps):
+            for step in range(steps):
                 sigma = step * 5
                 img = np.zeros(denoising_image.shape, np.uint8)
                 cv2.xphoto.dctDenoising(denoising_image, img, sigma, psize)
-                # img = self.dct_denoise(denoising_image)
                 img = opencv2ndarray(img)
                 img_label = np.argmax(self.model.predict(img))
                 if denoising.try_accept_the_example(np.squeeze(img), img_label):
                     return denoising
         return denoising
 
-    # def dct_denoise(self, img):
-    #     # must convert to float32
-    #     img = np.float32(img) / 255.0
-    #     # must use one channel for each time
-    #     img_b = img[:, :, 0]
-    #     img_g = img[:, :, 1]
-    #     img_r = img[:, :, 2]
-    #     # perform dct on each colour channel
-    #     dct_b = cv2.dct(img_b)
-    #     dct_g = cv2.dct(img_g)
-    #     dct_r = cv2.dct(img_r)
-    #     # perform inversedct on each dct channel
-    #     img_b = cv2.idct(dct_b)
-    #     img_g = cv2.idct(dct_g)
-    #     img_r = cv2.idct(dct_r)
-    #     img[:, :, 0] = img_b
-    #     img[:, :, 1] = img_g
-    #     img[:, :, 2] = img_r
-    #     img = img * 255
-    #     # convert back to uint8
-    #     img = np.uint8(img)
-    #     return img
 
 class PCACompression(Denoise):
     """
@@ -429,11 +387,9 @@ class PCACompression(Denoise):
         """
 
         denoising_image = ndarray2opencv(denoising.input)
-        # the maximum compression rate is 20, this different from other methods, better modify this in future work
-        newsteps = steps * 2
-        stride = int(denoising.input.shape[1] / newsteps)
-        for step in range(newsteps):
-            # the maximum compression rate is 100 - 19 * 5
+
+        stride = int(denoising.input.shape[1] / steps)
+        for step in range(steps):
             dim = denoising.input.shape[1] - stride * step
             img = self.pca_denoise(denoising_image, dim)
             img = opencv2ndarray(img)
@@ -461,7 +417,6 @@ class PCACompression(Denoise):
         mean, eig = cv2.PCACompute(img_g, mean=None, maxComponents = dim)
         pca_g = cv2.PCAProject(img_g, mean, eig)
         img_g = cv2.PCABackProject(pca_g, mean, eig)
-
 
         mean, eig = cv2.PCACompute(img_r, mean=None, maxComponents = dim)
         pca_r = cv2.PCAProject(img_r, mean, eig)
@@ -497,15 +452,10 @@ class GaussianNoise(Denoise):
         """
 
         h, w = denoising.input.shape[1:]
-        area = h * w
-        newsteps = steps * 10
-        # the number of pixels with noise to be added
-        pixel_num = int(area / newsteps)
         img = denoising.input.copy()
-        for i in range(newsteps):
-            if i == 0:
-                continue
-            img = self.gaussian_noise(img, 0, i / 100)
+        for step in range(steps):
+            var = 0.99 / (steps-1) * step + 0.01
+            img = self.gaussian_noise(img, 0, var)
             img_label = np.argmax(self.model.predict(np.expand_dims(img, axis=0)))
             if denoising.try_accept_the_example(img, img_label):
                 return denoising
@@ -519,9 +469,8 @@ class GaussianNoise(Denoise):
         :param var:
         :return:
         """
-        g_noise = np.random.normal(mean, var ** 0.5, img.shape)
+        g_noise = np.random.normal(mean, var, img.shape)
         img = img + g_noise
-        img = np.clip(img, 0, 1)
         return img
 
 class SaltPepperNoise(Denoise):
@@ -551,9 +500,7 @@ class SaltPepperNoise(Denoise):
         h, w = denoising.input.shape[1:]
         newsteps = steps * 10
         for i in range(newsteps):
-            if i == 0:
-                continue
-            img = self.salt_pepper_noise(denoising.input, i / 100, h, w)
+            img = self.salt_pepper_noise(denoising.input, i / 100.0, h, w)
             img_label = np.argmax(self.model.predict(np.expand_dims(img, axis=0)))
             if denoising.try_accept_the_example(img, img_label):
                 return denoising
@@ -568,7 +515,9 @@ class SaltPepperNoise(Denoise):
         :param w: the weight of the image
         :return: the image with salt and pepper noises added (denoising by adding more noise)
         """
-        threshold = proportion / 2
+        threshold = proportion / 2.0
+        if threshold == 0:
+            threshold = 0.0001
         for i in range(h):
             for j in range(w):
                 random_number = np.random.random()
@@ -577,6 +526,7 @@ class SaltPepperNoise(Denoise):
                 elif random_number > 1 - threshold:
                     img[:, i, j] = 0
         return img
+
 
 class ResizePadding(Denoise):
     """
@@ -610,10 +560,8 @@ class ResizePadding(Denoise):
         H, W, C = denoising_image.shape
         for step in range(steps):
             # compute the resize size
-            if step == 0:
-                continue
-            max_h = int(H * step / steps / 4)
-            max_w = int(W * step / steps / 4)
+            max_h = int((H - 1) * step / (steps - 1) / 4 + 1)
+            max_w = int((W - 1) * step / (steps - 1) / 4 + 1)
             # get the resize and padding sizes
             resize_h = np.random.randint(0, max_h + 1)
             resize_w = np.random.randint(0, max_w + 1)
@@ -623,16 +571,12 @@ class ResizePadding(Denoise):
             pad_top = np.random.randint(0, max_w - resize_w + 1)
             pad_bottom = max_w - resize_w - pad_top
             pad_param = [pad_left, pad_right, pad_top, pad_bottom]
-            # img_resizing = Resize(resize_param)
-            # img_padding = paddle.nn.Pad2D(pad_param)
             img = F.resize(denoising_image, resize_param)
             img = F.pad(img, pad_param)
             img = np.transpose(img, (2, 0, 1))
-            print(img.shape)
             img_label = np.argmax(self.model.predict(np.expand_dims(img, axis=0)))
             if denoising.try_accept_the_example(img, img_label):
                 return denoising
-
         return denoising
 
 
@@ -642,8 +586,10 @@ def ndarray2opencv(img):
     :param img: the input image, type: ndarray
     :return: an opencv image
     """
-
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
     img = np.transpose(img, (1, 2, 0))
+    img = (img * std) + mean
     img = (img * 255).astype(np.uint8)
     img = Image.fromarray(img)
     img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
@@ -656,9 +602,13 @@ def opencv2ndarray(img):
     :param img: the input image, type: opencv
     :return: ndarray
     """
+    from past.utils import old_div
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
     img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     img = np.asarray(img, dtype=np.float32)
     img = img / 255
+    img = old_div((img - mean), std)
     img = np.transpose(img, (2, 0, 1))
     img = np.expand_dims(img, axis=0)
     return img

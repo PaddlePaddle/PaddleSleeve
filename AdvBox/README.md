@@ -208,7 +208,7 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
 **Image Compares**
 
 <div align="center">
-    <img src="./examples/objectdetector/output/out_000000014439.jpg">
+    <img src="./examples/objectdetector/output/out_000000014439.jpg"><img src="./examples/objectdetector/output/out_000000014439.jpg">
     <br>
     <div>
     Original Image Detection Result

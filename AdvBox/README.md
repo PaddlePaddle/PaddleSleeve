@@ -219,7 +219,7 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
     </div>
 </div>
 
-![Original Image Detection Result]("./examples/objectdetector/output/out_000000014439.jpg") | ![Original Image Detection Result]("./examples/objectdetector/output/out_000000014439.jpg")
+![Original Image Detection Result](./examples/objectdetector/output/out_000000014439.jpg) | ![Masked Image Detection Result](./examples/objectdetector/output/out_masked_0014439.png)
 
 # Adversarial example denoising
 

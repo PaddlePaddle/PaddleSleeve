@@ -214,12 +214,12 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
     Original Image Detection Result
     </div>
     <br>
-    <img src="./examples/objectdetector/output/out_000000014439.jpg">
-    <br>
     <div>
     Original Image Detection Result    Masked Image Detection Result    Adv Image Detection Result
     </div>
 </div>
+
+![Original Image Detection Result]("./examples/objectdetector/output/out_000000014439.jpg") | ![Original Image Detection Result]("./examples/objectdetector/output/out_000000014439.jpg")
 
 # Adversarial example denoising
 

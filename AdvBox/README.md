@@ -171,24 +171,25 @@ for batch_id, data in enumerate(train_loader()):
 # Adversarial Perturbation for Object Detection
 Adversarial perturbation for object detection is used for adversarial training and 
 evaluating the robustness of object detectors.
+
 <div align="center">
     Images used for Feed & Sniff
 </div>
 
 <table align="center">
-    <tr>
-        <div align="center">
-            <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
-            <td><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
-        </div>
-    </tr>
+<tr>
+    <div align="center">
+        <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+        <td><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+    </div>
+</tr>
 
-    <tr>
-        <div align="center">
-            <td>Original Image</td>>
-            <td>Masked Image</td>
-        </div>
-    </tr>
+<tr>
+    <div align="center">
+        <td>Original Image</td>>
+        <td>Masked Image</td>
+    </div>
+</tr>
 <table>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 

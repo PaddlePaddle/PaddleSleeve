@@ -174,7 +174,10 @@ evaluating the robustness of object detectors.
 
 <center>Feed & Sniff</center>
 
-![Original Image](img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg")![Masked Image](img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.jpg")
+<div align="center">
+  <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300 />
+  <img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.jpg" width=300 />
+</div>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 
@@ -182,16 +185,16 @@ between victim and target feature map in PP-YOLO, successfully making it
 undetect the kite in `000000014439.jpg`. We obtain the feature map by feeding & sniffing 
 the intermediate output `pcls`, the tensor stands for classification confidence in PP-YOLO.
 
-A kindly Reminder: since paddlepaddle <= 2.1 does not support gradient backward for
+- A kindly Reminder: since paddlepaddle <= 2.1 does not support gradient backward for
  `paddle.nn.SyncBatchNorm` in eval() mode, to run the demonstration, we need to modify 
  all `sync-bn` components in detector model into `bn` (because `paddle.nn.BatchNorm` 
  supports gradient backward in eval() mode).
  
  If you want to customize your own demo script, you should try the following methods:
  
- For instance, for object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
+- For object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
  add `norm_type: sync_bn` on the third line.
- for object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: sync_bn` 
+- For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: sync_bn` 
  on the 9 th line.
 
 ## Run Target Ghosting Demonstration
@@ -204,7 +207,9 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
 **Image Compares**
 
 ![Original Image Detection Result](img src="./examples/objectdetector/output/out_000000014439.jpg")
+
 ![Masked Image Detection Result](img src="./examples/objectdetector/output/out_masked_0014439.png")
+
 ![Adv Image Detection Result](img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png")
 
 # Adversarial example denoising

@@ -175,7 +175,13 @@ evaluating the robustness of object detectors.
 <table>
 <tr>
 <div align="center">
-    <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+    <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+</div>
+</tr>
+
+<tr>
+<div align="center">
+    <td><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
 </div>
 </tr>
 

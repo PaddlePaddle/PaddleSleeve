@@ -180,10 +180,8 @@ evaluating the robustness of object detectors.
 </tr>
 
 <tr>
-    <div align="center">
-        <td align="center">Original Image</td>>
-        <td align="center">Masked Image</td>
-    </div>
+    <td align="center">Original Image</td>
+    <td align="center">Masked Image</td>
 </tr>
 </table>
 

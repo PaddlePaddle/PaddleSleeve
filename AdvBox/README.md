@@ -179,8 +179,8 @@ evaluating the robustness of object detectors.
 <table align="center">
 <tr>
     <div align="center">
-        <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
-        <td><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+        <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+        <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
     </div>
 </tr>
 
@@ -219,17 +219,21 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
 
 **Image Compares**
 
-<div align="center">
-    <img src="./examples/objectdetector/output/out_000000014439.jpg" width=300><img src="./examples/objectdetector/output/out_masked_0014439.png" width=300><img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png" width=300>
-    <br>
-    <div>
-    Original Image Detection Result
+<table>
+<tr>
+    <div align="center">
+        <td><img src="./examples/objectdetector/output/out_000000014439.jpg" width=300></td>
+        <td><img src="./examples/objectdetector/output/out_masked_0014439.png" width=300></td>
+        <td><img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png" width=300></td>
     </div>
-    <br>
-    <div>
-    Original Image Detection Result    Masked Image Detection Result    Adv Image Detection Result
-    </div>
-</div>
+</tr>
+
+<tr>
+    <td>Original Image Detection Result</td>
+    <td>Masked Image Detection Result</td>
+    <td>Adv Image Detection Result</td>
+</tr>
+</table>
 
 # Adversarial example denoising
 

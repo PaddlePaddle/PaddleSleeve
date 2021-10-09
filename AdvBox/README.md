@@ -178,10 +178,8 @@ evaluating the robustness of object detectors.
 
 <table align="center">
 <tr>
-    <div align="center">
-        <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
-        <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
-    </div>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
 </tr>
 
 <tr>
@@ -190,7 +188,7 @@ evaluating the robustness of object detectors.
         <td align="center">Masked Image</td>
     </div>
 </tr>
-<table>
+</table>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 

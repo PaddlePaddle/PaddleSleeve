@@ -186,8 +186,8 @@ evaluating the robustness of object detectors.
 
 <tr>
     <div align="center">
-        <td>Original Image</td>>
-        <td>Masked Image</td>
+        <td align="center">Original Image</td>>
+        <td align="center">Masked Image</td>
     </div>
 </tr>
 <table>

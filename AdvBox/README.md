@@ -213,6 +213,7 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
     <div>
     Original Image Detection Result
     </div>
+    <br>
     <img src="./examples/objectdetector/output/out_000000014439.jpg">
     <br>
     <div>

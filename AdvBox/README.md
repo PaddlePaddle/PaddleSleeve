@@ -203,9 +203,9 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
 
 **Image Compares**
 
-![Original Image Detection Result](img src="examples/objectdetector/output/out_000000014439.jpg")
-![Masked Image Detection Result](img src="examples/objectdetector/output/out_masked_0014439.png")
-![Adv Image Detection Result](img src="examples/objectdetector/output/out_adv_000000014439.jpg.png")
+![Original Image Detection Result](img src="./examples/objectdetector/output/out_000000014439.jpg")
+![Masked Image Detection Result](img src="./examples/objectdetector/output/out_masked_0014439.png")
+![Adv Image Detection Result](img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png")
 
 # Adversarial example denoising
 

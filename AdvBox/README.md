@@ -175,11 +175,10 @@ evaluating the robustness of object detectors.
 <div align="center">
     <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300 /><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300 />
 </div>
-<center>
-    <div>
+
+<div align="center">
     Feed & Sniff
-    </div>
-</center>
+</div>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 

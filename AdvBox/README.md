@@ -172,6 +172,9 @@ for batch_id, data in enumerate(train_loader()):
 Adversarial perturbation for object detection is used for adversarial training and 
 evaluating the robustness of object detectors.
 
+|  Original Image  |  Masked Image  |
+|:----:|:---:|
+|  ![Original Image](img src=./examples/objectdetector/dataloader/demo_pics/000000014439.jpg) |    |
 <div align="center">
     <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300>
 </div>

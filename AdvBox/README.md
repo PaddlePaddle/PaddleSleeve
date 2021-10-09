@@ -172,16 +172,16 @@ for batch_id, data in enumerate(train_loader()):
 Adversarial perturbation for object detection is used for adversarial training and 
 evaluating the robustness of object detectors.
 
-<table>
+<table align="center">
 <tr>
 <div align="center">
     <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+    <td><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
 </div>
 </tr>
 
 <tr>
 <div align="center">
-    <td><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
 </div>
 </tr>
 
@@ -228,8 +228,6 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
     Original Image Detection Result    Masked Image Detection Result    Adv Image Detection Result
     </div>
 </div>
-
-![Original Image Detection Result](./examples/objectdetector/output/out_000000014439.jpg) | ![Masked Image Detection Result](./examples/objectdetector/output/out_masked_0014439.png)
 
 # Adversarial example denoising
 

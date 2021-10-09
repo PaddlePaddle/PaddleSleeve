@@ -219,19 +219,17 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
 
 **Image Compares**
 
-<table>
+<table align="center">
 <tr>
-    <div align="center">
-        <td><img src="./examples/objectdetector/output/out_000000014439.jpg" width=300></td>
-        <td><img src="./examples/objectdetector/output/out_masked_0014439.png" width=300></td>
-        <td><img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png" width=300></td>
-    </div>
+    <td align="center"><img src="./examples/objectdetector/output/out_000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/output/out_masked_0014439.png" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png" width=300></td>
 </tr>
 
 <tr>
-    <td>Original Image Detection Result</td>
-    <td>Masked Image Detection Result</td>
-    <td>Adv Image Detection Result</td>
+    <td align="center">Original Image Detection Result</td>
+    <td align="center">Masked Image Detection Result</td>
+    <td align="center">Adv Image Detection Result</td>
 </tr>
 </table>
 

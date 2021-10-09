@@ -172,16 +172,17 @@ for batch_id, data in enumerate(train_loader()):
 Adversarial perturbation for object detection is used for adversarial training and 
 evaluating the robustness of object detectors.
 
-|  Original Image  |  Masked Image  |
-|:----:|:---:|
-|  ![Original Image](img src=./examples/objectdetector/dataloader/demo_pics/000000014439.jpg) |    |
+<table>
+<tr>
 <div align="center">
-    <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300>
+    <td><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
 </div>
+</tr>
 
 <div align="center">
     Images used for Feed & Sniff
 </div>
+<table>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 

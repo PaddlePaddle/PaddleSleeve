@@ -114,9 +114,8 @@ Run the following commandlines to launch the demonstration.
 2. `python run_advtrain_main.py`
 3. `python model_evaluation_tutorial.py`
 
-<div align="center">
-    PreactResnet Robustness Under Various Adversarial Training Settings
-</div>
+**PreactResnet Robustness Under Various Adversarial Training Settings**
+
 | Evaluation-Method | Mini-ImageNet-FGSM | Mini-ImageNet-PGD-20 |
 | :----: | :----: | :----: |
 |   val_acc: _ / natural_acc: _ / fooling_rate: _   |   preactresnet   |   preactresnet   |
@@ -184,9 +183,8 @@ for batch_id, data in enumerate(train_loader()):
 Adversarial perturbation for object detection is used for adversarial training and 
 evaluating the robustness of object detectors.
 
-<div align="center">
-    Images used for Feed & Sniff
-</div>
+
+**Images used for Feed & Sniff**
 
 <table align="center">
 <tr>

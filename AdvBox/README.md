@@ -175,8 +175,7 @@ evaluating the robustness of object detectors.
 <center>Feed & Sniff</center>
 
 <div align="center">
-  <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300 />
-  <img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.jpg" width=300 />
+  <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300 /><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.jpg" width=300 />
 </div>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 

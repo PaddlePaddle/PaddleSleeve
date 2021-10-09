@@ -173,7 +173,7 @@ Adversarial perturbation for object detection is used for adversarial training a
 evaluating the robustness of object detectors.
 
 <div align="center">
-    <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300 /><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300 />
+    <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300>
 </div>
 
 <div align="center">
@@ -208,7 +208,7 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
 **Image Compares**
 
 <div align="center">
-    <img src="./examples/objectdetector/output/out_000000014439.jpg"><img src="./examples/objectdetector/output/out_000000014439.jpg">
+    <img src="./examples/objectdetector/output/out_000000014439.jpg" width=300><img src="./examples/objectdetector/output/out_000000014439.jpg" width=300>
     <br>
     <div>
     Original Image Detection Result

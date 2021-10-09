@@ -186,7 +186,7 @@ evaluating the robustness of object detectors.
 
 **Images used for Feed & Sniff**
 
-<table align="center">
+<table>
 <tr>
     <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
     <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>

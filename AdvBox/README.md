@@ -102,11 +102,8 @@ else:
     + Supports multi-methods adversarial training.
     + Allows users to specify settings for each adversarial attack method, including their probabilities to take effect.
 - Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** for classification task on Cifar10 & Mini-ImageNet dataset.
-
-```shell script
-cd AdvBox/examples/image_adversarial_training
-python run_advtrain_main.py
-```
+1. `cd AdvBox/examples/image_adversarial_training`
+2. `python run_advtrain_main.py`
 
 | Evaluation-Method | Mini-ImageNet-FGSM | Mini-ImageNet-PGD-20 |
 | :----: | :----: | :----: |
@@ -209,7 +206,7 @@ the intermediate output `pcls`, the tensor stands for classification confidence 
  on the 9 th line.
 
 ## Run Target Ghosting Demonstration
-After changing all `sync-bn` components into `bn`, run the following commandline.
+After changing all `sync-bn` components into `bn`, run the following commandlines.
 1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
 2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
 

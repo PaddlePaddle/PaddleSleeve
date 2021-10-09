@@ -173,9 +173,13 @@ Adversarial perturbation for object detection is used for adversarial training a
 evaluating the robustness of object detectors.
 
 <div align="center">
-    <center>Feed & Sniff</center>
     <img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300 /><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300 />
 </div>
+<center>
+    <div>
+    Feed & Sniff
+    </div>
+</center>
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 

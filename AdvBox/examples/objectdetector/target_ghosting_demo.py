@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Initialize a yolo detector and inference a picture.
+The Target Ghosting Attack demonstration.
+Contains:
+* Initialize a yolo detector and inference pictures.
+* Generate perturbation using model weights.
+* Generate perturbed image.
 
 Author: xiongjunfeng
 """
@@ -155,8 +159,16 @@ def get_pcls(model, neck_feats):
     return pcls_list
 
 
-# TODO: Method 1, randn targeting.
 def pcls_kldivloss(pcls_list, target_pcls_list):
+    """
+    Compute the kl distance between pcls and target pcls.
+    Args:
+        pcls_list: list. Middle output from yolo loss. pcls is the classification feature map.
+        target_pcls_list: list. The target pcls feature map.
+
+    Returns:
+        paddle.tensor. kl distance.
+    """
     kldiv_criterion = paddle.nn.KLDivLoss(reduction='batchmean')
     logsoftmax = paddle.nn.LogSoftmax()
     softmax = paddle.nn.Softmax()
@@ -172,7 +184,7 @@ def pcls_kldivloss(pcls_list, target_pcls_list):
 # TODO: Method 2, try to use logits dispersion.
 def yolo_featuremap_ld_attack(model, neck_feats, attack_step=10, epsilon_ball=100/255):
     """
-    Unsupervised attack. Maximze
+    Unsupervised attack. Maximze kl distance from original feature map.
     Args:
         model:
         neck_feats:
@@ -243,20 +255,24 @@ def run(FLAGS, cfg):
     purturbation_shape = data0['image'].shape
     purturbation_shape = purturbation_shape[1:]
     purturbation = 0.01 * paddle.randn(purturbation_shape)
+    # TODO: try to use Adam, cw attack.
+    # optimizer = paddle.optimizer.Adam(parameters=[purturbation])
     for _ in range(attack_step):
+        # optimizer.clear_grad()
         purturbation.stop_gradient = False
         data1 = copy.deepcopy(data0)
         data1['image'] = data1['image'] + purturbation
         outs1 = trainer.model(data1)
 
         pcls_list = get_pcls(trainer.model, outs1['neck_feats'])
-        # TODO: try to get gradients.
         attack_loss = pcls_kldivloss(pcls_list, target_pcls_list)
-        # attack_loss.backward()
-        # print(purturbation.grad)
-        # purturbation_delta = purturbation.grad
 
-        purturbation_delta = 0.1 * paddle.randn(purturbation_shape)
+        print(attack_loss)
+        attack_loss.backward(retain_graph=True)
+        # optimizer.step()
+
+        purturbation_delta = - purturbation.grad
+        # purturbation_delta = 0.1 * paddle.randn(purturbation_shape)
         normalized_purturbation_delta = paddle.sign(purturbation_delta)
         purturbation = epsilon_stepsize * normalized_purturbation_delta
         adv_img = data0['image'].detach() + purturbation.detach()

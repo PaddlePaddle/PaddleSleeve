@@ -168,6 +168,45 @@ for batch_id, data in enumerate(train_loader()):
     x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
 ```
 
+# Adversarial Perturbation for Object Detection
+Adversarial perturbation for object detection is used for adversarial training and 
+evaluating the robustness of object detectors.
+
+<center>Feed & Sniff</center>
+
+![Original Image](img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg")![Masked Image](img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.jpg")
+
+In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
+attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 
+between victim and target feature map in PP-YOLO, successfully making it 
+undetect the kite in `000000014439.jpg`. We obtain the feature map by feeding & sniffing 
+the intermediate output `pcls`, the tensor stands for classification confidence in PP-YOLO.
+
+A kindly Reminder: since paddlepaddle <= 2.1 does not support gradient backward for
+ `paddle.nn.SyncBatchNorm` in eval() mode, to run the demonstration, we need to modify 
+ all `sync-bn` components in detector model into `bn` (because `paddle.nn.BatchNorm` 
+ supports gradient backward in eval() mode).
+ 
+ If you want to customize your own demo script, you should try the following methods:
+ 
+ For instance, for object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
+ add `norm_type: sync_bn` on the third line.
+ for object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: sync_bn` 
+ on the 9 th line.
+
+## Run Target Ghosting Demonstration
+After changing all `sync-bn` components into `bn`, run the following commandline.
+1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
+2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
+
+The successful execution of the target_ghosting_demo.py, will produce the following outputs.
+
+**Image Compares**
+
+![Original Image Detection Result](img src="examples/objectdetector/output/out_000000014439.jpg")
+![Masked Image Detection Result](img src="examples/objectdetector/output/out_masked_0014439.png")
+![Adv Image Detection Result](img src="examples/objectdetector/output/out_adv_000000014439.jpg.png")
+
 # Adversarial example denoising
 
 ## AdvBox denoising provides:

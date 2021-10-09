@@ -102,9 +102,21 @@ else:
     + Supports multi-methods adversarial training.
     + Allows users to specify settings for each adversarial attack method, including their probabilities to take effect.
 - Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** for classification task on Cifar10 & Mini-ImageNet dataset.
+
+## Run Adversarial Training Demonstration
+The adversarial training demonstration contains the following experiments:
+- PreactResnet adversarial training benchmark on Cifar10 & Mini-ImageNet.
+- Towernet finetuning with PGD advtraining mode on Mini-ImageNet.
+- Peripheral experiemnts to be finished.
+
+Run the following commandlines to launch the demonstration.
 1. `cd AdvBox/examples/image_adversarial_training`
 2. `python run_advtrain_main.py`
+3. `python model_evaluation_tutorial.py`
 
+<div align="center">
+    PreactResnet Robustness Under Various Adversarial Training Settings
+</div>
 | Evaluation-Method | Mini-ImageNet-FGSM | Mini-ImageNet-PGD-20 |
 | :----: | :----: | :----: |
 |   val_acc: _ / natural_acc: _ / fooling_rate: _   |   preactresnet   |   preactresnet   |
@@ -113,6 +125,9 @@ else:
 |  TRADES(beta=1.0, fgsm(default))  |  0.989 / 0.994 / 0.146  |  0.989 / 0.994 / 0.956  |
 |  TRADES(beta=1.0, PGD(default))  |  0.990 / 0.992 / 0.028  |  0.990 / 0.996 / 0.540  |
 |  TRADES(beta=1.0, LD(default))  |  0.990 / 0.996 / 0.020  |  0.990 / 0.992 / 0.734  |
+
+As shown above, the adversarial trainings boost preactresnet's robustness at the cost of 
+marginal model accuracy loss.
 
 ## Easy to use adversarial training
 ```python

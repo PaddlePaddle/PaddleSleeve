@@ -14,9 +14,9 @@
 """
 Main settings for adversarial training tutorials.
 Contains:
-* preactresnet adversarial training benchmark experiment.
-* towernet finetuning with advtraining mode with PGD augmentation.
-* the other experiments to be finished.
+* PreactResnet adversarial training benchmark on Cifar10 & Mini-ImageNet.
+* Towernet finetuning with PGD advtraining mode on Mini-ImageNet.
+* The other experiments to be finished.
 """
 import paddle
 from paddle.regularizer import L2Decay

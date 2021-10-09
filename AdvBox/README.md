@@ -213,6 +213,11 @@ The successful execution of the target_ghosting_demo.py, will produce the follow
     <div>
     Original Image Detection Result
     </div>
+    <img src="./examples/objectdetector/output/out_000000014439.jpg">
+    <br>
+    <div>
+    Original Image Detection Result
+    </div>
 </div>
 
 ![Masked Image Detection Result](img src="./examples/objectdetector/output/out_masked_0014439.png")

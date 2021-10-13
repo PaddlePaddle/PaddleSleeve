@@ -51,16 +51,16 @@ from denoisers.denoising_method import ResizePadding
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from examples.utils import add_arguments, print_arguments
-from examples.utils import  show_input_adv_and_denoise
-from examples.utils import bcolors
+from utility import add_arguments, print_arguments
+from utility import  show_input_adv_and_denoise
+from utility import bcolors
 
 # parse args
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 add_arg('target', int, -1, "target class.")
-add_arg('method', str, 'GaussianBlur', 'given the denoising method, e.g., GaussianBlur')
-add_arg('image_path', str, 'input/vase.png', 'given the image path, e.g., input/schoolbus.png')
+add_arg('method', str, 'ResizePadding', 'given the denoising method, e.g., GaussianBlur')
+add_arg('image_path', str, 'input/hourglass.png', 'given the image path, e.g., input/schoolbus.png')
 args = parser.parse_args()
 print_arguments(args)
 # MedianBlur 'input/vase.png'
@@ -69,8 +69,8 @@ print_arguments(args)
 # BilateralFilter 'input/crate.png'
 # PixelDeflection 'input/malamute.png'
 # JPEGCompression 'input/schoolbus.png'
-# DCTCompress 'input/vase.png'
-# PCACompress 'input/vase.png'
+# DCTCompression 'input/vase.png'
+# PCACompression 'input/vase.png'
 # GaussianNoise 'input/schoolbus.png'
 # SaltPepperNoise 'input/schoolbus.png'
 # ResizePadding 'input/schoolbus.png'
@@ -126,7 +126,6 @@ def main(orig):
     model = paddle.vision.models.resnet50(pretrained=True)
 
     # init a paddle model
-    # TODO: check later
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],

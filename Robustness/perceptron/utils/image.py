@@ -146,7 +146,7 @@ def load_cifar_image(shape=(32, 32), dtype=np.float32,
 def load_image(
         shape=(224, 224), bounds=(0, 1), dtype=np.float32,
         data_format='channels_last',
-        path=os.path.join(os.path.dirname(__file__), 'images/%s' % 'example.jpg')):
+        path=os.path.join(os.path.dirname(__file__), 'images/%s' % 'example.jpg'), model_name=None):
     """Returns a resized image of target fname.
     Parameters
     ----------
@@ -169,7 +169,15 @@ def load_image(
     assert image.shape == shape + (3,)
     if data_format == 'channels_first':
         image = np.transpose(image, (2, 0, 1))
-    if bounds != (0, 255) and image.dtype != np.uint8:
+    preprocess_flag = True
+    if model_name.startswith("paddlehub_") :
+        # for paddlehub model, the colour channel should convert from RGB to BGR
+        preprocess_flag = False
+        image = image[..., ::-1]
+    if model_name.startswith("pytorchhub_"):
+        # for yolov5 from pytorchub , the image bounds should be 0, 255
+        preprocess_flag = False
+    if bounds != (0, 255) and image.dtype != np.uint8 and preprocess_flag:
         image /= 255.
     return image
 
@@ -280,7 +288,6 @@ def draw_letterbox(image, prediction, original_shape=(416, 416), class_names=[],
         prediction['classes'], prediction['scores'],
         class_names)
     return draw
-
 
 def samples(dataset='imagenet', index=0, batchsize=1, shape=(224, 224),
             data_format='channels_last'):
@@ -430,3 +437,69 @@ def draw_boxes(image, out_boxes, out_classes, out_scores, class_names):
         del draw
 
     return image
+
+
+def draw_bounding_box_on_image(image, data_list, model_name, class_names):
+    """Draw output bounding boxes, label, and scores on images for paddlehub and pytorchhub models."""
+    from PIL import ImageDraw
+
+    # For paddlehub models, the colour channel should convert from BGR to RGB.
+    if model_name.startswith("paddlehub_"):
+        image = image[..., ::-1]
+    image = Image.fromarray((image).astype(np.uint8))
+    W, H = image.size
+    draw = ImageDraw.Draw(image)
+    if draw == None:
+        return image
+    if model_name.startswith("paddlehub_"):
+        for data in data_list[0]['data']:
+            text = data['label'] + ":%.1f%%" % (100 * data['confidence'])
+            left, right, top, bottom = data['left'], data['right'], data['top'], data['bottom']
+            draw_detection_result(draw, H, W, left=left, top=top, right=right, bottom=bottom, text=text)
+        return image
+    elif model_name.startswith("pytorchhub_"):
+        for data in data_list.pred[0]:
+            if data[4] > 0.35:
+                text = data_list.names[int(data[5])] + ":%.1f%%" % (100 * data[4])
+                left, top, right, bottom = data[:4].cpu().numpy()
+                draw_detection_result(draw, H, W, left=left, top=top, right=right, bottom=bottom, text=text, label=int(data[5]))
+        return image
+    elif model_name.startswith("ssd300"):
+        for i, c in reversed(list(enumerate(data_list['classes']))):
+            text = '{} {:.2f}'.format(class_names[c], data_list['scores'][i])
+            top, left, bottom, right = data_list['boxes'][i]
+            draw_detection_result(draw, H, W, left=left, top=top, right=right, bottom=bottom, text=text, label=c)
+        return image
+    else:
+        return image
+
+def draw_detection_result(draw, H, W, left, top, right, bottom, text, label=0):
+    import colorsys
+    thickness = (W + H) // 300
+
+    def _init_color(random_seed, num_classes):
+        # Generate colors for drawing bounding boxes.
+        hsv_tuples = [(x / 1000, 1., 1.) for x in range(1000)]
+        colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+        colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
+        np.random.seed(random_seed) # Fixed seed for colors across runs.
+        np.random.shuffle(colors)   # Shuffle to decorrelate adjacent classes.
+        np.random.seed(None)        # Reset seed to default.
+        return colors
+
+    colors = _init_color(10101, 1000)
+
+    label_size = draw.textsize(text=text)
+    top = max(0, np.floor(top + 0.5).astype('int32'))
+    left = max(0, np.floor(left + 0.5).astype('int32'))
+    bottom = min(H, np.floor(bottom + 0.5).astype('int32'))
+    right = min(W, np.floor(right + 0.5).astype('int32'))
+    if top - label_size[1] >= 0:
+        text_origin = np.array([left, top - label_size[1]])
+    else:
+        text_origin = np.array([left, top + 1])
+
+    draw.rectangle([tuple(text_origin), tuple(text_origin + label_size)], fill=colors[label])
+    draw.text(xy=(text_origin[0], text_origin[1]), text=text, fill=(0, 0, 0))
+    for i in range(thickness):
+        draw.rectangle([left + i, top + i, right - i, bottom - i], outline=colors[label])

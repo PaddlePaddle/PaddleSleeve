@@ -412,18 +412,18 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 #### Quantitative results (Acc.):
 | Denoising method | Clean Image | AE | Denoised AE | Denoised Clear Image |
 |:-|:-:|:-:|:-:|:-:|
-| GaussianBlur    | 43.9%  | 0.0%  | 6.3% | 10.0% |
-| MedianBlur      | 43.9%  | 0.0%  | 7.2% | 10.4% |
-| MeanFilter      | 43.9%  | 0.0%  | 5.8% | 9.0% |
-| BoxFilter       | 43.9%  | 0.0%  | 7.4% | 14.4% |
-| BilateralFilter | 43.9%  | 0.0%  | 5.8% | 9.0% |
-| PixelDeflection | 43.9%  | 0.0%  | 11.7% | 18.3% |
-| JPEGCompression | 43.9%  | 0.0%  | 12.6% | 19.5% |
-| DCTCompress     | 43.9%  | 0.0%  | 10.9% | 16.5% |
-| PCACompress     | 43.9%  | 0.0%  | 11.7% | 20.6% |
-| GaussianNoise   | 43.9%  | 0.0%  | 8.0% | 10.0% |
-| SaltPepperNoise | 43.9%  | 0.0%  | 7.3% | 11.0% |
-| ResizePadding   | 43.9%  | 0.0%  | 18.9% | 22.5% |
+| GaussianBlur    | 43.9%  | 7.3%  | 19.6% | 43.6% |
+| MedianBlur      | 43.9%  | 7.3%  | 20.4% | 29.0% |
+| MeanFilter      | 43.9%  | 7.3%  | 22.0% | 28.2% |
+| BoxFilter       | 43.9%  | 7.3%  | 22.0% | 28.2% |
+| BilateralFilter | 43.9%  | 7.3%  | % | % |
+| PixelDeflection | 43.9%  | 7.3%  | % | % |
+| JPEGCompression | 43.9%  | 7.3%  | 27.4% | 43.6% |
+| DCTCompress     | 43.9%  | 7.3%  | % | % |
+| PCACompress     | 43.9%  | 7.3%  | 19.5% | 43.7% |
+| GaussianNoise   | 43.9%  | 7.3%  | 20.0% | 43.7% |
+| SaltPepperNoise | 43.9%  | 7.3%  | % | % |
+| ResizePadding   | 43.9%  | 7.3%  | 33.0% | 42.8% |
 
 
 

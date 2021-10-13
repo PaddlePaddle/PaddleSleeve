@@ -33,15 +33,15 @@ from denoisers.denoising_method import BilateralFilter
 from denoisers.denoising_method import BoxFilter
 from denoisers.denoising_method import PixelDeflection
 from denoisers.denoising_method import JPEGCompression
-from denoisers.denoising_method import DCTCompress
-from denoisers.denoising_method import PCACompress
+from denoisers.denoising_method import DCTCompression
+from denoisers.denoising_method import PCACompression
 from denoisers.denoising_method import GaussianNoise
 from denoisers.denoising_method import SaltPepperNoise
 from denoisers.denoising_method import ResizePadding
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from examples.utils import add_arguments, print_arguments
+from utility import add_arguments, print_arguments
 from miniimagenet import MINIIMAGENET
 from paddle.vision.transforms import Compose, Normalize
 from tqdm import tqdm
@@ -56,9 +56,10 @@ print(paddle.in_dynamic_mode())
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
 add_arg('target', int, -1, "target class.")
-add_arg('method', str, 'SaltPepperNoise', 'given the denoising method, e.g., GaussianBlur')
+add_arg('method', str, 'PCACompression', 'given the denoising method, e.g., GaussianBlur')
 add_arg('dataset_path', str, 'input/mini-imagenet-cache-test.pkl', \
-        'given the dataset path, e.g., input/mini-imagenet-cache-test.pkl')
+        'given the dataset path, e.g., input/mini-imagenet-'
+        'cache-test.pkl')
 add_arg('label_path', str, 'input/mini_imagenet_test_labels.txt', \
         'given the dataset path, e.g., input/mini_imagenet_test_labels.txt')
 add_arg('mode', str, 'test', 'specify the dataset, e.g., train, test, or val')
@@ -84,8 +85,8 @@ denoisers = {
     'BilateralFilter': BilateralFilter,
     'PixelDeflection': PixelDeflection,
     'JPEGCompression': JPEGCompression,
-    'DCTCompress': DCTCompress,
-    'PCACompress': PCACompress,
+    'DCTCompression': DCTCompression,
+    'PCACompression': PCACompression,
     'GaussianNoise': GaussianNoise,
     'SaltPepperNoise': SaltPepperNoise,
     'ResizePadding': ResizePadding,
@@ -106,24 +107,16 @@ def test():
     model = paddle.vision.models.resnet50(pretrained=True)
 
     # Set the attack model
-    loss_fn = paddle.nn.CrossEntropyLoss()
     paddle_model = PaddleWhiteBoxModel(
         [model],
         [1],
-        loss_fn,
-        (-3, 3),
-        channel_axis=3,
+        (0, 1),
+        mean=mean,
+        std=std,
+        input_channel_axis=0,
+        input_shape=(3, 84, 84),
+        loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
-    # paddle_model = PaddleWhiteBoxModel(
-    #     [model],
-    #     [1],
-    #     (0, 1),
-    #     mean=mean,
-    #     std=std,
-    #     input_channel_axis=0,
-    #     input_shape=(3, 224, 224),
-    #     loss=paddle.nn.CrossEntropyLoss(),
-    #     nb_classes=1000)
 
     # Set the attack method
     target_class = args.target
@@ -132,8 +125,8 @@ def test():
         attack = FGSM(paddle_model)
     else:
         # targeted attack
-        tlabel = target_class
-        attack = FGSMT(paddle_model)
+        attack = FGSMT(paddle_model, norm='Linf',
+                       epsilon_ball=100 / 255, epsilon_stepsize=100 / 255)
 
     # Set the denoising method
     Denoiser = denoisers[args.method]
@@ -182,8 +175,11 @@ def test():
             # Set the attack parameters
             attack_config = {"epsilons": 0.3, "epsilon_steps": 10, "steps": 1}
             adversary = Adversary(inputs.numpy(), labels)
+            # targeted attack
+            target_class = args.target
             if target_class != -1:
-                adversary.set_status(is_targeted_attack=True, target_label=tlabel)
+                adversary.set_status(is_targeted_attack=True, target_label=target_class)
+
             # Set the denoising paramters
             denoising_config = {"steps": 10}
 
@@ -193,20 +189,13 @@ def test():
                 adv = adv + 1
                 # Start AE denoising
                 adversary_image = adversary.adversarial_example
-                adversary_image = np.squeeze(adversary_image)
-                adversary_image = adversary_image.transpose(1, 2, 0)
-                adversary_image = (std * adversary_image) + mean
-                adversary_image = adversary_image.transpose(2, 0, 1)
                 denoising = Denoising(adversary_image, adversary.adversarial_label, labels)
                 denoising = denoise_method(denoising, **denoising_config)
                 if denoising.is_successful():
                     de_adv_pos = de_adv_pos + 1
 
             # Start original image denoising
-            ori = inputs.numpy().transpose(1, 2, 0)
-            ori = (std * ori) + mean
-            ori = ori.transpose(2, 0, 1)
-            denoising_ori = Denoising(ori, labels, labels)
+            denoising_ori = Denoising(inputs.numpy(), labels, labels)
             denoising_ori = denoise_method(denoising_ori, **denoising_config)
             if not denoising_ori.is_successful():
                 de_ori_neg = de_ori_neg + 1
@@ -221,6 +210,6 @@ def test():
                                          DE_AE_ACC = '{:.3f}'.format(DE_AE_ACC), \
                                          DE_ORI_ACC = '{:.3f}'.format(DE_ORI_ACC)))
 
-
 if __name__ == '__main__':
     test()
+

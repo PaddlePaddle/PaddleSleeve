@@ -5,7 +5,7 @@ Robustnesss是一款基于Python开源的AI模型安全鲁棒性评估工具，�
 本工具支持多机器学习平台、多标准度量，同时使用者可使用本工具批量生成对抗图片，用于模型验证，或扩充训练数据集来强化模型。
 
 
-## 鲁棒性评估benchmark 
+## 鲁棒性评估benchmark
 ### 支持不同的Safety属性
 - GaussianNoise
 - UniformNoise
@@ -24,7 +24,7 @@ Robustnesss是一款基于Python开源的AI模型安全鲁棒性评估工具，�
 - MeanAbsoluteError
 - L_inf
 - L0
-- L2 
+- L2
 
 ### 支持不同的深度学习框架
 
@@ -44,11 +44,16 @@ conda activate perce
 # 安装本项目所需库
 pip install -e .
 
-# 如果想要使用paddle模型，需要安装paddle，注：根据下方paddle快速安装说明进行安装，本项目paddle版本为2.0.2
-python -m pip install paddlepaddle-gpu==2.0.2.post100 -f https://paddlepaddle.org.cn/whl/mkl/stable.html
+# 如果想要使用paddle模型，需要安装paddle，注：根据下方paddle快速安装说明进行安装，本项目paddle版本为2.1.1
+python -m pip install paddlepaddle-gpu==2.1.1.post101 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
+
+# 如果想要使用paddlehub模型，需要安装paddlehub，注：根据下方paddlehub快速安装说明进行安装，本项目paddlehub版本为2.1.0
+pip install --upgrade paddlehub -i https://mirror.baidu.com/pypi/simple
 ```
 
 > [paddle快速安装](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/pip/linux-pip.html)
+>
+> [paddlehub快速安装](https://www.paddlepaddle.org.cn/hub)
 >
 > 注：对于pytorch环境，用户同样需自行安装。
 
@@ -115,19 +120,54 @@ cd paddleshield/Robustness
 # paddle：执行命令，所得对比图可在Robustness/examples/images下找到
 python perceptron/launcher.py  --framework paddle --model resnet18 --criteria misclassification --metric gaussian_blur --image example.jpg
 
+# 使用其他框架
+
+# paddlehub命令：
+python perceptron/launcher.py  --framework paddlehub --model paddlehub_ssd_vgg16_300_coco2017 --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
 # pytorch命令：
 python perceptron/launcher.py  --framework pytorch --model resnet18 --criteria misclassification --metric gaussian_blur --image example.jpg
+
+# pytorchhub命令：
+python perceptron/launcher.py  --framework pytorchhub --model pytorchhub_yolov5s --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+#keras命令：
+python perceptron/launcher.py --framework keras --model ssd300 --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+python perceptron/launcher.py  --framework keras --model resnet50 --criteria misclassification --metric gaussian_blur --image example.jpg
+
+
 ```
 
 - **效果展示**
 
+图像分类：
+
+Paddle-ResNet18
 <img src="./perceptron/utils/images/doc/console_gaussianblur_minivan2mobilehome.jpeg" style="zoom:60%;" />
 
 <img src="./perceptron/utils/images/doc/pic_gaussianblur_minivan2mobilehome.jpeg" style="zoom:50%;" />
 
+图像分类：
+
+Pytorch-ResNet18
 <img src="./perceptron/utils/images/doc/console_gaussianblur_minivan2ambulance.jpeg" style="zoom:50%;" />
 
-<img src="./perceptron/utils/images/doc/pic_gaussianblur_minivan2ambulance.jpeg" style="zoom:50%;" />
+<img src="./perceptron/utils/images/doc/pic_gaussianblur_minivan2ambulance.jpeg" style="zoom:100%;" />
+
+目标检测：
+
+PaddleHub-SSD
+<img src="./perceptron/utils/images/doc/console_paddlehub_miss_gaussian_blur_target_class.jpg" style="zoom:50%;" />
+
+<img src="./perceptron/utils/images/doc/pic_miss_gaussian_blur_target_class.jpg" style="zoom:80%;" />
+
+PytorcHub-YOLOv5s
+<img src="./perceptron/utils/images/doc/console_pytorchhub_miss_gaussian_blur_target_class.jpg" style="zoom:50%;" />
+
+<img src="./perceptron/utils/images/doc/pic_pytorchhub_miss_gaussian_blur_target_class.jpg" style="zoom:1000%;" />
+
+
 
 ### 2.2 脚本文件调用
 
@@ -164,6 +204,23 @@ python Batch_Launcher.py  --framework paddle --model resnet50 --criteria misclas
 - **效果展示**
 
 <img src="./perceptron/utils/images/doc/batchattack_result_csv.jpeg" style="zoom:50%;" />
+
+### 2.3 鲁棒性评估
+
+#### 图像分类
+展示了图像分类模型在**动物**图像上的鲁棒性评估结果。
+
+- **结果展示**
+
+<img src="./perceptron/utils/images/doc/image_classification_robustness.jpg" style="zoom:70%;" />
+
+#### 目标检测
+展示了目标检测模型在**行人**图像上的鲁棒性评估结果。
+
+- **结果展示**
+
+<img src="./perceptron/utils/images/doc/object_detection_robustness.jpg" style="zoom:70%;" />
+
 
 ## 3. 用户自定义
 
@@ -238,4 +295,3 @@ python examples/paddle_userupload_br.py
 <img src="./perceptron/utils/images/doc/console_brightness_truck2bird.jpeg" style="zoom:60%;" />
 
 <img src="./perceptron/utils/images/doc/pic_brightness_truck2bird.jpeg" style="zoom:60%;" />
-

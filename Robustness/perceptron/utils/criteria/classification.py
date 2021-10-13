@@ -25,14 +25,22 @@ class Misclassification(Criterion):
     is not the original class.
     """
 
+    def __init__(self, model_name):
+        super(Misclassification, self).__init__()
+        self._model_name = model_name
+
     def name(self):
         """Return criterion name."""
         return 'Top1Misclassification'
 
     def is_adversarial(self, predictions, label):
         """Decides if predictions for an image are adversarial."""
-        top1 = np.argmax(predictions)
-        return top1 != label
+        if self._model_name == 'paddlehub_mobilenet_v2_animals':
+            top1 = list(predictions[0].keys())[0]
+            return top1 != label
+        else:
+            top1 = np.argmax(predictions)
+            return top1 != label
 
 
 class ConfidentMisclassification(Criterion):

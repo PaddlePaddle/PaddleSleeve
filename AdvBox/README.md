@@ -12,14 +12,14 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 # Attack Methods
 
-**FGSM untargeted attack**      
+**FGSM untargeted attack**
 <img src="./examples/image_cls/output/show/fgsm_untarget_803.png" style="zoom:30%;" />
 
 **PGD targeted attack**
-<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:15%;" />
+<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:14%;" />
 
 **CW targeted attack**
-<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:15%;" />
+<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:14%;" />
 
 
 ## Table of Adversarial Attack Methods

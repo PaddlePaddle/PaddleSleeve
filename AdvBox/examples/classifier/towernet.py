@@ -36,6 +36,7 @@ transform_train = T.Compose([T.Resize((256, 256)),
                              T.Normalize(mean=MEAN,
                                          std=STD)
                              ])
+
 transform_eval = T.Compose([T.Resize((256, 256)),
                             T.Transpose(),
                             T.Normalize(

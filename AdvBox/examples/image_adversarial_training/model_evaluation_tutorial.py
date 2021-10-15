@@ -50,7 +50,7 @@ STD = STD
 CIFAR10_TEST = test_set
 CLASS_NUM = CLASS_NUM
 
-attack_zoo = ("FGSM", "LD")
+attack_zoo = ("FGSM", "LD", "PGD")
 attack_choice = input(f"choose {attack_zoo}:")
 assert attack_choice in attack_zoo
 
@@ -64,6 +64,11 @@ elif attack_choice == attack_zoo[1]:
     ATTACK_METHOD = LD
     INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255}
     ATTACK_CONFIG = {"steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
+elif attack_choice == attack_zoo[2]:
+    from attacks.gradient_method import PGD
+    ATTACK_METHOD = PGD
+    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8 / 255, "epsilon_stepsize": 2 / 255}
+    ATTACK_CONFIG = {}
 else:
     exit(1)
 

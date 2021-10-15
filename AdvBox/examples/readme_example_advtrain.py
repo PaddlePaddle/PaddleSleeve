@@ -16,14 +16,13 @@ script for readme example.
 """
 import sys
 sys.path.append("..")
-import numpy as np
 import paddle
 from attacks.gradient_method import FGSM, PGD
 from attacks.cw import CW_L2
 from models.whitebox import PaddleWhiteBoxModel
 from defences.adversarial_transform import ClassificationAdversarialTransform
 
-from classifier.definednet import transform_train, TowerNet, MEAN, STD
+from classifier.towernet import transform_train, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
@@ -62,4 +61,3 @@ for batch_id, data in enumerate(train_loader()):
     x_data = data[0]
     y_data = paddle.unsqueeze(data[1], 1)
     x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
-    print(batch_id)

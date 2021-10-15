@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-paddle2 model adversarial training demo on CIFAR10 data
+paddle2 model for adversarial training based on Adversarial Weight Perturbation.
+* https://arxiv.org/abs/2004.05884
 """
 import sys
 sys.path.append("../..")

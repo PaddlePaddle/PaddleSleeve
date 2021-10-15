@@ -12,14 +12,11 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 # Attack Methods
 
-**FGSM untargeted attack**      
-<img src="./examples/image_cls/output/show/fgsm_untarget_803.png" style="zoom:60%;" />
-
 **PGD targeted attack**
-<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:20%;" />
+<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:14%;" />
 
 **CW targeted attack**
-<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:20%;" />
+<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:14%;" />
 
 
 ## Table of Adversarial Attack Methods
@@ -34,6 +31,7 @@ The project also contains plenty of useful tutorials for different AI applicatio
 | [PGD (ProjectedGradientDescentAttack)](attacks/gradient_method.py)               | ✓  |   | ✓ | ✓ |
 | [CW_L2 (CWL2Attack)](attacks/cw.py)                                              | ✓  |   |   | ✓ |
 | [SinglePixelAttack](attacks/single_pixel_attack.py)                              |    | ✓ |   |   |
+| [HopSkipJumpAttack](attacks/hop_skip_jump_attack.py)                             |    | ✓ |   |   |
 
 ## To generate an AE in AdvBox
 
@@ -43,12 +41,10 @@ sys.path.append("..")
 import paddle
 import numpy as np
 from adversary import Adversary
-from attacks.gradient_method import FGSM
 from attacks.cw import CW_L2
-from attacks.logits_dispersion import LOGITS_DISPERSION
 from models.whitebox import PaddleWhiteBoxModel
 
-from classifier.definednet import transform_eval, TowerNet, MEAN, STD
+from classifier.towernet import transform_eval, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
@@ -63,11 +59,8 @@ advbox_model = PaddleWhiteBoxModel(
     loss=paddle.nn.CrossEntropyLoss(),
     nb_classes=10)
 
-# FGSM attack, init attack with the ensembled model
-# attack = FGSM(paddle_model)
-# attack = CW_L2(paddle_model)
-# attack = LOGITS_DISPERSION(advbox_model, norm='Linf')
-attack = LOGITS_DISPERSION(advbox_model, norm='L2')
+# init attack with the ensembled model
+attack = CW_L2(advbox_model)
 
 cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
 test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)
@@ -78,16 +71,14 @@ label = data[1]
 
 # init adversary status
 adversary = Adversary(img.numpy(), int(label))
-# target = np.random.randint(paddle_model.num_classes())
-# while label == target:
-#     target = np.random.randint(paddle_model.num_classes())
-# print(label, target)
-# adversary.set_status(is_targeted_attack=True, target_label=target)
+target = np.random.randint(advbox_model.num_classes())
+while label == target:
+    target = np.random.randint(advbox_model.num_classes())
+print(label, target)
+adversary.set_status(is_targeted_attack=True, target_label=target)
 
 # launch attack
-# adversary = attack(adversary, norm_ord=np.inf, epsilons=0.003, epsilon_steps=1, steps=1)
-# adversary = attack(adversary, attack_iterations=100, verbose=True)
-adversary = attack(adversary, dispersion_type='softmax_kl', verbose=True)
+adversary = attack(adversary, attack_iterations=50, verbose=True)
 
 if adversary.is_successful():
     original_img = adversary.original
@@ -100,27 +91,51 @@ else:
 
 # Adversarial Training
 
-## AdvBox Adversarial Training(defences) provides:
+## AdvBox Adversarial Training(advtraining) provides:
 - Mainstream attack methods **[FGSM/PGD/BIM/ILCM/MI-FGSM](#AdvBox/attacks)** for model adversarial training.
 - A unified yet generic adversarial training API: 
     + AEs generation/transformation in data-flow style, which can be easily incorporated into existing training process.
     + Supports weighted model ensembling for AEs generation/transformation.
     + Supports multi-methods adversarial training.
     + Allows users to specify settings for each adversarial attack method, including their probabilities to take effect.
-- A **[tutorial python script](#AdvBox/examples/cifar10_tutorial_fgsm_advtraining.py)** uses the Cifar10 dataset for adversarial training demonstration.
+- Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** for classification task on Cifar10 & Mini-ImageNet dataset.
+
+## Run Adversarial Training Demonstration
+The adversarial training demonstration contains the following experiments:
+- PreactResnet adversarial training benchmark on Cifar10 & Mini-ImageNet.
+- Towernet finetuning with PGD advtraining mode on Mini-ImageNet.
+- Peripheral experiemnts to be finished.
+
+Run the following commandlines to launch the demonstration.
+1. `cd AdvBox/examples/image_adversarial_training`
+2. `python run_advtrain_main.py`
+3. `python model_evaluation_tutorial.py`
+
+**PreactResnet Robustness Under Various Adversarial Training Settings**
+
+| Evaluation-Method | Mini-ImageNet-FGSM | Mini-ImageNet-PGD-20 |
+| :----: | :----: | :----: |
+|   val_acc: _ / natural_acc: _ / fooling_rate: _   |   preactresnet   |   preactresnet   |
+|   Natural Adversarial Training(p=0.1, fgsm(default))   |   0.980 / 0.986 / 0.282   |   0.980 / 0.986 / 0.984   |
+|   Natural Adversarial Training(p=0.1, PGD(default))   |   0.983 / 0.978 / 0.098   |   0.983 / 0.982 /0.850   |
+|  TRADES(beta=1.0, fgsm(default))  |  0.989 / 0.994 / 0.146  |  0.989 / 0.994 / 0.956  |
+|  TRADES(beta=1.0, PGD(default))  |  0.990 / 0.992 / 0.028  |  0.990 / 0.996 / 0.540  |
+|  TRADES(beta=1.0, LD(default))  |  0.990 / 0.996 / 0.020  |  0.990 / 0.992 / 0.734  |
+
+As shown above, the adversarial trainings boost preactresnet's robustness at the cost of 
+marginal model accuracy loss.
 
 ## Easy to use adversarial training
 ```python
 import sys
 sys.path.append("..")
-import numpy as np
 import paddle
 from attacks.gradient_method import FGSM, PGD
 from attacks.cw import CW_L2
 from models.whitebox import PaddleWhiteBoxModel
 from defences.adversarial_transform import ClassificationAdversarialTransform
 
-from classifier.definednet import transform_train, TowerNet, MEAN, STD
+from classifier.towernet import transform_train, TowerNet, MEAN, STD
 model_0 = TowerNet(3, 10, wide_scale=1)
 model_1 = TowerNet(3, 10, wide_scale=2)
 
@@ -159,8 +174,67 @@ for batch_id, data in enumerate(train_loader()):
     x_data = data[0]
     y_data = paddle.unsqueeze(data[1], 1)
     x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
-    print(batch_id)
 ```
+
+# Adversarial Perturbation for Object Detection
+Adversarial perturbation for object detection is used for adversarial training and 
+evaluating the robustness of object detectors.
+
+
+**Images used for Feed & Sniff**
+
+<table>
+<tr>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image</td>
+    <td align="center">Masked Image</td>
+</tr>
+</table>
+
+In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
+attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 
+between victim and target feature map in PP-YOLO, successfully making it 
+undetect the kite in `000000014439.jpg`. We obtain the feature map by feeding & sniffing 
+the intermediate output `pcls`, the tensor stands for classification confidence in PP-YOLO.
+
+- A kindly Reminder: since paddlepaddle <= 2.1 does not support gradient backward for
+ `paddle.nn.SyncBatchNorm` in eval() mode, to run the demonstration, we need to modify 
+ all `sync-bn` components in detector model into `bn` (because `paddle.nn.BatchNorm` 
+ supports gradient backward in eval() mode).
+ 
+ If you want to customize your own demo script, you should try the following methods:
+ 
+- For object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
+ add `norm_type: sync_bn` on the third line.
+- For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: sync_bn` 
+ on the 9 th line.
+
+## Run Target Ghosting Demonstration
+After changing all `sync-bn` components into `bn`, run the following commandlines.
+1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
+2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
+
+The successful execution of the target_ghosting_demo.py, will produce the following outputs.
+
+**Image Compares**
+
+<table align="center">
+<tr>
+    <td align="center"><img src="./examples/objectdetector/output/out_000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/output/out_masked_0014439.png" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image Detection Result</td>
+    <td align="center">Masked Image Detection Result</td>
+    <td align="center">Adv Image Detection Result</td>
+</tr>
+</table>
 
 # Adversarial example denoising
 

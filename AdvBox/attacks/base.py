@@ -14,10 +14,10 @@
 """
 The base model of the model.
 """
+# TODO: support batch input.
 import logging
 from abc import ABCMeta
 from abc import abstractmethod
-import numpy as np
 import paddle
 
 

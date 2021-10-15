@@ -100,7 +100,6 @@ class SinglePixelAttack(Attack):
                 perturbed = np.copy(adv_img)
                 # 针对图像的每个信道的点[x,y]同时进行修改
                 perturbed[location] = value
-
                 perturbed = paddle.to_tensor(perturbed, dtype='float32', place=self._device)
 
                 perturbed_normalized = self.input_preprocess(perturbed)

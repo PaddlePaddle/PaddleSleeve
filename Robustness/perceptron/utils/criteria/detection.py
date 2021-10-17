@@ -24,13 +24,18 @@ class TargetClassMiss(Criterion):
     in the detection result.
     """
 
-    def __init__(self, target_class):
+    def __init__(self, target_class, model_name):
         super(TargetClassMiss, self).__init__()
         self._target_class = target_class
+        self._model_name = model_name
 
     def target_class(self):
         """Return target class."""
         return self._target_class
+
+    def model_name(self):
+        """Return model name."""
+        return self._model_name
 
     def name(self):
         """Return ctiterion name."""
@@ -38,9 +43,23 @@ class TargetClassMiss(Criterion):
 
     def is_adversarial(self, predictions, annotation):
         """Decides if predictions for an image are adversarial."""
-        if predictions is None:
+
+        if self._model_name.startswith("pytorchhub_"):
+            if len(predictions.pred[0]) == 0:
+                return True
+            if predictions.pred[0][0, 5] != annotation:
+                return True
+            return False
+        elif self._model_name.startswith("paddlehub_"):
+            if not predictions[0]['data']:
+                return True
+            if predictions[0]['data'][0]['label'] is not annotation:
+                return True
+            return False
+        elif predictions is None:
             return True
-        return self._target_class not in predictions['classes']
+        else:
+            return self._target_class not in predictions['classes']
 
 
 class RegionalTargetClassMiss(Criterion):
@@ -92,7 +111,6 @@ class RegionalTargetClassMiss(Criterion):
             return ov
         else:
             return 0.0
-
 
 class TargetClassMissGoogle(Criterion):
     """Defines adversarials as images for which the target class is not
@@ -147,8 +165,7 @@ class WeightedAP(Criterion):
     def get_defaults(cls, n):
         """Return default value of n.
         Parameters
-        ----------
-        n : str
+        ---------- n : str
             Key of the defalut dictionary.
         """
         if n in cls._defaults:
@@ -445,3 +462,37 @@ class WeightedAP(Criterion):
         area = self._get_bb_area(bb)
         cs = float(obj['confident_score'])
         return area, cs
+
+class DetObjProbDecrease(Criterion):
+    """Defines adversarials as images for which the probability of original
+    class is below a given threshold.
+    This criterion alone does not guarantee that the class predicted for the
+    adversarial image is not original class (unless p < 1 / num of classes).
+    Therefore, it should usually be combined with a classification criterion.
+    Parameters
+    ----------
+    p : float
+        The threshold probability. If the probability of the original class is
+        below this threshold, the image is considered an adversarial. It must
+        satisfy 0 <= p <=1.
+    """
+
+    def __init__(self, p):
+        super(DetObjProbDecrease, self).__init__()
+        assert 0 <= p <= 1
+        self.p = p
+
+    def name(self):
+        """Return criterion name."""
+        return '{}-{:.04f}'.format(self.__class__.__name__, self.p)
+
+    def is_adversarial(self, predictions, label):
+        """Decides if predictions for an image are adversarial."""
+        #predict is null
+        if len(predictions[0]['data']) == 0:
+            return True
+
+        prob = predictions[0]['data'][0]['confidence']
+        return prob < self.p
+
+

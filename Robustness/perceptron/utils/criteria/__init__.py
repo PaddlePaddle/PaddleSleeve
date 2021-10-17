@@ -15,3 +15,4 @@ from .classification import MisclassificationSafeSearch
 from .detection import TargetClassMiss
 from .detection import TargetClassMissGoogle
 from .detection import WeightedAP
+from .detection import DetObjProbDecrease

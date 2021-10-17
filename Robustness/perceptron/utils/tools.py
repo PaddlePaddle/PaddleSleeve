@@ -14,9 +14,10 @@
 
 """Launcher tools."""
 
-from perceptron.utils.image import load_image
+from perceptron.utils.image import load_image, draw_bounding_box_on_image
 import matplotlib.pyplot as plt
-
+from PIL import Image
+import numpy as np
 
 class bcolors:
     RED = "\033[1;31m"
@@ -66,6 +67,7 @@ def get_image(fpath, framework_name, model_name, data_format):
     kwargs = get_image_format(framework_name, model_name)
     kwargs['data_format'] = data_format
     kwargs['path'] = fpath
+    kwargs['model_name'] = model_name
     image = load_image(**kwargs)
     return image
 
@@ -77,7 +79,9 @@ def get_model(model_name, framework, summary):
         'tensorflow': lambda: _load_keras_model(model_name, summary),
         'pytorch': lambda: _load_pytorch_model(model_name, summary),
         'cloud': lambda: _load_cloud_model(model_name, summary),
-        'paddle': lambda: _load_paddle_model(model_name, summary)
+        'paddle': lambda: _load_paddle_model(model_name, summary),
+        'paddlehub': lambda: _load_paddlehub_model(model_name, summary),
+        'pytorchhub': lambda: _load_pytorchhub_model(model_name, summary)
     }
     _get_model = switcher.get(framework, None)
     return _get_model()
@@ -129,21 +133,22 @@ def get_metric(attack_name, model, criteria, distance):
     return attack
 
 
-def get_criteria(criteria_name, target_class=None):
+def get_criteria(criteria_name, target_class=None, prob=None, model_name=None):
     """Get the adversarial criteria."""
     import perceptron.utils.criteria as criteria
     switcher = {
-        "misclassification": lambda: criteria.Misclassification(),
+        "misclassification": lambda: criteria.Misclassification(model_name),
         "confident_misclassification": lambda: criteria.ConfidentMisclassification(),
         "topk_misclassification": lambda: criteria.TopKMisclassification(10),
         "target_class": lambda: criteria.TargetClass(target_class),
+        "det_obj_prob_decrease": lambda: criteria.DetObjProbDecrease(prob),
         "original_class_probability": lambda: criteria.OriginalClassProbability(),
         "target_class_probability": lambda: criteria.TargetClassProbability(target_class),
         "target_class_miss_google": lambda: criteria.TargetClassMissGoogle(target_class),
         "weighted_ap": lambda: criteria.WeightedAP(),
         "misclassification_antiporn": lambda: criteria.MisclassificationAntiPorn(),
         "misclassification_safesearch": lambda: criteria.MisclassificationSafeSearch(),
-        "target_class_miss": lambda: criteria.TargetClassMiss(target_class),
+        "target_class_miss": lambda: criteria.TargetClassMiss(target_class, model_name)
     }
     return switcher.get(criteria_name, None)()
 
@@ -164,10 +169,10 @@ def _load_keras_model(model_name, summary):
     _load_model = switcher.get(model_name, None)
     _model = _load_model()
 
-    from perceptron.models.classification.keras import KerasModel as ClsKerasModel
+    from perceptron.models.classification.kerasmodel import KerasModel as ClsKerasModel
     from perceptron.models.detection.keras_ssd300 import KerasSSD300Model
-    from perceptron.models.detection.keras_yolov3 import KerasYOLOv3Model
-    from perceptron.models.detection.keras_retina_resnet50 import KerasResNet50RetinaNetModel
+    # from perceptron.models.detection.keras_yolov3 import KerasYOLOv3Model
+    # from perceptron.models.detection.keras_retina_resnet50 import KerasResNet50RetinaNetModel
     import numpy as np
     format = get_image_format('keras', model_name)
     if format['bounds'][1] == 1:
@@ -177,9 +182,9 @@ def _load_keras_model(model_name, summary):
     else:
         preprocessing = (np.array([104, 116, 123]), 1)
     switcher = {
-        'yolo_v3': lambda x: KerasYOLOv3Model(x, bounds=(0, 1)),
+        # 'yolo_v3': lambda x: KerasYOLOv3Model(x, bounds=(0, 1)),
         'ssd300': lambda x: KerasSSD300Model(x, bounds=(0, 255)),
-        'retina_resnet_50': lambda x: KerasResNet50RetinaNetModel(None, bounds=(0, 255)),
+        # 'retina_resnet_50': lambda x: KerasResNet50RetinaNetModel(None, bounds=(0, 255)),
     }
     _wrap_model = switcher.get(
         model_name,
@@ -218,6 +223,7 @@ def _load_pytorch_model(model_name, summary):
         "resnet50": lambda: models.resnet50(pretrained=True).eval(),
         "resnet101": lambda: models.resnet101(pretrained=True).eval(),
         "resnet152": lambda: models.resnet152(pretrained=True).eval(),
+        "resnext50_32x4d": lambda: models.resnext50_32x4d(pretrained=True).eval(),
         "squeezenet1_0": lambda: models.squeezenet1_0(pretrained=True).eval(),
         "squeezenet1_1": lambda: models.squeezenet1_1(pretrained=True).eval(),
         "densenet121": lambda: models.densenet121(pretrained=True).eval(),
@@ -262,6 +268,58 @@ def _load_paddle_model(model_name, summary):
     return pmodel
 
 
+def _load_pytorchhub_model(model_name, summary):
+    switcher = {
+        'pytorchhub_yolov5s': lambda: _load_pytorchhub_yolov5s_model()
+    }
+    _load_model = switcher.get(model_name, None)
+    cmodel = _load_model()
+    return cmodel
+
+
+def _load_paddlehub_model(model_name, summary):
+    switcher = {
+        'paddlehub_yolov3_darknet53_pedestrian': lambda: _load_pedestrian_model(),
+        'paddlehub_yolov3_darknet53_vehicles': lambda: _load_vehicles_model(),
+        'paddlehub_ssd_vgg16_300_coco2017': lambda: _load_ssd_vgg16_300_coco2017_model(),
+        'paddlehub_mobilenet_v2_animals': lambda: _load_mobilenet_v2_animals_model()
+    }
+
+    _load_model = switcher.get(model_name, None)
+    cmodel = _load_model()
+    return cmodel
+
+
+def _load_mobilenet_v2_animals_model():
+    from perceptron.models.classification.pphub import MobilenetV2AnimalsModel
+    model = MobilenetV2AnimalsModel()
+    return model
+
+
+def _load_pytorchhub_yolov5s_model():
+    from perceptron.models.detection.pthub import YOLOv5sModel
+    model = YOLOv5sModel()
+    return model
+
+
+def _load_ssd_vgg16_300_coco2017_model():
+    from perceptron.models.detection.pphub import SSDVGG16300Model
+    model = SSDVGG16300Model()
+    return model
+
+
+def _load_pedestrian_model():
+    from perceptron.models.detection.pphub import PedestrianDetModel
+    model = PedestrianDetModel()
+    return model
+
+
+def _load_vehicles_model():
+    from perceptron.models.detection.pphub import VehiclesDetModel 
+    model = VehiclesDetModel()
+    return model
+
+
 def _load_yolov3_model():
     from perceptron.zoo.yolov3.model import YOLOv3
     model = YOLOv3()
@@ -303,7 +361,10 @@ def plot_image(adversary, title=None, figname='compare.png'):
     max_value = 255 if prev.max() > 1 else 1
 
     diff = np.absolute(prev - after)
-    scale = max_value / diff.max()
+    if diff.max() == 0:
+        scale = 1
+    else:
+        scale = max_value / diff.max()
     diff = diff * scale
 
     if max_value == 255:
@@ -366,6 +427,52 @@ def plot_image_objectdetection(adversary, kmodel, bounds=(0, 1), title=None, fig
 
     plt.show()
 
+
+def plot_image_objectdetection_hub(adversary, predictions, model_name, class_names=None, title=None, figname='compare.png'):
+    """Plot the images."""
+
+    pred_adv = adversary.output
+    pred_ori = predictions
+
+    prev = adversary.original_image
+    after = adversary.image
+
+    ori_image = draw_bounding_box_on_image(prev, pred_ori, model_name, class_names)
+    adv_image = draw_bounding_box_on_image(after, pred_adv, model_name, class_names)
+
+    max_value = 255 if prev.max() > 1 else 1
+
+    diff = np.absolute(prev - after)
+    if diff.max() == 0:
+        scale = 1
+    else:
+        scale = max_value / diff.max()
+    diff = diff * scale
+
+    if max_value == 255:
+        diff = diff.astype('uint8')
+
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    plt.axis('off')
+
+    ax1.imshow(ori_image)
+    ax1.set_title('Origin')
+    ax1.axis('off')
+
+    ax2.imshow(adv_image)
+    ax2.set_title('Adversary')
+    ax2.axis('off')
+
+    ax3.imshow(diff)
+    ax3.set_title('Diff * %.1f' % scale)
+    ax3.axis('off')
+
+    if title:
+        fig.suptitle(title, fontsize=12, fontweight='bold', y=0.80)
+
+    # in case you do not have GUI interface
+    plt.savefig(figname, bbox_inches='tight', dpi=600)
+    plt.show()
 
 def load_pytorch_model(model_name):
     """Load pytorch model."""

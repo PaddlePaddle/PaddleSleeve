@@ -2,6 +2,6 @@
 so that they provide a unified API to the benchmarks.
 """
 
-from .keras import KerasModel
+from .kerasmodel import KerasModel
 from .pytorch import PyTorchModel
 from .paddle import PaddleModel

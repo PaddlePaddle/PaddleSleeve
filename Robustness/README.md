@@ -4,7 +4,7 @@ English | [简体中文](./README_cn.md)
 Robustness is a robustness benchmark tool for vision DNN models on PaddlePaddle, PyTorch, etc.
 It inherits the design from foolbox, and is designed to be agnostic to the deep learning frameworks the models are built on.
 
-## Robustness benchmark 
+## Robustness benchmark
 ### various Safety scenarios
 - GaussianNoise
 - UniformNoise
@@ -42,12 +42,18 @@ conda activate perce
 # Install the required libraries for this project
 pip install -e .
 
-# If you want to use the paddle model, you need to install paddle. Note: Install according to the paddle quick installation instructions below. 
-# The paddle version of this project is 2.0.2
-python -m pip install paddlepaddle-gpu==2.0.2.post100 -f https://paddlepaddle.org.cn/whl/mkl/stable.html
+# If you want to use the paddle model, you need to install paddle. Note: Install according to the paddle quick installation instructions below.
+# The paddle version of this project is 2.1.1
+python -m pip install paddlepaddle-gpu==2.1.1.post101 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
+
+# If you want to use the paddlehub model, you need to install paddlehub. Note: Install according to the paddlehub quick installation instructions below.
+# The paddlehub version of this project is 2.1.0
+pip install --upgrade paddlehub -i https://mirror.baidu.com/pypi/simple
 ```
 
 > [paddle quick install](https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/install/pip/linux-pip.html)
+>
+> [paddlehub quick install](https://www.paddlepaddle.org.cn/hub)
 >
 > Note: For the pytorch environment, users also need to install it by themselves.
 
@@ -59,8 +65,8 @@ This project supports two calling methods, which can be called through command l
 
 - **Introduction to command line parameters**
 
-  - `--framework`：Choose deep learning framework, support paddle, pytorch.
-  - `--model`：Select the pre-trained model. Currently, the paddle framework supports resnet18, resnet50, vgg16, and the pytorch framework supports pre-trained models such as vgg11 and resnet18.
+  - `--framework`：Choose deep learning framework, support paddle, paddlehub, pytorch, pytorchhub.
+  - `--model`：Select the pre-trained model. Currently, the paddle framework supports resnet18, resnet50, vgg16, the paddlehub framework supports pre-trained models such as YOLOv3 and SSD, the pytorch framework supports pre-trained models such as vgg11 and resnet18, the pytorchhub framework supports pre-trained models such as YOLOv5.
   - `--image`：Users can upload their own pictures to the Robustness/perceptron/utils/images folder of the original pictures being attacked.
   - `--criteria`：Provides class to wrap all adversarial criterions so that attacks has uniform API access.
 
@@ -113,19 +119,51 @@ cd paddleshield/Robustness
 # paddle：The results can be found under Robustness/examples/images.
 python perceptron/launcher.py  --framework paddle --model resnet18 --criteria misclassification --metric gaussian_blur --image example.jpg
 
-# pytorch ：
+# Use other frameworks
+
+# paddlehub: The results can be found under Robustness/images.
+python perceptron/launcher.py  --framework paddlehub --model paddlehub_ssd_vgg16_300_coco2017 --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+# pytorch:
 python perceptron/launcher.py  --framework pytorch --model resnet18 --criteria misclassification --metric gaussian_blur --image example.jpg
+
+# pytorchhub: The results can be found under Robustness/images.
+python perceptron/launcher.py  --framework pytorchhub --model pytorchhub_yolov5s --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+# keras: The results can be found under Robustness/images.
+python perceptron/launcher.py --framework keras --model ssd300 --criteria target_class_miss --metric gaussian_blur --image example.jpg --target_class -1
+
+python perceptron/launcher.py  --framework keras --model resnet50 --criteria misclassification --metric gaussian_blur --image example.jpg
+
 ```
 
 - **Results**
 
+Image classification:
+
+Paddle-ResNet18
 <img src="./perceptron/utils/images/doc/console_gaussianblur_minivan2mobilehome.jpeg" style="zoom:60%;" />
 
 <img src="./perceptron/utils/images/doc/pic_gaussianblur_minivan2mobilehome.jpeg" style="zoom:50%;" />
 
+
+Pytorch-ResNet18
 <img src="./perceptron/utils/images/doc/console_gaussianblur_minivan2ambulance.jpeg" style="zoom:50%;" />
 
 <img src="./perceptron/utils/images/doc/pic_gaussianblur_minivan2ambulance.jpeg" style="zoom:50%;" />
+
+Object detection:
+
+PaddleHub-SSD
+<img src="./perceptron/utils/images/doc/console_paddlehub_miss_gaussian_blur_target_class.jpg" style="zoom:50%;" />
+
+<img src="./perceptron/utils/images/doc/pic_miss_gaussian_blur_target_class.jpg" style="zoom:80%;" />
+
+PytorcHub-YOLOv5s
+<img src="./perceptron/utils/images/doc/console_pytorchhub_miss_gaussian_blur_target_class.jpg" style="zoom:50%;" />
+
+<img src="./perceptron/utils/images/doc/pic_pytorchhub_miss_gaussian_blur_target_class.jpg" style="zoom:1000%;" />
+
 
 ### 2.2 Script file call
 
@@ -159,6 +197,23 @@ python Batch_Launcher.py  --framework paddle --model resnet50 --criteria misclas
 - **Results**
 
 <img src="./perceptron/utils/images/doc/batchattack_result_csv.jpeg" style="zoom:50%;" />
+
+### 2.3 Evaluation
+
+#### Image classification
+We evaluate the robustness of image classification models on several **animal** images.
+
+- **Results**
+
+<img src="./perceptron/utils/images/doc/image_classification_robustness.jpg" style="zoom:70%;" />
+
+#### Object detection
+We evaluate the robustness of object detection models on several **pedestrian** images.
+
+- **Results**
+
+<img src="./perceptron/utils/images/doc/object_detection_robustness.jpg" style="zoom:70%;" />
+
 
 ## 3. User-defined model
 
@@ -231,4 +286,3 @@ python examples/paddle_userupload_br.py
 <img src="./perceptron/utils/images/doc/console_brightness_truck2bird.jpeg" style="zoom:60%;" />
 
 <img src="./perceptron/utils/images/doc/pic_brightness_truck2bird.jpeg" style="zoom:60%;" />
-

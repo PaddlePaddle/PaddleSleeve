@@ -17,17 +17,17 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 ---
 ## 攻击算法列表
 
-白盒攻击算法
-+ FGSM
-+ MI-FGSM
-+ PGD
-+ BIM
-+ ILCM
-+ C/W
-
-黑盒攻击算法
-+ SinglePixelAttack
-+ TransferAttack
+| Adversarial Attack Methods                                    | White-Box | Black-Box | Ensemble  |  AdvTrain   |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--:|:--:|:--:|:--:|
+| [FGSM (FastGradientSignMethodAttack)](attacks/gradient_method.py)                | ✓  |   | ✓ | ✓ |
+| [FGSMT (FastGradientSignMethodTargetedAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
+| [BIM (BasicIterativeMethodAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
+| [ILCM (IterativeLeastLikelyClassMethodAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
+| [MI-FGSM (MomentumIteratorAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
+| [PGD (ProjectedGradientDescentAttack)](attacks/gradient_method.py)               | ✓  |   | ✓ | ✓ |
+| [CW_L2 (CWL2Attack)](attacks/cw.py)                                              | ✓  |   |   | ✓ |
+| [SinglePixelAttack](attacks/single_pixel_attack.py)                              |    | ✓ |   |   |
+| [HopSkipJumpAttack](attacks/hop_skip_jump_attack.py)                             |    | ✓ |   |   |
 
 ---
 ### 黑盒攻击示例
@@ -124,6 +124,202 @@ fgsm attack done
 **BIM非定向攻击**
 
 <img src="./examples/image_cls/output/show/bim_untarget_368.png" style="zoom:40%;" />
+
+### 利用AdvBox生成一个对抗样本
+
+```python
+import sys
+sys.path.append("..")
+import paddle
+import numpy as np
+from adversary import Adversary
+from attacks.cw import CW_L2
+from models.whitebox import PaddleWhiteBoxModel
+
+from classifier.towernet import transform_eval, TowerNet, MEAN, STD
+model_0 = TowerNet(3, 10, wide_scale=1)
+model_1 = TowerNet(3, 10, wide_scale=2)
+
+advbox_model = PaddleWhiteBoxModel(
+    [model_0, model_1],
+    [1, 1.8],
+    (0, 1),
+    mean=MEAN,
+    std=STD,
+    input_channel_axis=0,
+    input_shape=(3, 256, 256),
+    loss=paddle.nn.CrossEntropyLoss(),
+    nb_classes=10)
+
+# init attack with the ensembled model
+attack = CW_L2(advbox_model)
+
+cifar10_test = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
+test_loader = paddle.io.DataLoader(cifar10_test, batch_size=1)
+
+data = test_loader().next()
+img = data[0][0]
+label = data[1]
+
+# init adversary status
+adversary = Adversary(img.numpy(), int(label))
+target = np.random.randint(advbox_model.num_classes())
+while label == target:
+    target = np.random.randint(advbox_model.num_classes())
+print(label, target)
+adversary.set_status(is_targeted_attack=True, target_label=target)
+
+# launch attack
+adversary = attack(adversary, attack_iterations=50, verbose=True)
+
+if adversary.is_successful():
+    original_img = adversary.original
+    adversarial_img = adversary.adversarial_example
+    print("Attack succeeded.")
+else:
+    print("Attack failed.")
+```
+
+# 对抗训练
+
+## AdvBox对抗训练(advtraining)提供:
+- 基于主流攻击算法 **[FGSM/PGD/BIM/ILCM/MI-FGSM](#AdvBox/attacks)** 的数据增强工具，用于对抗训练
+- 紧凑便捷的对抗训练工具API：
+    + 支持将训练数据按照比例进行对抗扰动，便于接入已有的paddle分类模型训练流程
+    + 支持事先按照设定权重，进行模型融合的对抗样本生成
+    + 支持多对抗攻击方法的对抗样本生成
+- Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** 演示脚本，基于Cifar10和Mini-ImageNet数据集
+
+## 如何运行对抗训练演示
+对抗训练演示包含以下实验：
+- 基于Preactresnet在Cifar10和Mini-ImageNet的对抗训练Benchmark
+- 基于Towernet在Mini-ImageNet数据集上使用PGD数据增强的微调实验
+- 附加的未完成的实验
+
+运行以下命令来运行演示
+1. `cd AdvBox/examples/image_adversarial_training`
+2. `python run_advtrain_main.py`
+3. `python model_evaluation_tutorial.py`
+
+**PreactResnet在不同对抗训练设定下的鲁棒性表现**
+
+| Evaluation-Method | Mini-ImageNet-FGSM | Mini-ImageNet-PGD-20 |
+| :----: | :----: | :----: |
+|   val_acc: _ / natural_acc: _ / fooling_rate: _   |   preactresnet   |   preactresnet   |
+|   Natural Adversarial Training(p=0.1, fgsm(default))   |   0.980 / 0.986 / 0.282   |   0.980 / 0.986 / 0.984   |
+|   Natural Adversarial Training(p=0.1, PGD(default))   |   0.983 / 0.978 / 0.098   |   0.983 / 0.982 /0.850   |
+|  TRADES(beta=1.0, fgsm(default))  |  0.989 / 0.994 / 0.146  |  0.989 / 0.994 / 0.956  |
+|  TRADES(beta=1.0, PGD(default))  |  0.990 / 0.992 / 0.028  |  0.990 / 0.996 / 0.540  |
+|  TRADES(beta=1.0, LD(default))  |  0.990 / 0.996 / 0.020  |  0.990 / 0.992 / 0.734  |
+
+如表所示，对抗训练可以在牺牲很少精度的情况下，增加模型的鲁棒性。
+
+## 对抗训练的helloword
+```python
+import sys
+sys.path.append("..")
+import paddle
+from attacks.gradient_method import FGSM, PGD
+from attacks.cw import CW_L2
+from models.whitebox import PaddleWhiteBoxModel
+from defences.adversarial_transform import ClassificationAdversarialTransform
+
+from classifier.towernet import transform_train, TowerNet, MEAN, STD
+model_0 = TowerNet(3, 10, wide_scale=1)
+model_1 = TowerNet(3, 10, wide_scale=2)
+
+advbox_model = PaddleWhiteBoxModel(
+    [model_0, model_1],
+    [1, 1.8],
+    (0, 1),
+    mean=MEAN,
+    std=STD,
+    input_channel_axis=0,
+    input_shape=(3, 256, 256),
+    loss=paddle.nn.CrossEntropyLoss(),
+    nb_classes=10)
+
+# "p" controls the probability of this enhance.
+# for base model training, we set "p" == 0, so we skipped adv trans data augmentation.
+# for adv trained model, we set "p" == 0.05, which means each batch
+# will probably contain 5% adv trans augmented data.
+enhance_config1 = {"p": 0.1}
+enhance_config2 = {"p": 0.1}
+init_config3 = {"norm": 'L2', "epsilon_ball": 8/255, "epsilon_stepsize": 2/255}
+enhance_config3 = {"p": 0.05,
+                   "attack_iterations": 15,
+                   "c_search_steps": 6,
+                   "verbose": False}
+
+adversarial_trans = ClassificationAdversarialTransform(advbox_model,
+                                                       [FGSM, PGD, CW_L2],
+                                                       [None, None, init_config3],
+                                                       [enhance_config1, enhance_config2, enhance_config3])
+
+cifar10_train = paddle.vision.datasets.Cifar10(mode='train', transform=transform_train)
+train_loader = paddle.io.DataLoader(cifar10_train, batch_size=16)
+
+for batch_id, data in enumerate(train_loader()):
+    x_data = data[0]
+    y_data = paddle.unsqueeze(data[1], 1)
+    x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
+```
+
+# 目标检测器的对抗扰动
+目标检测器的对抗扰动主要用于目标检测器的对抗训练和鲁棒性测评，主要分为电子世界下和物理世界下的对抗扰动。
+这里我们提供一种电子世界下对PP-YOLO目标检测器扰动的演示。该演示基于 **[PaddleDetection](#https://github.com/PaddlePaddle/PaddleDetection)** 项目。
+
+**用于Feed & Sniff的图像**
+
+<table>
+<tr>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image</td>
+    <td align="center">Masked Image</td>
+</tr>
+</table>
+
+在`PaddleSleeve/AdvBox/examples/objectdetector`，我们展示了一种称之为目标消失攻击的目标检测器
+对抗方法。该演示是在可以获取模型权重信息的情况下，用受害图和制作的目标图获得关键张量，用PGD方法迭代更新扰动图
+像，使受害图和目标图对应的分类置信度张量的KL散度最小。该演示中，我们成功的使被扰动后的图片`000000014439.jpg`，
+在PP-YOLO下，对风筝这个大目标造成了漏检。
+
+- 友情提示：由于PaddlePaddle<=2.1的版本，暂时不支持对于`paddle.nn.SyncBatchNorm`在eval()模式下
+的反向传播功能，我们需要将所有的`sync-bn`组件置换喂`bn`组件(因为`paddle.nn.BatchNorm`支持eval()
+模式的求导).
+ 
+想要为其他目标检测器定制攻击脚本，可以参照以下方法置换`paddle.nn.SyncBatchNorm`：
+
+- 如目标检测器配置文件类似于`configs/yolov3/_base_/yolov3_darknet53.yml`，在第三行添加`norm_type: bn`
+- 如目标检测器配置文件类似于`configs/ppyolo/ppyolo_mbv3_large_coco.yml`，在第九行添加`norm_type: bn`
+
+## 运行目标消失演示
+在把所有`sync-bn`组件置换为`bn`组件后，运行以下命令：
+1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
+2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
+
+成功的运行`target_ghosting_demo.py`可以产生以下图片：
+
+**图片对比**
+
+<table align="center">
+<tr>
+    <td align="center"><img src="./examples/objectdetector/output/out_000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/output/out_masked_0014439.png" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/output/out_adv_000000014439.jpg.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image Detection Result</td>
+    <td align="center">Masked Image Detection Result</td>
+    <td align="center">Adv Image Detection Result</td>
+</tr>
+</table>
+
 
 # 对抗样本去噪算法列表
 

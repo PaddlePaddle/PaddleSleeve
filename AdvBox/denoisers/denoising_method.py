@@ -15,7 +15,7 @@
 This module provides the implementation for denoising methods.
 """
 from __future__ import division
-
+from past.utils import old_div
 import logging
 from collections import Iterable
 import cv2
@@ -136,6 +136,7 @@ class BoxFilter(Denoise):
                 return denoising
 
         return denoising
+
 
 
 class BilateralFilter(Denoise):
@@ -316,7 +317,6 @@ class JPEGCompression(Denoise):
             img_label = np.argmax(self.model.predict(img))
             if denoising.try_accept_the_example(np.squeeze(img), img_label):
                 return denoising
-
         return denoising
 
 class DCTCompression(Denoise):
@@ -579,6 +579,56 @@ class ResizePadding(Denoise):
                 return denoising
         return denoising
 
+class FeatureSqueezing(Denoise):
+	"""
+	This module provide the defence method for FeatureFqueezingDefence's implement.
+	Feature Squeezing: Detecting Adversarial Examples in Deep Neural Networks
+	"""
+
+	def __init__(self, model):
+		"""
+		Args:
+            model: An instance of a paddle model.
+        """
+		super(FeatureSqueezing, self).__init__(model)
+
+	def _apply(self,
+               denoising,
+               steps=3,
+               ):
+		"""
+        Apply the denoising method.
+        Args:
+            denoising: The denoising object.
+            steps: The number of denosing iteration.
+        Returns:
+            denoising(denoising): The denoising object.
+        """
+
+		img = denoising.input.copy()
+		for i in range(img.shape[0]):
+			img[i] = self.feature_squeezing(img[i],3,(np.min(img[i]),np.max(img[i])))
+		img_label = np.argmax(self.model.predict(np.expand_dims(img, axis=0)))
+		if denoising.try_accept_the_example(img, img_label):
+			return denoising
+		return denoising
+	
+	def feature_squeezing(self, x, bit_depth, clip_values):
+		assert (type(bit_depth) is int ) and  ( bit_depth >= 1 ) and  ( bit_depth <= 64)
+	
+		(LB,UB)=clip_values
+		#normalize	
+		x_ = x - LB
+		x_ = old_div(x_, (UB-LB))
+	
+		max_value = np.rint(2 ** bit_depth - 1)
+		res = np.rint(x_ * max_value)
+	
+		res = old_div(res, max_value)
+		res = res* (UB - LB) + LB
+		res = np.clip(res, LB, UB)
+	
+		return res
 
 def ndarray2opencv(img):
     """

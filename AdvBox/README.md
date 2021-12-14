@@ -406,11 +406,13 @@ python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path
 python imagenet_tutorial_fgsm_denoise.py --method='FeatureSqueezing' --image_path='input/hourglass.png'
 ```
 <div align=center>
-<img src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png" style="zoom:20%;" />
 </div><br/>
-***Comparing the effect of FeatureSqueezing choosing different bit-length
+
+*Comparing the effect of FeatureSqueezing choosing different bit-length*
+
 <div align=center>
-<img src="./examples/image_cls/output/FeatureSqueezing_effect_Comparison.png" style="zoom:40%;" />
+<img src="./examples/image_cls/output/FeatureSqueezing_effect_Comparison.png" style="zoom:20%;" />
 </div><br/>
 
 ### On the mini-imagenet dataset

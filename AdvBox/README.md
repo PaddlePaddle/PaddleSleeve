@@ -177,9 +177,11 @@ for batch_id, data in enumerate(train_loader()):
 ```
 
 # Adversarial Perturbation for Object Detection
-Adversarial perturbation for object detection is used for adversarial training and 
-evaluating the robustness of object detectors.
-
+Adversarial perturbation for object detection, usually grouped into digital and 
+physical classes, is used for adversarial training and evaluating the robustness 
+of object detectors. Here we provide a demonstration to generate adversarial 
+perturbation for PP-YOLO in the digital world. The demonstration is based on 
+**[PaddleDetection](#https://github.com/PaddlePaddle/PaddleDetection)** . 
 
 **Images used for Feed & Sniff**
 
@@ -209,8 +211,8 @@ the intermediate output `pcls`, the tensor stands for classification confidence 
  If you want to customize your own demo script, you should try the following methods:
  
 - For object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
- add `norm_type: sync_bn` on the third line.
-- For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: sync_bn` 
+ add `norm_type: bn` on the third line.
+- For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
  on the 9 th line.
 
 ## Run Target Ghosting Demonstration
@@ -218,7 +220,7 @@ After changing all `sync-bn` components into `bn`, run the following commandline
 1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
 2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
 
-The successful execution of the target_ghosting_demo.py, will produce the following outputs.
+The successful execution of the `target_ghosting_demo.py`, will produce the following outputs.
 
 **Image Compares**
 

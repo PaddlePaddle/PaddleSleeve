@@ -255,6 +255,7 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
     + Gaussian Noise
     + Salt and Pepper Noise
     + Random Resize and Padding
+    + Feature Squeezing
 - A **[tutorial python script](#AdvBox/examples/imagenet_tutorial_fgsm_denoise.py)** uses the FGSM attack for denoising demonstration.
   - **Command-line parameters**
     - `--image_path`  
@@ -279,6 +280,7 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
       + GaussianNoise
       + SaltPepperNoise
       + ResizePadding
+      + FeatureSqueezing
 
 - A **[evaluation python script](#AdvBox/examples/imagenet_tutorial_fgsm_denoise.py)** uses the FGSM attack and the denoising method on the Mini-ImageNet dataset.
   - **Command-line parameters**
@@ -303,6 +305,7 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
       + GaussianNoise
       + SaltPepperNoise
       + ResizePadding
+      + FeatureSqueezing
     - `--method`  
 
 ## Usage of Denoising methods
@@ -397,6 +400,19 @@ python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path
 </div><br/>
 
 
+
+**Feature Squeezing**
+```shell
+python imagenet_tutorial_fgsm_denoise.py --method='FeatureSqueezing' --image_path='input/hourglass.png'
+```
+<div align=center>
+<img src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png" style="zoom:40%;" />
+</div><br/>
+***Comparing the effect of FeatureSqueezing choosing different bit-length
+<div align=center>
+<img src="./examples/image_cls/output/FeatureSqueezing_effect_Comparison.png" style="zoom:40%;" />
+</div><br/>
+
 ### On the mini-imagenet dataset
 Given the mini-imagenet dataset, the FGSM is first used for generating the adversarial example (AE), and then the denoising method is applied to the input image and the AE.
 
@@ -426,7 +442,7 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | GaussianNoise   | 43.9%  | 7.3%  | 20.0% | 43.7% |
 | SaltPepperNoise | 43.9%  | 7.3%  | 19.5% | 43.6% | 
 | ResizePadding   | 43.9%  | 7.3%  | 33.0% | 42.8% |
-
+| FeatureSqueezing| 43.9%  | 7.3%  | 11.6% | 35.1% |
 
 
 

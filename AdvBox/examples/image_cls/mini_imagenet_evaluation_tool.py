@@ -38,6 +38,7 @@ from denoisers.denoising_method import PCACompression
 from denoisers.denoising_method import GaussianNoise
 from denoisers.denoising_method import SaltPepperNoise
 from denoisers.denoising_method import ResizePadding
+from denoisers.denoising_method import FeatureSqueezing
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
@@ -90,6 +91,7 @@ denoisers = {
     'GaussianNoise': GaussianNoise,
     'SaltPepperNoise': SaltPepperNoise,
     'ResizePadding': ResizePadding,
+    'FeatureSqueezing': FeatureSqueezing,
 }
 
 def test():

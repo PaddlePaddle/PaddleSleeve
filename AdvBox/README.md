@@ -20,7 +20,7 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 ### Genetic Pixels attack
 Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixel Attack and utilizes genetic algorithm to enhance the performance. 
-<img src="./examples/image_cls/output/show/GPAttack.png" style="zoom:14%;" />
+<img src="./examples/image_cls/output/GPAttack.png" style="zoom:14%;" />
 
 **Usage:** 
 - **Command-line parameters**
@@ -38,10 +38,10 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
     
 ### Square Attack (L2)
 **Untargeted Attack**
-<img src="./examples/image_cls/output/show/SquareAttackL2.png" style="zoom:14%;" />
+<img src="./examples/image_cls/output/SquareAttackL2.png" style="zoom:14%;" />
 
 **Targeted Attack**
-<img src="./examples/image_cls/output/show/SquareAttackL2targeted.png" style="zoom:14%;" />
+<img src="./examples/image_cls/output/SquareAttackL2targeted.png" style="zoom:14%;" />
 
 **Usage:** 
 - **Command-line parameters**
@@ -60,9 +60,9 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
  
  ### Square Attack (LInf)
 **Untargeted Attack**
-<img src="./examples/image_cls/output/show/SquareAttackLInf.png" style="zoom:14%;" />
+<img src="./examples/image_cls/output/SquareAttackLInf.png" style="zoom:14%;" />
 **Targeted Attack**
-<img src="./examples/image_cls/output/show/SquareAttackLInftargeted.png" style="zoom:14%;" />
+<img src="./examples/image_cls/output/SquareAttackLInftargeted.png" style="zoom:14%;" />
 
 **Usage:** 
 - **Command-line parameters**

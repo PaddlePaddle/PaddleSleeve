@@ -12,12 +12,92 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 # Attack Methods
 
-**PGD targeted attack**
+### PGD targeted attack
 <img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:14%;" />
 
-**CW targeted attack**
+### CW targeted attack
 <img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:14%;" />
 
+### Genetic Pixels attack
+Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixel Attack and utilizes genetic algorithm to enhance the performance. 
+<img src="./examples/image_cls/output/show/GPAttack.png" style="zoom:14%;" />
+
+**Usage:** 
+- **Command-line parameters**
+    - `--max_gen`  
+    : maximum iterative steps this attack will perform 
+    - `--image_path`
+    : path of the input image, e.g. example/image_cls/input/cat_example.png
+    - `--target`
+    : target class label, -1 if untargeted attack
+    - `--max_pixels`  
+    : the maximum number of pixels allowed to be changed. This is equivalent to the radius of Lp ball in L0
+    
+    
+    
+    
+### Square Attack (L2)
+**Untargeted Attack**
+<img src="./examples/image_cls/output/show/SquareAttackL2.png" style="zoom:14%;" />
+
+**Targeted Attack**
+<img src="./examples/image_cls/output/show/SquareAttackL2targeted.png" style="zoom:14%;" />
+
+**Usage:** 
+- **Command-line parameters**
+    - `--window_size`  
+    : the initial size of the noise window
+    - `--max_steps`  
+    : the maximum iterative steps this attack will perform 
+    - `--image_path`
+    : the path of the input image, e.g. example/image_cls/input/cat_example.png
+    - `--target`
+    : the target class label, -1 if untargeted attack
+    - `eps`
+    : radius of the Lp ball
+    
+ 
+ 
+ ### Square Attack (LInf)
+**Untargeted Attack**
+<img src="./examples/image_cls/output/show/SquareAttackLInf.png" style="zoom:14%;" />
+**Targeted Attack**
+<img src="./examples/image_cls/output/show/SquareAttackLInftargeted.png" style="zoom:14%;" />
+
+**Usage:** 
+- **Command-line parameters**
+    - `--window_size`  
+    : the initial size of the noise window
+    - `--max_steps`  
+    : the maximum iterative steps this attack will perform 
+    - `--image_path`
+    : the path of the input image, e.g. example/image_cls/input/cat_example.png
+    - `--target`
+    : the target class label, -1 if untargeted attack
+    - `eps`
+    : radius of the Lp ball
+    
+#### Square Attack Demo
+- A **[tutorial python script](#AdvBox/examples/imagenet_tutorial_sq.py)** conducts Square Attack on pretrained ResNet50 model.
+  - **Command-line parameters**
+    - `--image_path`  
+    : the path of the input image, one can upload images to the folder: AdvBox/examples/image_cls/input. We provide some images sampled from the mini-imagenet dataset:
+      + input/schoolbus.png
+      + input/vase.png
+      + input/lion.png
+      + input/hourglass.png
+      + input/crate.png
+      + input/malamute.png
+    - `--norm`
+    : specify which norm to use, valid choices are 'L2' or 'Linf'
+    - `--target`
+    : target class label, -1 if untargeted attack
+    - `--eps`
+    : the radius of the Lp ball
+    - `--max_steps`
+    : maximum steps the attack will perform
+    
+    
 
 ## Table of Adversarial Attack Methods
 
@@ -32,6 +112,8 @@ The project also contains plenty of useful tutorials for different AI applicatio
 | [CW_L2 (CWL2Attack)](attacks/cw.py)                                              | ✓  |   |   | ✓ |
 | [SinglePixelAttack](attacks/single_pixel_attack.py)                              |    | ✓ |   |   |
 | [HopSkipJumpAttack](attacks/hop_skip_jump_attack.py)                             |    | ✓ |   |   |
+| [GeneticPixelAttack](attacks/genetic_pixel_attack.py)                            |    | ✓ |   |   |
+| [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
 ## To generate an AE in AdvBox
 
@@ -444,7 +526,7 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | GaussianNoise   | 43.9%  | 7.3%  | 20.0% | 43.7% |
 | SaltPepperNoise | 43.9%  | 7.3%  | 19.5% | 43.6% | 
 | ResizePadding   | 43.9%  | 7.3%  | 33.0% | 42.8% |
-| FeatureSqueezing| 43.9%  | 7.3%  | 11.6% | 35.1% |
+| FeatureSqueezing (3 bits)| 43.9%  | 7.3%  | 11.6% | 35.1% |
 
 
 

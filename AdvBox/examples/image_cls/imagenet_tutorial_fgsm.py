@@ -38,7 +38,7 @@ from adversary import Adversary
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from examples.utils import add_arguments, print_arguments, show_images_diff
+from utility import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -56,7 +56,7 @@ def main(image_path):
     """
 
     Args:
-        image_path: path of image to be test
+        image_path: path of image to be test 
 
     Returns:
 
@@ -75,16 +75,21 @@ def main(image_path):
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
     img /= 255.0
-    img = old_div((img - mean), std)
+#    img = old_div((img - mean), std)
+    norm = paddle.vision.transforms.Normalize(mean, std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
-
+    img = norm(img)
+    img = paddle.unsqueeze(img, axis=0) 
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
+    loss_fn = paddle.nn.CrossEntropyLoss()
+
+
     model.eval()
 
+    # init a paddle model
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
@@ -97,32 +102,29 @@ def main(image_path):
         loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
-    predict = model(img)[0]
-    label = np.argmax(predict)
-    img = np.squeeze(img)
-    inputs = img
-    labels = label
-    print(predict.shape)
-    print("label={}".format(label))
-    print("input img shape: ", inputs.shape)
-
-    adversary = Adversary(inputs.numpy(), labels)
-
     # non-targeted attack
     attack = FGSM(paddle_model)
 
+    predict = paddle_model.predict(img)[0]
+    print(predict.shape)
+    label = np.argmax(predict)
+    print("label={}".format(label))
+    img = np.squeeze(img)
+    inputs = img
+    labels = label
+    print("input img shape: ", inputs.shape)
+
+    adversary = Adversary(inputs.numpy(), labels)
     # targeted attack
     target_class = args.target
     if target_class != -1:
         tlabel = target_class
         adversary.set_status(is_targeted_attack=True, target_label=tlabel)
+        attack = FGSMT(paddle_model)
 
-        attack = FGSMT(paddle_model, norm='Linf',
-                       epsilon_ball=100 / 255, epsilon_stepsize=100/255)
-
-    # 设定epsilons
-    # adversary = attack(adversary, **attack_config)
-    adversary = attack(adversary)
+    # 设定epsilons  
+    attack_config = {"epsilons": 0.3, "epsilon_steps": 10, "steps": 1}
+    adversary = attack(adversary, **attack_config)
 
     if adversary.is_successful():
         print(
@@ -142,8 +144,10 @@ def main(image_path):
     else:
         print('attack failed')
 
+
     print("fgsm attack done")
 
 
 if __name__ == '__main__':
+    # main("input/tiger.jpeg")
     main("input/pickup_truck.jpeg")

@@ -35,7 +35,7 @@ from models.whitebox import PaddleWhiteBoxModel
 
 from adversary import Adversary
 from attacks.cw import CW_L2
-from examples.utils import add_arguments, print_arguments, show_images_diff
+from utility import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -83,8 +83,9 @@ def main(image_path):
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
 
     # Initialize the network
-    model = paddle.vision.models.resnet50(pretrained=True)
+    model = paddle.vision.models.resnet101(pretrained=True)
     model.eval()
+    loss_fn = paddle.nn.CrossEntropyLoss()
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -98,14 +99,15 @@ def main(image_path):
         loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
-    predict = model(img)[0]
+
+    predict = paddle_model.predict(img)[0]
     print (predict.shape)
     label = np.argmax(predict)
     print("label={}".format(label))
 
     img = np.squeeze(img)
     inputs = img
-    labels = label
+    labels = label #orig_label
 
     print("input img shape: ", inputs.shape)
 
@@ -147,6 +149,6 @@ def main(image_path):
 
 
 if __name__ == '__main__':
-    # main("input/tiger.jpeg")
+    main("input/tiger.jpeg")
     # main("input/cropped_panda.jpeg")
-    main("input/pickup_truck.jpeg")
+    # main("input/pickup_truck.jpeg")

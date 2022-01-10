@@ -78,7 +78,7 @@ def main():
     attack = HopSkipJumpAttack(paddle_model)
     attack_config = {"steps": 100}
 
-    # in examples.image_adversarial_training, run `python run_advtrain_main.py` to train a pretrain model.
+    # model_path 需要更改为用户自己的模型路径
     model_path = get_best_weigthts_from_folder("../cifar10/preactresnet_base_tutorial_result", "base_net_")
     if os.path.exists(model_path):
         para_state_dict = paddle.load(model_path)

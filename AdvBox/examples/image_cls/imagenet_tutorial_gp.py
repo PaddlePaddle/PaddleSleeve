@@ -39,8 +39,7 @@ from adversary import Adversary
 from attacks.single_pixel_attack import SinglePixelAttack
 from attacks.genetic_pixel_attack import GeneticPixelAttack
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments
-from utility import  show_input_adv_and_denoise
+from utility import add_arguments, print_arguments, show_images_diff
 from utility import bcolors
 
 # parse args
@@ -61,31 +60,49 @@ else:
     paddle.set_device("cpu")
 paddle.seed(2021)
 
-def main(orig):
+def main(image_path):
     """
 
     Args:
-        orig: input image, type: ndarray, size: h*w*c
-        method: denoising method
+        image_path: path of image to be test 
+
     Returns:
 
     """
+    # parse args
+    args = parser.parse_args()
+    print_arguments(args)
 
     # Define what device we are using
     logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
+    orig = cv2.imread(image_path)[..., ::-1]
+    orig = cv2.resize(orig, (224, 224))
     img = orig.copy().astype(np.float32)
+
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
+    norm = paddle.vision.transforms.Normalize(mean, std)
     img /= 255.0
-    img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
-    C, H, W = img.shape
-    img = np.expand_dims(img, axis=0)
+    C,H,W = img.shape
+
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
+    img = norm(img)
+    img = paddle.unsqueeze(img, axis=0)
 
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
+    model.eval()
+
+    predict = model(img)[0]
+    print (predict.shape)
+    label = np.argmax(predict)
+    print("label={}".format(label))
+    img = np.squeeze(img)
+    inputs = img
+    labels = label
+    print("input img shape: ", inputs.shape)
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -99,18 +116,6 @@ def main(orig):
         loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
 
-    model.eval()
-    predict = model(img)[0]
-    label = np.argmax(predict)
-    img = np.squeeze(img)
-    inputs = img
-    labels = label
-
-    # Read the labels file for translating the labelindex to english text
-    with open('../../../Robustness/perceptron/utils/labels.txt') as info:
-        imagenet_dict = eval(info.read())
-    print(bcolors.CYAN + "input image label: {}".format(imagenet_dict[label]) + bcolors.ENDC)
-
     adversary = Adversary(inputs.numpy(), labels)
 
     # non-targeted attack
@@ -121,8 +126,9 @@ def main(orig):
     adversary = attack(adversary)
 
     if adversary.is_successful():
-        print(bcolors.RED + "Genetic Pixel attack succeeded, adversarial_label: {}".format(\
-            imagenet_dict[adversary.adversarial_label]) + bcolors.ENDC)
+        print(
+            'attack success, adversarial_label=%d'
+            % (adversary.adversarial_label))
 
         adv = adversary.adversarial_example
         adv = np.squeeze(adv)
@@ -130,45 +136,12 @@ def main(orig):
         adv = (adv * std) + mean
         adv = adv * 255.0
         adv = np.clip(adv, 0, 255).astype(np.uint8)
-        de_adv_input = np.copy(adv).transpose(2, 0, 1) / 255
-
+        adv_cv = np.copy(adv)
+        adv_cv = adv_cv[..., ::-1]  # RGB to BGR
+        cv2.imwrite('output/img_adv_fgsm.png', adv_cv)
+        show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
 
-def ndarray2opencv(img):
-    """
-    Convert ndarray to opencv image
-    :param img: the input image, type: ndarray
-    :return: an opencv image
-    """
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
-    img = np.transpose(img, (1, 2, 0))
-    img = (img * std) + mean
-    img = img - np.floor(img)
-    img = (img * 255).astype(np.uint8)
-    img = Image.fromarray(img)
-    img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
-    return img
-
-
-
 if __name__ == '__main__':
-    # read image
-    orig = cv2.imread(args.image_path)
-    # cv2.imwrite('test_orig.png', orig)
-    orig = orig[..., ::-1]
-    # denoise
-    main(orig)
-
-    # # ***** find the proper image sample from the mini-imagenet test-set *****
-    # import pickle
-    # with open('input/mini-imagenet-cache-test.pkl','rb') as f:
-    #     data=pickle.load(f)
-    # imagedata = data['image_data']
-    # for i in range(imagedata.shape[0]):
-    #     # original_image = np.copy(imagedata[i+9034])
-    #     # original_image = original_image[...,  ::-1]  # RGB to BGR
-    #     # cv2.imwrite('input/schoolbus.png', original_image)
-    #     # break
-    #     main(imagedata[i+9000])
+    main('input/cat_example.png')

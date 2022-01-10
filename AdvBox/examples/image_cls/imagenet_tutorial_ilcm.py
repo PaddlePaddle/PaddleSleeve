@@ -35,7 +35,7 @@ import paddle
 from adversary import Adversary
 from attacks.gradient_method import ILCM
 from models.whitebox import PaddleWhiteBoxModel
-from examples.utils import add_arguments, print_arguments, show_images_diff
+from utility import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
@@ -71,16 +71,22 @@ def main(image_path):
 
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
+    norm = paddle.vision.transforms.Normalize(mean, std)
     img /= 255.0
-    img = old_div((img - mean), std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0)
     img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
+    img = norm(img)
+    img = paddle.unsqueeze(img, axis=0)
 
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
+
+    predict = model(img)[0]
+    print (predict.shape)
+    label = np.argmax(predict)
+    print("label={}".format(label))
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -96,11 +102,6 @@ def main(image_path):
 
     # non-targeted attack
     attack = ILCM(paddle_model)
-
-    predict = model(img)[0]
-    print(predict.shape)
-    label = np.argmax(predict)
-    print("label={}".format(label)) #388
 
     img = np.squeeze(img)
     inputs = img

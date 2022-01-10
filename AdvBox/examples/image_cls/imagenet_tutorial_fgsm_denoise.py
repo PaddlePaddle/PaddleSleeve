@@ -115,17 +115,30 @@ def main(orig):
     logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
     img = orig.copy().astype(np.float32)
+
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
     img /= 255.0
-    img = old_div((img - mean), std)
+    norm = paddle.vision.transforms.Normalize(mean, std)
     img = img.transpose(2, 0, 1)
-    C, H, W = img.shape
-    img = np.expand_dims(img, axis=0)
-    img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
+    C,H,W = img.shape
 
+    img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
+    img = norm(img)
+    img = paddle.unsqueeze(img, axis=0) 
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
+    loss_fn = paddle.nn.CrossEntropyLoss()
+
+    model.eval()
+    predict = model(img)[0]
+    print(predict.shape)
+    label = np.argmax(predict)
+    print("label={}".format(label))
+    img = np.squeeze(img)
+    inputs = img
+    labels = label
+    print("input img shape: ", inputs.shape)
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -138,13 +151,6 @@ def main(orig):
         input_shape=(C, H, W),
         loss=paddle.nn.CrossEntropyLoss(),
         nb_classes=1000)
-
-    model.eval()
-    predict = model(img)[0]
-    label = np.argmax(predict)
-    img = np.squeeze(img)
-    inputs = img
-    labels = label
 
     # Read the labels file for translating the labelindex to english text
     with open('../../../Robustness/perceptron/utils/labels.txt') as info:

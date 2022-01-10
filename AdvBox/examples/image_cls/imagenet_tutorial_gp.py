@@ -39,8 +39,8 @@ from adversary import Adversary
 from attacks.single_pixel_attack import SinglePixelAttack
 from attacks.genetic_pixel_attack import GeneticPixelAttack
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments, show_images_diff
-from utility import bcolors
+from examples.utils import add_arguments, print_arguments, show_images_diff
+from examples.utils import bcolors
 
 # parse args
 parser = argparse.ArgumentParser(description=__doc__)

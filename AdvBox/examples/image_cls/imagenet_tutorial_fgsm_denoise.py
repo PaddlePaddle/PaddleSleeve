@@ -52,9 +52,9 @@ from denoisers.denoising_method import FeatureSqueezing
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments
-from utility import  show_input_adv_and_denoise
-from utility import bcolors
+from examples.utils import add_arguments, print_arguments
+from examples.utils import  show_input_adv_and_denoise
+from examples.utils import bcolors
 
 # parse args
 parser = argparse.ArgumentParser(description=__doc__)

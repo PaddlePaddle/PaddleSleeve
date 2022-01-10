@@ -377,7 +377,7 @@ def show_input_adv_and_denoise(image_a, image_b, image_c, image_d, \
 
     plt.tight_layout()
 
-    if not os.path.exists('examples/image_cls/output'):
+    if not os.path.exists('output'):
         os.makedirs('output')
     plt.savefig("output/{}_Denoising_Comparison.png".format(method))
     plt.show()

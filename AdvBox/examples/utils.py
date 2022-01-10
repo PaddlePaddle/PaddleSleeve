@@ -193,7 +193,7 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
     ts = time.localtime(time.time())
     ts = time.strftime("%Y-%m-%d %H:%M:%S", ts)
 
-    if not os.path.exists('examples/image_cls/output'):
+    if not os.path.exists('output'):
         os.makedirs('output')
     plt.savefig("output/orig_adv_diff_{}_{}.png".format(adversarial_label, ts))
     plt.show()

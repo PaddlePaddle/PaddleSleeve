@@ -39,9 +39,8 @@ from adversary import Adversary
 from attacks.square_attack import SquareAttack2
 from attacks.square_attack import SquareAttackInfinity
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments
-from utility import  show_input_adv_and_denoise
-from utility import bcolors
+from examples.utils import add_arguments, print_arguments, show_images_diff
+from examples.utils import bcolors
 
 # parse args
 parser = argparse.ArgumentParser(description=__doc__)
@@ -50,7 +49,7 @@ add_arg('target', int, -1, "target class.")
 add_arg('eps', float, 0.05, "the maximum amplitude of perturbation")
 add_arg('max_steps', int, 5000, "maximum steps")
 add_arg('window_size', float, 0.2, "size of the noise window")
-add_arg('norm', str, 'L2', "specify the norm of the attack, choose one from 'L2'or 'LInf'")
+add_arg('norm', str, 'LInf', "specify the norm of the attack, choose one from 'L2'or 'LInf'")
 add_arg('image_path', str, 'input/cat_example.png', 'given the image path, e.g., input/schoolbus.png')
 args = parser.parse_args()
 print_arguments(args)
@@ -137,27 +136,13 @@ def main(orig):
         adv = (adv * std) + mean
         adv = adv * 255.0
         adv = np.clip(adv, 0, 255).astype(np.uint8)
-        de_adv_input = np.copy(adv).transpose(2, 0, 1) / 255
+        adv_cv = np.copy(adv)
+        adv_cv = adv_cv[..., ::-1]  # RGB to BGR
+        cv2.imwrite('output/img_adv_square_attack.png', adv_cv)
+        show_images_diff(orig, labels, adv, adversary.adversarial_label)
 
     else:
         print('attack failed')
-
-def ndarray2opencv(img):
-    """
-    Convert ndarray to opencv image
-    :param img: the input image, type: ndarray
-    :return: an opencv image
-    """
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
-    img = np.transpose(img, (1, 2, 0))
-    img = (img * std) + mean
-    img = (img * 255).astype(np.uint8)
-    img = Image.fromarray(img)
-    img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
-    return img
-
-
 
 if __name__ == '__main__':
     # read image

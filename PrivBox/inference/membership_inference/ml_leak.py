@@ -1,3 +1,6 @@
+#   Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -13,7 +16,6 @@ Implement of ML-Leaks membership inference attacks
 ref paper: https://arxiv.org/pdf/1806.01246.pdf
 """
 
-import sys
 
 import abc
 import paddle
@@ -201,7 +203,17 @@ class MLLeaksMembershipInferenceAttack(MembershipInferenceAttack):
                     [paddle.metric.Accuracy()])
 
         print("training classifier ...")
-        classifier.fit(train_loader, test_data, verbose=1, batch_size=batch_size, epochs=epoch)
+
+        callbacks = paddle.callbacks.EarlyStopping(
+                                                'loss',
+                                                mode='auto',
+                                                patience=2,
+                                                verbose=1,
+                                                min_delta=0.01,
+                                                baseline=None,
+                                                save_best_model=True)
+
+        classifier.fit(train_loader, test_data, verbose=1, batch_size=batch_size, epochs=epoch, callbacks=[callbacks])
 
     def __check_params(self) -> None:
         """

@@ -12,11 +12,8 @@
 Abstract base class for inference attacks
 """
 
-import sys
-sys.path.append("..")
-
 import abc
-from attack import Attack
+from privbox.attack import Attack
 import paddle
 
 from typing import List

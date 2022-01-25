@@ -9,7 +9,7 @@
 
 ## 运行例子
 
-
+首先需要按照说明安装privbox（[安装教程](../../../README_cn.md###安装)），安装成功后，运行：
 ```shell
 
 python3 gan_inversion_with_at_face.py

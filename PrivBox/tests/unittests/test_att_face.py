@@ -18,8 +18,6 @@ from __future__ import print_function
 from six.moves import range
 from PIL import Image, ImageOps
 
-import sys
-sys.path.append("../../")
 import unittest
 import gzip
 import numpy as np
@@ -28,7 +26,7 @@ import struct
 import os
 import paddle
 import random
-from dataset import ATTFace
+from privbox.dataset import ATTFace
 
 import paddle.vision.transforms as T
 

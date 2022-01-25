@@ -17,8 +17,7 @@ unittest for dlg attack modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
+
 import time
 
 import attack
@@ -26,7 +25,7 @@ import paddle
 import numpy as np
 from paddle import nn
 
-from inversion import DLGInversionAttack
+from privbox.inversion import DLGInversionAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """

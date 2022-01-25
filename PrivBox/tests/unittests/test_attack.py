@@ -17,11 +17,9 @@ unittest for attack modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
 
-import attack
-from metrics import Accuracy
+import privbox.attack as attack
+from privbox.metrics import Accuracy
 import paddle
 import numpy as np
 

@@ -17,16 +17,15 @@ unittest for ML-Leaks attack modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
+
 import time
 
-import attack
+import privbox.attack
 import paddle
 import numpy as np
 from paddle import nn
 
-from inference.membership_inference import MLLeaksMembershipInferenceAttack
+from privbox.inference.membership_inference import MLLeaksMembershipInferenceAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """

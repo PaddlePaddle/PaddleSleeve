@@ -158,8 +158,7 @@ class MemberInf(object):
                                          "auc": eval_res[1],
                                          "precision": eval_res[2],
                                          "recall": eval_res[3],
-                                         "recommend": [utils.DefenseStrategies.CONFIDENCEMASKING,
-                                                       utils.DefenseStrategies.REGULARIZATION,
+                                         "recommend": [utils.DefenseStrategies.REGULARIZATION,
                                                        utils.DefenseStrategies.KNOWLEDGEDISTILLATION,
                                                        utils.DefenseStrategies.DIFFERENTIALPRIVACY]})
         logger.info("Baseline attack is finished.")

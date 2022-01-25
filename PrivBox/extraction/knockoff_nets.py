@@ -13,15 +13,12 @@ Implement of Knockoff Nets extraction attack
 ref paper: https://arxiv.org/pdf/1812.02766.pdf
 """
 
-import sys
-import pdb
-import copy
 import os
 
 import abc
 import random
 from .extraction_attack import ExtractionAttack
-from metrics import Metric
+from privbox.metrics import Metric
 import paddle
 
 from typing import List

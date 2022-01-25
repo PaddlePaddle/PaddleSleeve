@@ -17,9 +17,7 @@ This module provides an example of Knockoff attack on MNIST.
 
 from __future__ import print_function
 
-import sys
 import os
-sys.path.append('../../../')
 
 import argparse
 import numpy
@@ -31,8 +29,8 @@ from PIL import Image
 from paddle.vision.transforms import Compose, Normalize
 import paddle.nn.functional as F
 from paddle.vision.models.resnet import BasicBlock
-from extraction.knockoff_nets import KnockoffExtractionAttack
-from metrics import MSE, Accuracy
+from privbox.extraction.knockoff_nets import KnockoffExtractionAttack
+from privbox.metrics import MSE, Accuracy
 
 
 def parse_args():

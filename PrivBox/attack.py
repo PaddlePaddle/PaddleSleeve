@@ -16,9 +16,6 @@ Abstract base class for attacks
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys
-sys.path.append("../../")
-
 import abc
 import logging
 
@@ -26,7 +23,7 @@ import paddle
 
 from typing import List
 from paddle import Tensor
-from metrics import *
+from .metrics import *
 
 class Attack(abc.ABC):
     """

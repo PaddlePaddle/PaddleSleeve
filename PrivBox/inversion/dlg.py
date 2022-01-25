@@ -16,8 +16,6 @@ Implememt of DLG model inversion attack
 ref paper: https://arxiv.org/pdf/1906.08935.pdf
 """
 
-import sys
-sys.path.append("..")
 
 import time
 import logging

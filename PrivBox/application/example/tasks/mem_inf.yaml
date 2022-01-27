@@ -1,0 +1,38 @@
+- type: MEMBERSHIP_INFERENCE_ATTACK # 攻击类型
+  # 攻击的名称
+  name: BASELINE
+  # 攻击相关参数
+  args:           
+    # 目标模型的[成员数据集， 非成员数据集]
+    test_datasets: [/work/PaddleSleeve/PrivBox/application/example/datasets/cifar10_train,
+                    /work/PaddleSleeve/PrivBox/application/example/datasets/cifar10_test]
+    # 目标模型
+    target_model: /work/PaddleSleeve/PrivBox/application/example/models/resnet18_10classes
+    
+- type: MEMBERSHIP_INFERENCE_ATTACK # 攻击类型
+  # 攻击的名称
+  name: ML-LEAK
+  # 攻击相关参数
+  args:           
+    # 目标模型的[成员数据集， 非成员数据集]
+    target_datasets: [/work/PaddleSleeve/PrivBox/application/example/datasets/cifar10_train,
+                    /work/PaddleSleeve/PrivBox/application/example/datasets/cifar10_test]
+    # 目标模型
+    target_model: /work/PaddleSleeve/PrivBox/application/example/models/resnet18_10classes
+    # 使用的影子模型名称
+    shadow_model: /work/PaddleSleeve/PrivBox/application/example/models/resnet34_100classes
+    # 用来训练影子模型的[成员数据集、非成员数据集]
+    shadow_datasets: [/work/PaddleSleeve/PrivBox/application/example/datasets/cifar100_train,
+                    /work/PaddleSleeve/PrivBox/application/example/datasets/cifar100_test]
+    # 影子模型的训练epoch数
+    shadow_epoch: 10
+    # 影子模型训练用的学习率
+    shadow_lr: 0.0002
+    # 攻击模型训练的epoch
+    classifier_epoch: 50
+    # 攻击模型使用的lr
+    classifier_lr: 0.0002
+    # 训练、预测的batch size
+    batch_size: 128
+    # 训练攻击模型使用的输出向量top k个
+    topk: 3

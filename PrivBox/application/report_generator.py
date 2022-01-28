@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import utils
 
 class ReportGenerator(object):
     """R
@@ -70,7 +70,7 @@ class ReportGenerator(object):
         def get_model_str(name, train_acc, test_acc):
             """R
             """
-            return "    - name: {model_name}, train_acc: {train_acc}, test_acc: {test_acc}\n".format(
+            return "\t- name: {model_name}, train_acc: {train_acc}, test_acc: {test_acc}\n".format(
                                                                                 model_name=name,
                                                                                 train_acc=train_acc,
                                                                                 test_acc=test_acc)
@@ -78,41 +78,62 @@ class ReportGenerator(object):
         def get_dataset_str(name, is_member, length):
             """R
             """
-            return "    - name: {dataset_name}, is_member_dataset: {is_member}, length: {dataset_length}\n".format(
+            return "\t- name: {dataset_name}, is_member_dataset: {is_member}, length: {dataset_length}\n".format(
                                                                                 dataset_name=name,
                                                                                 is_member=is_member,
                                                                                 dataset_length=length)
 
-        def get_attack_str(name, desc, acc, auc, precision, recall, recommend):
+        def get_attack_str(name, desc, acc, auc, precision, recall):
             """R
             """
-            return "    - name: {attack_name}\n      description: {desc}\n      acc: {acc}, auc: {auc}, precision: {precision}, recall: {recall}\n      recommend: {recommend}\n"\
-                                                                                .format(attack_name=name,
-                                                                                        desc=desc,
-                                                                                        acc=acc,
-                                                                                        auc=auc,
-                                                                                        precision=precision,
-                                                                                        recall=recall,
-                                                                                        recommend=recommend)
+            return "\t- name: {attack_name}\n\t\t\tattack description: {desc}\n\t\t\t"\
+                   "attack results: acc = {acc}, auc = {auc}, precision = {precision}, recall = {recall}\n"\
+                                                            .format(attack_name=name,
+                                                                    desc=desc,
+                                                                    acc=acc,
+                                                                    auc=auc,
+                                                                    precision=precision,
+                                                                    recall=recall)
 
         report_str = "Model Privacy Leakage Analysis Report\n"
-        report_str += "  Models:\n"
+        report_str += "Models:\n"
         for model_dict in self.dict_["models"]:
             report_str += get_model_str(model_dict["name"], model_dict["train_acc"], model_dict["test_acc"])
 
-        report_str += "  Datasets:\n"
+        report_str += "Datasets:\n"
         for dataset_dict in self.dict_["datasets"]:
             report_str += get_dataset_str(dataset_dict["name"], dataset_dict["is_member"], dataset_dict["length"])
 
-        report_str += "  Attacks:\n"
+        risk_attacks = []
+        defense_recommend = set()
+        report_str += "Attacks:\n"
         for attack_dict in self.dict_["attacks"]:
             report_str += get_attack_str(attack_dict["name"],
                                          attack_dict["desc"],
                                          attack_dict["acc"],
                                          attack_dict["auc"],
                                          attack_dict["precision"],
-                                         attack_dict["recall"],
-                                         attack_dict["recommend"])
+                                         attack_dict["recall"])
+            risk_level = utils.mem_inf_risk_level(attack_dict["acc"])
+            if risk_level == utils.RiskLevel.HIGH or risk_level == utils.RiskLevel.MIDDLE:
+                risk_attacks.append({"attack_name": attack_dict["name"],
+                                   "risk_level": risk_level})
+                for r in attack_dict["recommend"]:
+                    defense_recommend.add(r)
+                
+        report_str += "Summary:\n"
+        if len(risk_attacks) == 0:
+            report_str += "\tCongratulation! Your model has low level risk for membership inference attack."
+        else:
+            report_str += "\tWARNING! Your model has risk of membership inference attacks, they are: \n"
+            for i, attack in enumerate(risk_attacks):
+                report_str += "\t\t" + str(i + 1) + ", " + attack["attack_name"] +\
+                              " (" + attack["risk_level"] + " risk)\n"
+
+            report_str += "\tThere are some defense recommends you can implement "\
+                        "to prevent membership information leakage:\n"
+            for i, defense in enumerate(defense_recommend):
+                report_str += "\t\t" + str(i + 1) + ", " + utils.DefenseDesc().get_desc(defense) + "\n"
 
         return report_str
 

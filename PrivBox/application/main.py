@@ -22,6 +22,7 @@ from model_generator import ModelGenerator
 from report_generator import ReportGenerator
 from privbox.inference.membership_inference import BaselineMembershipInferenceAttack, MLLeaksMembershipInferenceAttack
 from privbox.metrics import AUC, MSE, Accuracy, Precision, Recall
+import utils
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s')
@@ -157,8 +158,10 @@ class MemberInf(object):
                                          "auc": eval_res[1],
                                          "precision": eval_res[2],
                                          "recall": eval_res[3],
-                                         "recommend": "Use dropout or regularization methods "
-                                                      "to avoid overfitting when training."})
+                                         "recommend": [utils.DefenseStrategies.CONFIDENCEMASKING,
+                                                       utils.DefenseStrategies.REGULARIZATION,
+                                                       utils.DefenseStrategies.KNOWLEDGEDISTILLATION,
+                                                       utils.DefenseStrategies.DIFFERENTIALPRIVACY]})
         logger.info("Baseline attack is finished.")
         return {"Accuracy": eval_res[0],
                 "AUC": eval_res[1],
@@ -258,10 +261,10 @@ class MemberInf(object):
                                          "auc": eval_res[1],
                                          "precision": eval_res[2],
                                          "recall": eval_res[3],
-                                         "recommend": 
-                                         "Use dropout or regularization methods to avoid overfitting when training. "
-                                         "By rounding, labeling, cliping model prediction confidence "
-                                         "can also reduce the leakage of membership inference."})
+                                         "recommend": [utils.DefenseStrategies.CONFIDENCEMASKING,
+                                                       utils.DefenseStrategies.REGULARIZATION,
+                                                       utils.DefenseStrategies.KNOWLEDGEDISTILLATION,
+                                                       utils.DefenseStrategies.DIFFERENTIALPRIVACY]})
         logger.info("ML-LEAK attack is finished.")
         return {"Accuracy": eval_res[0],
                 "AUC": eval_res[1],

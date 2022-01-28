@@ -3,7 +3,7 @@ English | [简体中文](./README_cn.md)
 
 1. Install privbox tool
    
-Installation [reference](../../PrivBox/README.md###Installation)
+Installation refer to [PrivBox/README.md-Installation](../../PrivBox/README.md###Installation)
 
 2. Define Dataset
 

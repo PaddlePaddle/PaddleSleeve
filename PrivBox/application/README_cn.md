@@ -2,7 +2,7 @@
 
 1. 安装privbox工具
    
-安装教程[参考](../../AdvBox/README_cn.md###安装)
+安装教程[参考](../../PrivBox/README_cn.md###安装)
 
 2. 定义数据集
    

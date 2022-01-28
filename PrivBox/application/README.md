@@ -6,7 +6,7 @@ English | [简体中文](./README_cn.md)
 Installation [reference](../../AdvBox/README.md###Installation)
 
 2. Define Dataset
-   
+
 Dataset Define need firstly create a dataset directory，which include a `.py` file. The file must implement `get_dataset()` function to return dataset object with `paddle.io.Dataset` type。Detail example see [./example/datasets/cifar10_train/cifar10_train.py](./example/datasets/cifar10_train/cifar10_train.py).
 
 3. Define Model

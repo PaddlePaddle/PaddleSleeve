@@ -25,4 +25,3 @@ def get_dataset():
                          paddle.vision.transforms.Transpose()])
 
     return paddle.vision.datasets.Cifar10(mode='train', transform=transform)
-    

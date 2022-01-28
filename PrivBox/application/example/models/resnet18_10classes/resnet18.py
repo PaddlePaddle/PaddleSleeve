@@ -21,3 +21,4 @@ def get_model():
     """
     kwargs = {"num_classes": 10}
     return paddle.vision.resnet18(**kwargs)
+    

@@ -62,13 +62,13 @@ In directory `PrivBox/`, run command
 python3 setup.py bdist bdist_wheel
 ```
 
-then the whl package is generated in `dist/` directory，execute
+Then the whl package is generated in `dist/` directory，execute following command to complete the installation.
 
 ```
 python3 -m pip install dist/privbox-x.x.x-py3-none-any.whl
 ```
 
-to complete the installation. You can run examples in `examples` directory after installation.
+You can run examples in `examples` directory after installation.
 
 ### Examples
 

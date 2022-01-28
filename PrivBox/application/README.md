@@ -10,7 +10,7 @@ Installation [reference](../../AdvBox/README.md###Installation)
 Dataset Define need firstly create a dataset directory，which include a `.py` file. The file must implement `get_dataset()` function to return dataset object with `paddle.io.Dataset` type。Detail example see [./example/datasets/cifar10_train/cifar10_train.py](./example/datasets/cifar10_train/cifar10_train.py).
 
 3. Define Model
-   
+
 Similar to Dataset define, Model define also create a model directory first, and it contains a `.py` model file and `.pdparams` format parameters file. The model file must implement `get_model()` method to return `paddle.nn.Layer` type model object, which will load `.pdparams`'s params in program. Detail example reference to [./example/models/resnet18_10classes/resnet18.py](./example/models/resnet18_10classes/resnet18.py)。
 
 4. Task Configure

@@ -287,5 +287,3 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
 
         if not isinstance(self.aug_kwarg, int):
             raise ValueError("The parameter of attack_type must be a int value.")
-
-        

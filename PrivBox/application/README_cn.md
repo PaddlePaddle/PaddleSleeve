@@ -56,3 +56,9 @@
     topk: 3
 
 ```
+
+5. 运行任务
+
+```shell
+python3 main.py ./example/tasks/mem_inf.yaml
+```

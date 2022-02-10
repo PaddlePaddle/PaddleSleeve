@@ -57,3 +57,9 @@ We use `.yaml` file for configuring task. The detail configure is shown as follo
     topk: 3
 
 ```
+
+5. Run Task
+
+```shell
+python3 main.py ./example/tasks/mem_inf.yaml
+```

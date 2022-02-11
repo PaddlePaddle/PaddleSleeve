@@ -31,7 +31,7 @@ import paddle.nn.functional as F
 
 from inference.membership_inference import LabelOnlyMembershipInferenceAttack
 from inference.membership_inference.label_only_ml_inf import check_correct, augmentation_attack_set
-from metrics import MSE, Accuracy, Precision, Recall
+from metrics import MSE, AUC, Accuracy, Precision, Recall
 
 def parse_args():
     """
@@ -205,10 +205,11 @@ def train_and_attack(args):
     mem_label = paddle.ones((mem_pred.shape[0], 1))
     non_mem_label = paddle.zeros((non_mem_pred.shape[0], 1))
     expected = paddle.concat([mem_label, non_mem_label], axis=0)
-    eval_res = attack.evaluate(expected, result, metric_list=[Accuracy(), Precision(), Recall()])
-    print("""Evaluate result of Label-only membership attack is: acc: {},
-           precision: {}， recall: {}""".format(eval_res[0],
-          eval_res[1], eval_res[2]))
+    eval_res = attack.evaluate(expected, result, metric_list=[Accuracy(), AUC(), Precision(), Recall()])
+    
+    print("""Evaluate result of ML-Leaks membership attack is: acc: {},
+          auc: {}, precision: {}， recall: {}""".format(eval_res[0],
+          eval_res[1], eval_res[2], eval_res[3]))
     
     print("Attack finish")
 

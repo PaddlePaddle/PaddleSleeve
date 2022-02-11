@@ -128,6 +128,7 @@ def augmentation_attack_set(model, train_set, test_set, batch_size, attack_type=
       test_label = paddle.to_tensor(np.array([y[1] for y in test_augment]).flatten())
       attack_in[:, i] = paddle.cast(check_correct(train_label, in_)[:len(train_set)], "float32")
       attack_out[:, i] = paddle.cast(check_correct(test_label, out_)[:len(test_set)], "float32")
+    #put predict result of shadow model, label and whether data is member of trainset into attack_set
     attack_set = (paddle.concat([attack_in, attack_out], 0),
                   paddle.concat([paddle.to_tensor(np.array([y[1] for y in train_augment]).flatten()), 
                   paddle.to_tensor(np.array([y[1] for y in test_augment]).flatten())], 0),
@@ -158,7 +159,7 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
         Init Label-only membership inference attack
 
         Args:
-            shadow_model(Layer|Model): Shadow model for ML-Leaks.
+            shadow_model(Layer|Model): Shadow model for label-only memebership inference.
             shadow_dataset(List[DataLoader|Dataset]): Datasets that used for training shadow model,
                 including member-dataset and non-member dataset,
                 that is shadow_dataset = [mem_data, non_mem_data]

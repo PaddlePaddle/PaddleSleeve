@@ -148,6 +148,7 @@ def train_and_attack(args):
     cifar10_test_data = split_dataset(cifar10_test, batch_size=args.batch_size)
     
     # get shadow and target data
+    
     shadow_train_data = cifar10_train_data[1]
     shadow_test_data = cifar10_test_data[1]
     shadow_num_classes = 10
@@ -155,7 +156,15 @@ def train_and_attack(args):
     target_train_data = cifar10_train_data[0]
     target_test_data = cifar10_test_data[0]
     target_num_classes = 10
+    """
+    shadow_train_data, _ = paddle.io.random_split(cifar10_train_data[1], [1000, len(cifar10_train_data[1])-1000]) 
+    shadow_test_data, _ = paddle.io.random_split(cifar10_test_data[1], [1000, len(cifar10_test_data[1])-1000]) 
+    shadow_num_classes = 10
 
+    target_train_data, _ = paddle.io.random_split(cifar10_train_data[0], [1000, len(cifar10_train_data[0])-1000])
+    target_test_data, _ = paddle.io.random_split(cifar10_test_data[0], [1000, len(cifar10_test_data[0])-1000]) 
+    target_num_classes = 10
+    """
     # define target model
     target_model = ResNet18(num_classes=target_num_classes)
     target_model = paddle.Model(target_model)
@@ -207,7 +216,7 @@ def train_and_attack(args):
     expected = paddle.concat([mem_label, non_mem_label], axis=0)
     eval_res = attack.evaluate(expected, result, metric_list=[Accuracy(), AUC(), Precision(), Recall()])
     
-    print("""Evaluate result of ML-Leaks membership attack is: acc: {},
+    print("""Evaluate result of Label-only membership attack is: acc: {},
           auc: {}, precision: {}， recall: {}""".format(eval_res[0],
           eval_res[1], eval_res[2], eval_res[3]))
     

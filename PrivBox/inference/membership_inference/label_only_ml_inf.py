@@ -74,12 +74,13 @@ class ComposeDataset(paddle.io.Dataset):
 
 def create_rotates(r):
     """
-    Creates vector of rotation degrees compatible with scipy' rotate.
+    Creates vector of rotation degrees.
     """
     if r is None:
       return None
-    if r == 1:
+    if r == 0:
       return [0.0]
+    #rotates = [360. / r * i for i in range(2*r+1)]
     rotates = np.linspace(-r, r, (r * 2 + 1))
     return rotates
 
@@ -116,9 +117,8 @@ def augmentation_attack_set(model, train_set, test_set, batch_size, attack_type=
         test_augment.append((paddle.vision.transforms.rotate(data[0], augment), data[1]))
       train_dataset = ComposeDataset([x[0] for x in train_augment], [y[1] for y in train_augment])
       test_dataset = ComposeDataset([x[0] for x in test_augment], [y[1] for y in test_augment])
-      train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=batch_size)
-      test_loader = paddle.io.DataLoader(test_dataset, shuffle=True, batch_size=batch_size)
-      
+      train_loader = paddle.io.DataLoader(train_dataset, shuffle=False, batch_size=batch_size)
+      test_loader = paddle.io.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
       in_ = model.predict(train_loader, batch_size=batch_size, stack_outputs=True)
       out_ = model.predict(test_loader, batch_size=batch_size, stack_outputs=True)
       softmax = paddle.nn.Softmax()
@@ -203,7 +203,11 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
         """
         Train shadow model and classifier
         """
-        input_size = 2 * self.aug_kwarg + 1
+        if self.aug_kwarg == 0:
+            input_size = 0
+        else:
+            input_size = 2 * self.aug_kwarg + 1
+        
         if self.classifier is None:
             self.classifier = paddle.Model(Classifier(input_size))
 
@@ -214,7 +218,6 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
                                     [paddle.metric.Accuracy()])
         print("training shadow_model ...")
         shadow_train_data = paddle.io.DataLoader(self.shadow_dataset[0], shuffle=True, batch_size=self.batch_size)
-        
         self.shadow_model.fit(shadow_train_data, epochs=self.shadow_epoch,
                                 verbose=1, batch_size=self.batch_size)
 
@@ -234,17 +237,16 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
                           self.classifier_epoch, self.classifier_lr, self.batch_size)
 
 
-
-    def _train_classifier(self, shadow_model, classifier, train_data_set, train_label_set,
+    def _train_classifier(self, shadow_model, classifier, data_set, label_set,
                           epoch, learning_rate, batch_size):
         """
         Train classifier with predict results
         """
-        compose_data = ComposeDataset(train_data_set, train_label_set)
+        compose_data = ComposeDataset(data_set, label_set)
 
         # 80% data for training, 20% data for testing
-        train_len = int(len(train_label_set) * 4.0 / 5.0)
-        test_len = len(train_label_set) - train_len
+        train_len = int(len(label_set) * 4.0 / 5.0)
+        test_len = len(label_set) - train_len
         train_data, test_data = paddle.io.random_split(compose_data, [train_len, test_len])
         train_loader = paddle.io.DataLoader(train_data, shuffle=True, batch_size=self.batch_size)
         test_loader = paddle.io.DataLoader(test_data, shuffle=True, batch_size=self.batch_size)

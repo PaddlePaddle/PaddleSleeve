@@ -40,6 +40,6 @@ attack_type='r', batch_size=128, classifier_epoch=10, classifier_lr=0.0002, r=6,
 
 Evaluation Result：
 ```shell
-Evaluate result of Label-only membership attack is: acc: 0.8333333333333334,
-          auc: 0.49814829843749997, precision: 0.8333333333333334， recall: 1.0
+Evaluate result of Label-only membership attack is: acc: 0.8794666666666666,
+          auc: 0.74830688, precision: 0.8996971849414931， recall: 0.96264
 ```

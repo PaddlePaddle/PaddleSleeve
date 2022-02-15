@@ -75,7 +75,6 @@ def parse_args():
                         type=str, default='r',
                         help="Type of attack to perform, r is rotation")
     parser.add_argument('--r', type=int, default=6, help='r param in rotation attack if used')
-    #parser.add_argument('--d', type=int, default=1, help='d param in translation attack if used')
     args = parser.parse_args()
     return args
 

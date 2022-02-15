@@ -17,17 +17,16 @@ unittest for knockoff attack modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
+
 import time
 
-import attack
+import privbox.attack
 import paddle
 import numpy as np
 from paddle import nn
-from metrics import Accuracy
+from privbox.metrics import Accuracy
 
-from extraction import KnockoffExtractionAttack
+from privbox.extraction import KnockoffExtractionAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """

@@ -13,6 +13,8 @@ As shown below, this example simulates how to use Knockoff Model Extraction modu
 
 ## Run example
 
+Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
+
 ```shell
 
 python3 knockoff_extraction_with_mnist.py

@@ -55,6 +55,20 @@ python >= 3.6
 
 PaddlePaddle >= 2.0（[paddle installation](https://www.paddlepaddle.org.cn/documentation/docs/en/install/index_en.html)）
 
+### Installation
+In directory `PrivBox/`, run command
+
+```
+python3 setup.py bdist bdist_wheel
+```
+
+Then the whl package is generated in `dist/` directory，execute following command to complete the installation.
+
+```
+python3 -m pip install dist/privbox-x.x.x-py3-none-any.whl
+```
+
+You can run examples in `examples` directory after installation.
 
 ### Examples
 

@@ -17,9 +17,7 @@ This module provides an example of ML_Leaks membership inference attack.
 
 from __future__ import print_function
 
-import sys
 import os
-sys.path.append('../../../')
 
 import argparse
 import numpy
@@ -30,8 +28,8 @@ import paddle
 from paddle.vision.transforms import Compose, Normalize
 import paddle.nn.functional as F
 
-from inference.membership_inference import MLLeaksMembershipInferenceAttack
-from metrics import MSE, Accuracy, AUC, Precision, Recall
+from privbox.inference.membership_inference import MLLeaksMembershipInferenceAttack
+from privbox.metrics import MSE, Accuracy, AUC, Precision, Recall
 
 
 def parse_args():

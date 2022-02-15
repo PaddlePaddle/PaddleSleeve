@@ -17,9 +17,7 @@ This module provides an example of GAN attack on AT&T face dataset.
 
 from __future__ import print_function
 
-import sys
 import os
-sys.path.append('../../../')
 
 import argparse
 import math
@@ -33,10 +31,10 @@ import matplotlib.pyplot as plt
 
 import paddle
 import paddle.nn.functional as F
-from inversion import GANInversionAttack
+from privbox.inversion import GANInversionAttack
 from paddle import nn
 
-from dataset import ATTFace
+from privbox.dataset import ATTFace
 from paddle.vision.transforms import Compose, Normalize
 
 

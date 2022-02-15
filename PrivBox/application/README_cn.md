@@ -10,7 +10,7 @@
 
 3. 定义模型
    
-模型定义通定义数据集类似。需要首先新建一个模型目录，目录包含一个`.py`模型定义文件和`.pdparams`模型参数文件，模型定义文件需要实现`get_model()`方法来返回paddle.nn.Layer类型的模型对象。该模型对象的参数后续会自动加载`.pdparams`模型参数。具体可以参考例子[./example/models/resnet18_10classes/resnet18.py](./example/models/resnet18_10classes/resnet18.py)。
+模型定义同定义数据集类似。需要首先新建一个模型目录，目录包含一个`.py`模型定义文件和`.pdparams`模型参数文件，模型定义文件需要实现`get_model()`方法来返回paddle.nn.Layer类型的模型对象。该模型对象的参数后续会自动加载`.pdparams`模型参数。具体可以参考例子[./example/models/resnet18_10classes/resnet18.py](./example/models/resnet18_10classes/resnet18.py)。
 
 4. 配置任务
    

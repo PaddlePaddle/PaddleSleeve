@@ -86,7 +86,7 @@ class ReportGenerator(object):
         def get_attack_str(name, desc, acc, auc, precision, recall):
             """R
             """
-            return "\t- name: {attack_name}\n\t\t\tattack description: {desc}\n\t\t\t"\
+            return "\t- name: {attack_name}\n\t  attack description: {desc}\n\t  "\
                    "attack results: acc = {acc}, auc = {auc}, precision = {precision}, recall = {recall}\n"\
                                                             .format(attack_name=name,
                                                                     desc=desc,
@@ -127,13 +127,13 @@ class ReportGenerator(object):
         else:
             report_str += "\tWARNING! Your model has risk of membership inference attacks, they are: \n"
             for i, attack in enumerate(risk_attacks):
-                report_str += "\t\t" + str(i + 1) + ", " + attack["attack_name"] +\
+                report_str += "\t" + str(i + 1) + ", " + attack["attack_name"] +\
                               " (" + attack["risk_level"] + " risk)\n"
 
-            report_str += "\tThere are some defense recommends you can implement "\
+            report_str += "\n\tThere are some defense recommends you can implement "\
                         "to prevent membership information leakage:\n"
             for i, defense in enumerate(defense_recommend):
-                report_str += "\t\t" + str(i + 1) + ", " + utils.DefenseDesc().get_desc(defense) + "\n"
+                report_str += "\t" + str(i + 1) + ", " + utils.DefenseDesc().get_desc(defense) + "\n"
 
         return report_str
 

@@ -84,7 +84,7 @@ class MemberInf(object):
         run baseline attack
         """
         logger.info("Begin Baseline attack.")
-        logger.info("Generate target datasets(member dataset adn non-member dataset).")
+        logger.info("Generate target datasets(member dataset and non-member dataset).")
         input_datasets = args["test_datasets"]
         dataset_generator = DatasetGenerator()
         mem_dataset, mem_dataset_name = dataset_generator.gen(input_datasets[0])
@@ -172,7 +172,7 @@ class MemberInf(object):
         run ml_leak attack
         """
         logger.info("Begin ML-LEAK attack.")
-        logger.info("Generate target datasets(member dataset adn non-member dataset).")
+        logger.info("Generate target datasets (member dataset and non-member dataset).")
         dataset_generator = DatasetGenerator()
         target_datasets = args["target_datasets"]
         target_dataset_mem, target_dataset_mem_name = dataset_generator.gen(target_datasets[0])
@@ -188,7 +188,7 @@ class MemberInf(object):
                                             "is_member": "false",
                                             "length": len(target_dataset_non_mem)})
 
-        logger.info("Generate shadow datasets(member dataset adn non-member dataset).")
+        logger.info("Generate shadow datasets (member dataset and non-member dataset).")
         shadow_datasets = args["shadow_datasets"]
         shadow_dataset_mem, _ = dataset_generator.gen(shadow_datasets[0])
         shadow_dataset_non_mem, _ = dataset_generator.gen(shadow_datasets[1])

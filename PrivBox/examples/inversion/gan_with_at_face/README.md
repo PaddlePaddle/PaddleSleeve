@@ -10,7 +10,7 @@ As shown below, this example simulates how malicious participants recover traini
 
 ## Run Example
 
-
+Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
 
 python3 gan_inversion_with_at_face.py

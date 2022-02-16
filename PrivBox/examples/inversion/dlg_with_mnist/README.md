@@ -9,6 +9,7 @@ As shown below, this example simulates how malicious participants recover traini
 
 ## Run example
 
+Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
 
 python3 dlg_inversion_with_mnist.py

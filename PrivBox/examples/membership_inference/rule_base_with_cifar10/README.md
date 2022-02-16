@@ -5,6 +5,7 @@ The example is based on a simple rule that an instance is considered as a member
 
 ## Run example
 
+Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
 
 python3 baseline_with_cifar10.py

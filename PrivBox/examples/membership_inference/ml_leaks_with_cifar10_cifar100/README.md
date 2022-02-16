@@ -9,6 +9,7 @@ The example illustrates how to use the ML-Leaks membership inference attack modu
 
 ## Run example
 
+Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
 
 python3 ml_leaks_with_cifar10_cifar100.py

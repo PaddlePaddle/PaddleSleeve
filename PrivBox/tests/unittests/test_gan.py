@@ -17,16 +17,15 @@ unittest for gan attack modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
+
 import time
 
-import attack
+import privbox.attack
 import paddle
 import numpy as np
 from paddle import nn
 
-from inversion import GANInversionAttack
+from privbox.inversion import GANInversionAttack
 
 class SimpleDataset(paddle.io.Dataset):
     """

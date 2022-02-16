@@ -53,6 +53,16 @@ python 3.6 及以上。
 
 PaddlePaddle 2.0 及以上 (paddle 安装请参考[paddle安装](https://www.paddlepaddle.org.cn/install/quick))。
 
+### 安装
+在`PrivBox/`目录下执行
+```
+python3 setup.py bdist bdist_wheel
+```
+执行完成后在`dist/`目录下会生成对应的whl包，执行
+```
+python3 -m pip install dist/privbox-x.x.x-py3-none-any.whl
+```
+即可完成安装，安装完成后可以到`examples`目录下测试对应例子。
 
 ### 使用例子
 

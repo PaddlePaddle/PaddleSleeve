@@ -16,8 +16,6 @@ Implememt of GAN model inversion attack
 ref paper: https://arxiv.org/pdf/1702.07464.pdf
 """
 
-import sys
-sys.path.append("..")
 
 import time
 import logging

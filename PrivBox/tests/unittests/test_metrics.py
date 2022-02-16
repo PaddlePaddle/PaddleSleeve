@@ -17,16 +17,15 @@ unittest for metric modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
+
 import time
 
-import attack
+import privbox.attack
 import paddle
 import numpy as np
 from paddle import nn
 
-from metrics import MSE, Accuracy, AUC, Recall, Precision, PSNR, SSIM
+from privbox.metrics import MSE, Accuracy, AUC, Recall, Precision, PSNR, SSIM
 
 
 class TestMSE(unittest.TestCase):

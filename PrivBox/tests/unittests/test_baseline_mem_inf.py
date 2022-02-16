@@ -17,15 +17,13 @@ unittest for metric modulus
 from __future__ import print_function
 
 import unittest
-import sys
-sys.path.append("../../")
 import time
 
 import paddle
 import numpy as np
 from paddle import nn
 
-from inference.membership_inference import BaselineMembershipInferenceAttack
+from privbox.inference.membership_inference import BaselineMembershipInferenceAttack
 
 
 class TestBaselineMembershipInferenceAttack(unittest.TestCase):

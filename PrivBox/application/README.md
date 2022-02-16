@@ -56,6 +56,36 @@ We use `.yaml` file for configuring task. The detail configure is shown as follo
     # the top k classes of prediction vector used for training attack classifier
     topk: 3
 
+- type: MEMBERSHIP_INFERENCE_ATTACK # 攻击类型
+  # attack name
+  name: LABEL-ONLY # see PrivBox/examples/membership_inference/label_only_with_cifar10/README_cn.md for detail
+  # attack args
+  args:           
+    # dataset for target model [member dataset, non-member dataset]
+    target_datasets: [./example/datasets/cifar10_train,
+                      ./example/datasets/cifar10_test]
+    # target model
+    target_model: ./example/models/resnet18_10classes
+    # shadow model
+    shadow_model: ./example/models/resnet18_10classes
+    # datasets for training shadow model [member dataset, non-member dataset]
+    shadow_datasets: [./example/datasets/cifar10_train,
+                      ./example/datasets/cifar10_test]
+    # the epoch for training shadow model
+    shadow_epoch: 10
+    # the learning rate for training shadow model
+    shadow_lr: 0.0002
+    # the epoch for training attack classifier
+    classifier_epoch: 10
+    # the learning rate for training attack classifier
+    classifier_lr: 0.0002
+    # the batch size for training or predition
+    batch_size: 128
+    # data augmentation type, "r" is rotate
+    attack_type: r
+    # argument for data augmention
+    r: 6
+
 ```
 
 5. Run Task

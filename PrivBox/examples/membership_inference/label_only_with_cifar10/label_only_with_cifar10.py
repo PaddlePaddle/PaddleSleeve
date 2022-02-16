@@ -19,19 +19,17 @@ from __future__ import print_function
 
 import sys
 import os
-sys.path.append('../../../')
 
 import argparse
 import numpy
-import time
 
 import paddle
 from paddle.vision.transforms import Compose, Normalize
 import paddle.nn.functional as F
 
-from inference.membership_inference import LabelOnlyMembershipInferenceAttack
-from inference.membership_inference.label_only_ml_inf import check_correct, augmentation_attack_set
-from metrics import MSE, AUC, Accuracy, Precision, Recall
+from privbox.inference.membership_inference import LabelOnlyMembershipInferenceAttack
+from privbox.inference.membership_inference.label_only_ml_inf import check_correct, augmentation_attack_set
+from privbox.metrics import MSE, AUC, Accuracy, Precision, Recall
 
 def parse_args():
     """
@@ -155,15 +153,7 @@ def train_and_attack(args):
     target_train_data = cifar10_train_data[0]
     target_test_data = cifar10_test_data[0]
     target_num_classes = 10
-    """
-    shadow_train_data, _ = paddle.io.random_split(cifar10_train_data[1], [1000, len(cifar10_train_data[1])-1000]) 
-    shadow_test_data, _ = paddle.io.random_split(cifar10_test_data[1], [1000, len(cifar10_test_data[1])-1000]) 
-    shadow_num_classes = 10
 
-    target_train_data, _ = paddle.io.random_split(cifar10_train_data[0], [1000, len(cifar10_train_data[0])-1000])
-    target_test_data, _ = paddle.io.random_split(cifar10_test_data[0], [1000, len(cifar10_test_data[0])-1000]) 
-    target_num_classes = 10
-    """
     # define target model
     target_model = ResNet18(num_classes=target_num_classes)
     target_model = paddle.Model(target_model)

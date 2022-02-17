@@ -56,7 +56,7 @@ We use `.yaml` file for configuring task. The detail configure is shown as follo
     # the top k classes of prediction vector used for training attack classifier
     topk: 3
 
-- type: MEMBERSHIP_INFERENCE_ATTACK # 攻击类型
+- type: MEMBERSHIP_INFERENCE_ATTACK # attack type
   # attack name
   name: LABEL-ONLY # see PrivBox/examples/membership_inference/label_only_with_cifar10/README_cn.md for detail
   # attack args
@@ -69,8 +69,8 @@ We use `.yaml` file for configuring task. The detail configure is shown as follo
     # shadow model
     shadow_model: ./example/models/resnet18_10classes
     # datasets for training shadow model [member dataset, non-member dataset]
-    shadow_datasets: [./example/datasets/cifar10_train,
-                      ./example/datasets/cifar10_test]
+    shadow_datasets: [./example/datasets/cifar10_test,
+                      ./example/datasets/cifar10_train]
     # the epoch for training shadow model
     shadow_epoch: 10
     # the learning rate for training shadow model

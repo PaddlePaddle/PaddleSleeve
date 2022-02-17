@@ -68,8 +68,8 @@
     # 使用的影子模型名称
     shadow_model: ./example/models/resnet18_10classes
     # 用来训练影子模型的[成员数据集、非成员数据集]
-    shadow_datasets: [./example/datasets/cifar10_train,
-                      ./example/datasets/cifar10_test]
+    shadow_datasets: [./example/datasets/cifar10_test,
+                      ./example/datasets/cifar10_train]
     # 影子模型的训练epoch数
     shadow_epoch: 10
     # 影子模型训练用的学习率

@@ -91,3 +91,35 @@
 ```shell
 python3 main.py ./example/tasks/mem_inf.yaml
 ```
+
+6. 示例结果
+
+```shell
+Model Privacy Leakage Analysis Report
+Models:
+	- name: resnet18, train_acc: 0.82344, test_acc: 0.5927
+Datasets:
+	- name: cifar10_train, is_member_dataset: true, length: 50000
+	- name: cifar10_test, is_member_dataset: false, length: 10000
+Attacks:
+	- name: Baseline Attack
+	  attack description: An instance is considered as a member if its predict result is correct. It only requires data with labels.
+	  attack results: acc = 0.7540833333333333, auc = 0.5949353236670549, precision = 0.82344, recall = 0.8741586870209559
+	- name: ML-LEAK Attack
+	  attack description: A membership inference attack based on auxiliary dataset, shadow model and prediction confidence
+	  attack results: acc = 0.55245, auc = 0.562069685, precision = 0.8583283599056469, recall = 0.60404
+	- name: LABEL-ONLY Attack
+	  attack description: A membership inference attack based on auxiliary dataset, shadow model and prediction label
+	  attack results: acc = 0.6994, auc = 0.631975736, precision = 0.8763995324068061, recall = 0.67474
+Summary:
+	WARNING! Your model has risk of membership inference attacks, they are: 
+	1, Baseline Attack (MIDDLE risk)
+	2, ML-LEAK Attack (MIDDLE risk)
+	3, LABEL-ONLY Attack (MIDDLE risk)
+
+	There are some defense recommends you can implement to prevent membership information leakage:
+	1, Differential Privacy. A model is trained in a differentially private manner, the learned model does not learn or remember any specific user’s details. Thus, differential privacy naturally counteracts membership inference.
+	2, Confidence Masking. Confidence score masking method aims to hide the true confidence score returned by the target model and thus mitigates the effectiveness of membership inference attack. The defense methods belonging to this stratety includes restricting the prediction vector to top k classes, rounding prediction vector to small decimals, only returning labels, or adding crafted noise to prediciton vector.
+	3, Knowledge Distillation. Knowledge distillation uses the outputs of a large teacher model to train a smaller one, in order to transfer knowledge from the large model to the small one. This strategy is to restrict the protected classifier’s direct access to the private training dataset, thus significantly reduces the membership information leakage.
+	4, Regularization. Overfitting is the main factor that contributes to membership inference attack. Therefore, regularization techniques that can reduce the overfitting of ML models can be leveraged to defend against the attack. Regularization techniques including L2-norm regularization, dropout, data argumentation, model stacking, early stopping, label smoothing and adversarial regularization can be used as defense methods for defenses.
+```

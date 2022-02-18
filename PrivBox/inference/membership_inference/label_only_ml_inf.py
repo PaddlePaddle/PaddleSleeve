@@ -248,14 +248,21 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
         train_len = int(len(label_set) * 4.0 / 5.0)
         test_len = len(label_set) - train_len
         train_data, test_data = paddle.io.random_split(compose_data, [train_len, test_len])
-        train_loader = paddle.io.DataLoader(train_data, shuffle=True, batch_size=self.batch_size)
-        test_loader = paddle.io.DataLoader(test_data, shuffle=True, batch_size=self.batch_size)
+        test_loader = paddle.io.DataLoader(test_data, shuffle=True, batch_size=batch_size)
+        
+        # weighted based data sample, for unbalance dataset
+        weights, large_label_count = self._cal_weight(train_data)
+        sample_weight = paddle.io.WeightedRandomSampler(weights, num_samples=large_label_count * 2)
+        batch_sample = paddle.io.BatchSampler(sampler=sample_weight, batch_size=batch_size, drop_last=True)
+        train_loader = paddle.io.DataLoader(train_data, batch_sampler=batch_sample)
+
         # training classifier
         classifier.prepare(paddle.optimizer.Adam(learning_rate, parameters=classifier.parameters()),
                     paddle.nn.CrossEntropyLoss(),
                     [paddle.metric.Accuracy()])
 
         print("training classifier ...")
+
         classifier.fit(train_loader, test_loader, verbose=1, batch_size=batch_size, epochs=epoch)
 
     def __check_params(self) -> None:
@@ -290,3 +297,23 @@ class LabelOnlyMembershipInferenceAttack(MembershipInferenceAttack):
 
         if not isinstance(self.aug_kwarg, int):
             raise ValueError("The parameter of attack_type must be a int value.")
+
+    def _cal_weight(self, dataset):
+        """
+        Calc sample weight, used for weighted sample
+        """
+        data_len = len(dataset)
+        count_pos = 0
+        for i in range(data_len):
+            if dataset[i][1] == 1:
+                count_pos += 1
+        count_neg = data_len - count_pos
+        pos_weight = 0.1
+        neg_weight = 0.1 * float(count_pos) / count_neg
+        weight = []
+        for i in range(data_len):
+            if dataset[i][1] == 1:
+                weight.append(pos_weight)
+            else:
+                weight.append(neg_weight)
+        return weight, count_neg if count_neg > count_pos else count_pos

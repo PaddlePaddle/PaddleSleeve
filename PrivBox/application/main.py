@@ -376,7 +376,7 @@ class MemberInf(object):
                                                        utils.DefenseStrategies.KNOWLEDGEDISTILLATION,
                                                        utils.DefenseStrategies.DIFFERENTIALPRIVACY]})
 
-        logger.info("ML-LEAK attack is finished.")
+        logger.info("LABEL-ONLY attack is finished.")
         return {"Accuracy": eval_res[0],
                 "AUC": eval_res[1],
                 "Precision": eval_res[2],

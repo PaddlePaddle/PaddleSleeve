@@ -94,7 +94,7 @@ python3 main.py ./example/tasks/mem_inf.yaml
 
 6. 示例结果
 
-```shell
+```
 Model Privacy Leakage Analysis Report
 Models:
 	- name: resnet18, train_acc: 0.82344, test_acc: 0.5927

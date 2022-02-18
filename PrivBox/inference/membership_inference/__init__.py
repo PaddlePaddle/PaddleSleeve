@@ -14,5 +14,6 @@
 
 from .rule_based_mem_inf import BaselineMembershipInferenceAttack
 from .ml_leak import MLLeaksMembershipInferenceAttack
+from .label_only_ml_inf import LabelOnlyMembershipInferenceAttack
 
-__all__ = ["BaselineMembershipInferenceAttack", "MLLeaksMembershipInferenceAttack"]
+__all__ = ["BaselineMembershipInferenceAttack", "MLLeaksMembershipInferenceAttack", "LabelOnlyMembershipInferenceAttack"]

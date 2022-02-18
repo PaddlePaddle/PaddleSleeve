@@ -24,13 +24,17 @@ PrivBox是基于PaddlePaddle的AI隐私安全性测试的Python工具库。PrivB
       <td><a href="https://arxiv.org/pdf/1702.07464.pdf">[HAPC17]</a></td>
    </tr>
    <tr>
-      <td rowspan="2">成员推理</td>
+      <td rowspan="3">成员推理</td>
       <td>Privacy Risk in Machine Learning: Analyzing the Connection to Overfitting</td>
       <td><a href="https://arxiv.org/pdf/1709.01604.pdf">[YGFJ18]</a></td>
    </tr>
    <tr>
       <td>ML-Leaks: Model and Data Independent Membership Inference Attacks and Defenses on Machine Learning Models</td>
       <td><a href="https://arxiv.org/pdf/1806.01246.pdf">[SZHB19]</a></td>
+   </tr>
+   <tr>
+      <td>Label-Only Membership Inference Attacks</td>
+      <td><a href="http://proceedings.mlr.press/v139/choquette-choo21a/choquette-choo21a.pdf">[CTCP21]</a></td>
    </tr>
    <tr>
       <td rowspan="1">属性推理</td>
@@ -87,3 +91,5 @@ python3 -m pip install dist/privbox-x.x.x-py3-none-any.whl
 \[SZHB19\] Ahmed Salem, Yang Zhang, Mathias Humbert, Pascal Berrang, Mario Fritz, Michael Backes. ML-Leaks: Model and Data Independent Membership Inference Attacks and Defenses on Machine Learning Models. Network and Distributed Systems Security Symposium (NDSS) 2019.
 
 \[OSF19\]Tribhuvanesh Orekondy, Bernt Schiele, and Mario Fritz. Knockoff nets: Stealing functionality of black-box models[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2019
+
+\[CTCP21\]Choquette-Choo C A, Tramer F, Carlini N, et al. Label-only membership inference attacks[C]//International Conference on Machine Learning. PMLR, 2021.

@@ -21,6 +21,8 @@ from dataset_generator import DatasetGenerator
 from model_generator import ModelGenerator
 from report_generator import ReportGenerator
 from privbox.inference.membership_inference import BaselineMembershipInferenceAttack, MLLeaksMembershipInferenceAttack
+from privbox.inference.membership_inference import LabelOnlyMembershipInferenceAttack
+from privbox.inference.membership_inference.label_only_ml_inf import check_correct, augmentation_attack_set
 from privbox.metrics import AUC, MSE, Accuracy, Precision, Recall
 import utils
 
@@ -74,6 +76,8 @@ class MemberInf(object):
             ret["base_attack_result"] = self.base(args)
         elif name == 'ML-LEAK':
             ret["ml_leak_result"] = self.ml_leak(args)
+        elif name == 'LABEL-ONLY':
+            ret["label_only_result"] = self.label_only(args)
         else:
             raise NotImplementedError("Membership inference attack name " + name + " is not supported yet.")
 
@@ -265,6 +269,114 @@ class MemberInf(object):
                                                        utils.DefenseStrategies.KNOWLEDGEDISTILLATION,
                                                        utils.DefenseStrategies.DIFFERENTIALPRIVACY]})
         logger.info("ML-LEAK attack is finished.")
+        return {"Accuracy": eval_res[0],
+                "AUC": eval_res[1],
+                "Precision": eval_res[2],
+                "Recall": eval_res[3]}
+    
+    def label_only(self, args):
+        """R
+        run label-only attack
+        """
+        logger.info("Begin Label-only attack.")
+        logger.info("Generate target datasets(member dataset and non-member dataset).")
+        target_datasets = args["target_datasets"]
+        dataset_generator = DatasetGenerator()
+        target_dataset_mem, target_dataset_mem_name = dataset_generator.gen(target_datasets[0])
+        target_dataset_non_mem, target_dataset_non_mem_name = dataset_generator.gen(target_datasets[1])
+
+        if not self.reporter_.has_dataset_dict(target_dataset_mem_name):
+            self.reporter_.add_datasets_dict({"name": target_dataset_mem_name,
+                                              "is_member": "true",
+                                              "length": len(target_dataset_mem)})
+
+        if not self.reporter_.has_dataset_dict(target_dataset_non_mem_name):
+            self.reporter_.add_datasets_dict({"name": target_dataset_non_mem_name,
+                                              "is_member": "false",
+                                              "length": len(target_dataset_non_mem)})
+
+        logger.info("Generate shadow datasets (member dataset and non-member dataset).")
+        shadow_datasets = args["shadow_datasets"]
+        shadow_dataset_mem, _ = dataset_generator.gen(shadow_datasets[0])
+        shadow_dataset_non_mem, _ = dataset_generator.gen(shadow_datasets[1])
+
+        model_generator = ModelGenerator()
+        shadow_model, _ = model_generator.gen(args["shadow_model"], False)
+
+        logger.info("Generate target model.")
+        target_model, target_model_name = model_generator.gen(args["target_model"])
+        target_model = paddle.Model(target_model)
+        target_model.prepare(metrics=paddle.metric.Accuracy())
+
+        shadow_epoch = args["shadow_epoch"]
+        shadow_lr = args["shadow_lr"]
+        classifier_epoch = args["classifier_epoch"]
+        classifier_lr = args["classifier_lr"]
+        batch_size = args["batch_size"]
+        attack_type = args["attack_type"]
+        attack_augment = args["r"]
+
+        logger.info("Init attack.")
+        attack = LabelOnlyMembershipInferenceAttack(shadow_model, [shadow_dataset_mem, shadow_dataset_non_mem])
+
+        attack_params = {"batch_size": batch_size, 
+                         "shadow_epoch": shadow_epoch,
+                         "classifier_epoch": classifier_epoch,
+                         "shadow_lr": shadow_lr, 
+                         "classifier_lr": classifier_lr,
+                         "attack_type": attack_type, 
+                         "aug_kwarg":attack_augment}
+
+        attack.set_params(**attack_params)
+
+        logger.info("Infer target dataset")
+
+        target_pred = augmentation_attack_set(target_model, 
+                                              target_dataset_mem, 
+                                              target_dataset_non_mem, 
+                                              batch_size, 
+                                              attack_type, 
+                                              attack_augment)
+        mem_pred = target_pred[0][:len(target_dataset_mem)]
+        non_mem_pred = target_pred[0][len(target_dataset_mem):]
+
+        # record model report
+        if not self.reporter_.has_model_dict(target_model_name):
+            logger.info("Begin evaluate model with train dataset " + target_dataset_mem_name)
+            train_acc = target_model.evaluate(target_dataset_mem, batch_size=128, verbose=0)["acc"]
+            
+            logger.info("Begin evaluate model with test dataset " + target_dataset_non_mem_name)
+            test_acc = target_model.evaluate(target_dataset_non_mem, batch_size=128, verbose=0)["acc"]
+
+            self.reporter_.add_models_dict({"name": target_model_name,
+                                            "train_acc": train_acc,
+                                            "test_acc": test_acc})
+            logger.info("Evaluation model finished")
+
+        data = paddle.concat([mem_pred, non_mem_pred])
+        logger.info("Begin membership inference attack.")
+        result = attack.infer(data)
+
+        #evaluate
+        mem_label = paddle.ones((mem_pred.shape[0], 1))
+        non_mem_label = paddle.zeros((non_mem_pred.shape[0], 1))
+        expected = paddle.concat([mem_label, non_mem_label], axis=0)
+        logger.info("Begin evaluating attack results.")
+        eval_res = attack.evaluate(expected, result, metric_list=[Accuracy(), AUC(), Precision(), Recall()])
+
+        # record attack report
+        self.reporter_.add_attacks_dict({"name": "LABEL-ONLY Attack",
+                                         "desc": "A membership inference attack based on auxiliary dataset, "
+                                                 "shadow model and prediction label",
+                                         "acc": eval_res[0],
+                                         "auc": eval_res[1],
+                                         "precision": eval_res[2],
+                                         "recall": eval_res[3],
+                                         "recommend": [utils.DefenseStrategies.REGULARIZATION,
+                                                       utils.DefenseStrategies.KNOWLEDGEDISTILLATION,
+                                                       utils.DefenseStrategies.DIFFERENTIALPRIVACY]})
+
+        logger.info("LABEL-ONLY attack is finished.")
         return {"Accuracy": eval_res[0],
                 "AUC": eval_res[1],
                 "Precision": eval_res[2],

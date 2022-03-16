@@ -24,10 +24,10 @@ The successful execution of the `image_ghosting_train.py`, will produce the foll
 
 <table align="center">
 <tr>
-    <td align="center"><img src="PaddleSleeve/AdvBox/img_segmentation/dataloader/P0024.jpg" width=300></td>
-    <td align="center"><img src="PaddleSleeve/AdvBox/img_segmentation/output/pseudo_color_prediction/out_P0024.png" width=300></td>
-    <td align="center"><img src="PaddleSleeve/AdvBox/img_segmentation/output/adv_P0024.jpg" width=300></td>
-    <td align="center"><img src="PaddleSleeve/AdvBox/img_segmentation/output/pseudo_color_prediction/outadv_P0024.png" width=300></td>
+    <td align="center"><img src="./dataloader/P0024.jpg" width=300></td>
+    <td align="center"><img src="./output/pseudo_color_prediction/out_P0024.png" width=300></td>
+    <td align="center"><img src="./output/adv_P0024.jpg" width=300></td>
+    <td align="center"><img src="./output/pseudo_color_prediction/outadv_P0024.png" width=300></td>
 </tr>
 
 <tr>

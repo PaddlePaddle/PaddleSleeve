@@ -280,10 +280,10 @@ thus, the attack is able to succeed.
 - For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
  on the 9 th line.
 
-## Run Target Patch Demonstration
+### Run Target Patch Demonstration
 After changing all `sync-bn` components into `bn`, run the following commandlines.
 
-1. `cd Advbox-SegDet/AdvBox/obj_detection/patch_attack`
+1. `cd PaddleSleeve/AdvBox/obj_detection/patch_attack`
 adversial example train:
 single attack: respectively use ppyolo, yolov3 and ssd detection models:
 
@@ -306,9 +306,9 @@ The successful execution of the `target_patch_eto_ppyolo.py`, will produce the f
 <table align="center">
 <tr>
     <td align="center"><img src="./patch_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./patch_attack/Output/out_ppyolo_car_05.jpeg" width=300></td>
-    <td align="center"><img src="./patch_attack/Output/ppyolo_adverse_car_05.jpeg" width=300></td>
-    <td align="center"><img src="./patch_attack/Output/out_ppyolo_adverse_car_05.jpeg" width=300></td>
+    <td align="center"><img src="./patch_attack/output/out_ppyolo_car_05.jpeg" width=300></td>
+    <td align="center"><img src="./patch_attack/output/ppyolo_adverse_car_05.jpeg" width=300></td>
+    <td align="center"><img src="./patch_attack/output/out_ppyolo_adverse_car_05.jpeg" width=300></td>
 </tr>
 
 <tr>

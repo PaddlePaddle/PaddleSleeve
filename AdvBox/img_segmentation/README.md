@@ -5,7 +5,6 @@ perturbation for BiseNetv2 in the digital world. The demonstration is based on
 **PaddleSeg**(https://github.com/PaddlePaddle/PaddleSeg.git). 
 
 
-
 In `PaddleSleeve/AdvBox/img_segmentation`, we demonstrate the adversial 
 attack, a method using PGD to produce perturbation to minimize the feature difference between
 the values in non-target position and target position, successfully making the object undetected 
@@ -38,5 +37,5 @@ The successful execution of the `image_ghosting_train.py`, will produce the foll
 </tr>
 </table>
 
-# Notes
+**Notes**
    We generate adversarial samples under the "eval" pattern of the segmentation model. For the dropout reason, we achieve the "eval" pattern by manually setting the model parameters not to be updated. While during the test phase, the dropout operation will cause the output result has a small differencein the multiple tests, and then we can add the droput operation under "eval" patther manually. The specific operations are shown in the code.

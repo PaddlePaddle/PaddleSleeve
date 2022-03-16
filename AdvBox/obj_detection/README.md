@@ -280,12 +280,12 @@ thus, the attack is able to succeed.
 - For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
  on the 9 th line.
 
-### Run Target Patch Demonstration
+### Run Target Patch Adversarial Train
 After changing all `sync-bn` components into `bn`, run the following commandlines.
 
 1. `cd PaddleSleeve/AdvBox/obj_detection/patch_attack`
-adversial example train:
-single attack: respectively use ppyolo, yolov3 and ssd detection models:
+
+**single attack**: respectively use ppyolo, yolov3 and ssd detection models:
 
 2. `python target_patch_eto_ppyolo.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg`
  
@@ -293,7 +293,7 @@ single attack: respectively use ppyolo, yolov3 and ssd detection models:
 
 4. `python target_patch_eto_ssd.py -c ../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_05.jpeg`
 
-ensemble attack: using ppyolo and yolov3 detection models:
+**ensemble attack**: using ppyolo and yolov3 detection models:
 
 5. `python target_patch_eto_ensemble.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml,../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams,https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
 Note: the origin image, the added patch size and position and the object label shoud be manually given for specific images.

@@ -262,9 +262,9 @@ As malice adversaries increasingly threat AI security, people have proposed nume
 
 ## Patch attack on object detection models 
 
-In `PaddleSleeve/AdvBox/obj_detection/patch_attack`, we achieve the extended EOT attacking algorithm, a method using EOT to produce perturbation
-to make the detection method give the wrong detection results. Specifically, we optimize the loss function
-definition using the similar top three labels and top three logits to decrease the object confidence, and 
+In `PaddleSleeve/AdvBox/obj_detection/patch_attack`, we achieve the extended EOT attacking algorithm, a method using EOT to produce patch perturbation
+and train to make the detection method of the added patch perturbation images give the wrong detection results. Specifically, we optimize the loss function
+definition using the similar top three labels and top three logits to decrease the true object label confidence, and 
 thus, the attack is able to succeed.
 
 
@@ -281,22 +281,22 @@ thus, the attack is able to succeed.
  on the 9 th line.
 
 ### Run Target Patch Adversarial Train
-After changing all `sync-bn` components into `bn`, run the following commandlines.
+  After changing all `sync-bn` components into `bn`, run the following commandlines.
 
-1. `cd PaddleSleeve/AdvBox/obj_detection/patch_attack`
+    1. `cd PaddleSleeve/AdvBox/obj_detection/patch_attack`
 
-**single attack**: respectively use ppyolo, yolov3 and ssd detection models:
+  **single attack**: respectively use ppyolo, yolov3 and ssd detection models:
 
-2. `python target_patch_eto_ppyolo.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg`
+    2. `python target_patch_eto_ppyolo.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg`
  
-3. `python target_patch_eto_yolov3.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
+    3. `python target_patch_eto_yolov3.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
 
-4. `python target_patch_eto_ssd.py -c ../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_05.jpeg`
+    4. `python target_patch_eto_ssd.py -c ../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_05.jpeg`
 
-**ensemble attack**: using ppyolo and yolov3 detection models:
+  **ensemble attack**: using ppyolo and yolov3 detection models:
 
-5. `python target_patch_eto_ensemble.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml,../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams,https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
-Note: the origin image, the added patch size and position and the object label shoud be manually given for specific images.
+    5. `python target_patch_eto_ensemble.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml,../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams,https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
+ **Note**: the origin image size, the added patch size and position, and the object label shoud be manually set in `PaddleSleeve/AdvBox/obj_detection/patch_attack/patch_def/EOTB_car*.xml`.
 
 
 The successful execution of the `target_patch_eto_ppyolo.py`, will produce the following outputs.

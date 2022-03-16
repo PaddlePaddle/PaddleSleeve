@@ -15,9 +15,9 @@ stands for segmentation confidence in BiseNetv2. The adversarial example trainin
 
 Run the following commandlines to adversarial example train and test:
   1. `cd PaddleSleeve/AdvBox/img_segmentation`
-  2. `CUDA_VISIBLE_DEVICES=0 python image_ghosting_train.py        --config configs/quick_start/bisenet_optic_disc_512x512_1k.yml  --model_path ./model/model_add_oppo2.pdparams    --image_path ./dataloader        --save_dir output`
+  2. `CUDA_VISIBLE_DEVICES=0 python image_ghosting_attack.py        --config configs/quick_start/bisenet_optic_disc_512x512_1k.yml  --model_path ./model/model_add_oppo2.pdparams    --image_path ./dataloader        --save_dir output`
 
-The successful execution of the `image_ghosting_train.py`, will produce the following outputs.
+The successful execution of the `image_ghosting_attack.py`, will produce the following outputs.
 
 **Image Compares**
 
@@ -36,6 +36,23 @@ The successful execution of the `image_ghosting_train.py`, will produce the foll
     <td align="center">Adversarial Image Segmentation Result</td>
 </tr>
 </table>
+
+Additionly, a comparasion between original image and the adversarial example is plotted for better visulization effect:
+ 
+<table align="center">
+<tr>
+    <td align="center"><img src="./dataloader/P0024.jpeg" width=250></td>
+    <td align="center"><img src="./output/adv_P0024.jpeg" width=250></td>
+    <td align="center"><img src="./output/diff.jpeg" width=250></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image</td>
+    <td align="center">Adversarial Image</td>
+    <td align="center">Diff*150</td>
+</tr>
+</table>
+
 
 **Notes**
 

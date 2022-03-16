@@ -37,7 +37,7 @@ The successful execution of the `image_ghosting_attack.py`, will produce the fol
 </tr>
 </table>
 
-    Additionly, a comparasion between original image and the adversarial example is plotted for better visulization effect:
+Additionly, a comparasion between original image and the adversarial example is plotted for better visulization effect:
  
 <table align="center">
 <tr>

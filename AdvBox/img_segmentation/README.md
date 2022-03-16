@@ -41,9 +41,9 @@ Additionly, a comparasion between original image and the adversarial example is 
  
 <table align="center">
 <tr>
-    <td align="center"><img src="./dataloader/P0024.jpeg" width=200></td>
-    <td align="center"><img src="./output/adv_P0024.jpeg" width=200></td>
-    <td align="center"><img src="./output/diff.jpeg" width=200></td>
+    <td align="center"><img src="./dataloader/P0024.jpeg" width=250></td>
+    <td align="center"><img src="./output/adv_P0024.jpeg" width=250></td>
+    <td align="center"><img src="./output/diff.jpeg" width=250></td>
 </tr>
 
 <tr>

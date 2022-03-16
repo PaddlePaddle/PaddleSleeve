@@ -2,7 +2,7 @@
 Adversarial perturbation for image segmentation, which usually use digital attack methods for adversarial training and evaluating the robustness 
 of segmentaion model. Here we provide a demonstration to generate adversarial 
 perturbation for BiseNetv2 in the digital world. The demonstration is based on 
-**[PaddleSeg]**(#https://github.com/PaddlePaddle/PaddleSeg.git). 
+**PaddleSeg**(https://github.com/PaddlePaddle/PaddleSeg.git). 
 
 
 

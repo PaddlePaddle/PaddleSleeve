@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-The Image Ghosting Adversarial algorithm implementation. We provide two adversarial sample generation methods, including gradient_descent_optim_attack and gradient_descent_iter_attack.
+The Image Ghosting Adversarial training algorithm implementation. We provide two adversarial sample generation methods, including gradient_descent_optim_attack and gradient_descent_iter_attack.
 Contains:
 * Utilize a pretrained BiseNetv2 segmentation model and inference pictures.
 * Generate adversarial iamge using model weights..
@@ -162,7 +162,6 @@ def main(args):
 
     model = cfg.model
     transforms = val_dataset.transforms
-    print('image_path====', args.image_path)
     image_list, image_dir = get_image_list(args.image_path)
     logger.info('Number of predict images = {}'.format(len(image_list)))
 

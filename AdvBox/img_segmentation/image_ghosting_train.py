@@ -11,6 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+The Image Ghosting Adversarial algorithm implementation. We provide two adversarial sample generation methods, including gradient_descent_optim_attack and gradient_descent_iter_attack.
+Contains:
+* Utilize a pretrained BiseNetv2 segmentation model and inference pictures.
+* Generate adversarial iamge using model weights..
+Author: tianweijuan
+"""
+
 
 import argparse
 import os

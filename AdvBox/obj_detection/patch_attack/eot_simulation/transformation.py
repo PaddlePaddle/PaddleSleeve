@@ -25,7 +25,7 @@ from __future__ import print_function
 from past.utils import old_div
 import numpy as np
 import math
-import EOT_simulation.eulerangles as eu
+import eot_simulation.eulerangles as eu
 
 import cv2
 import xmltodict

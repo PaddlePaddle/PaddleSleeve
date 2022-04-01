@@ -12,7 +12,8 @@ requirements = [
 ]
 
 setup(
-    description='Robustness benchmark for deep learning models',
+    name='paddlesleeve.robustness',
+    description='Robustness tools for deep learning models',
     packages=find_packages(),
     include_package_data=True,
     install_requires=requirements

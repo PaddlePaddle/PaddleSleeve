@@ -573,11 +573,108 @@ Visualize the augmentation effect
 
 This module is intended for enhancing the performance of DNN models. It can be smoothly incorporated in model training as part of the data preprocessing. Users can either augment each minibatch of data manually, which provides more flexibility in case only part of training data should be augmented. Or users may choose to incorporate the data augmentor in the dataloader, easier to implement and faster in speed. 
 
-- **Augment Single MiniBatch**
+ - ### Augment Single MiniBatch
 
 During training, users can augment a single mini-batch of data by calling the augmentor and passing in the data as argument. Suppose `data_augment` is a SerialAugment instance, and `ori_data` is a mini batch of data, then run the following command to augment the data. 
 ```python
   augmented_data = data_augment(ori_data, mag=0)
 ```
+- **demo**
 
-- **Combine with Dataloader**
+  The following code manually augments each mini-batch of training data. This demo trains PaddlePaddle's ResNet34 model on Cifar10 dataset.
+  
+  ```python
+  
+    ...
+ 
+    # Initialize dataset, loader, model, optimizer, etc. 
+    train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=T.Transpose(order=(2, 0, 1)), backend='cv2')
+
+    model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
+    BATCH_SIZE = 128
+    train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=BATCH_SIZE)
+
+    learning_rate = 0.001
+    opt = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=model.parameters())
+    loss_fn = paddle.nn.CrossEntropyLoss()
+    normalize_fn = lambda x_batch: [T.normalize(x, std=[62.99, 62.08, 66.7], mean=[125.31, 122.95, 113.86]) for x in x_batch]
+
+    # Initialize data augmentor
+    data_augment = SerialAugment(transforms=[{'Rotate': {}},
+                                             {'Translation': {}},
+                                             {'RandomCrop': {}}],
+                                 format='CHW', bound=(0, 255))
+
+    num_epoch = 20
+    model.train()
+
+    # Start training
+    for epoch in range(num_epoch):
+        for i, data in enumerate(train_loader):
+            img, label = data
+
+            # Start augmenting data
+            aug_img = paddle.unstack(img)
+            aug_img = data_augment(aug_img, mag=0)
+            aug_img = normalize_fn(aug_img)
+            aug_img = paddle.to_tensor(np.stack(aug_img))
+
+            # Get inference result
+            pred = model(aug_img)
+            # Backward propagate loss and update model parameters
+            loss = loss_fn(pred, label)
+            loss.backward()
+            opt.step()
+            opt.clear_grad()
+            
+   ...
+   
+   ```
+
+- ### Combine with Dataloader
+
+Operators in the data augmentation module has a special optimization for PaddlePaddle framework that allows them to be deployed with only one line of code. By simply adding an instance of SerialAugment to dataloaders' list of `transform` operators, data augmentation will be incorporated into dataloaders' preprocessing procedures frictionlessly. 
+
+- **demo**
+
+The following example demonstrates the entire process of using augmented images to train PaddlePaddle's ResNet34 model on Cifar10 dataset. 
+
+```python
+
+def train():
+    data_augment = SerialAugment(transforms=[{'Rotate': {}},
+                                             {'Translation': {}},
+                                             {'HueSaturation': {}},
+                                             {'GridDistortion': {}}],
+                                 format='HWC', bound=(0, 255))
+    
+    # Prepending data_augment module to dataloaders' list of transform operators
+    train_transform = T.Compose([data_augment,
+                                T.Normalize(mean=[125.31, 122.95, 113.86], std=[62.99, 62.08, 66.7], data_format='HWC'),
+                                T.Transpose(order=(2, 0, 1))])
+    
+    test_transform = T.Compose([T.Normalize(mean=[125.31, 122.95, 113.86], std=[62.99, 62.08, 66.7], data_format='HWC'),
+                                T.RandomRotation(30),
+                                T.HueTransform(0.2),
+                                T.RandomCrop(size=32, padding=4),
+                                T.Transpose(order=(2, 0, 1))])
+
+    train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=train_transform, backend='cv2')
+    val_dataset = paddle.vision.datasets.Cifar10(mode='test', transform=test_transform, backend='cv2')
+
+    model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
+    model = paddle.Model(model)
+    BATCH_SIZE = 128
+    train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=BATCH_SIZE)
+    test_loader = paddle.io.DataLoader(val_dataset, batch_size=BATCH_SIZE)
+
+    learning_rate = 0.001
+    loss_fn = paddle.nn.CrossEntropyLoss()
+    opt = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=model.parameters())
+    model.prepare(optimizer=opt, loss=loss_fn, metrics=paddle.metric.Accuracy())
+
+    model.fit(train_loader, test_loader, batch_size=128, epochs=20, eval_freq=5, verbose=1)
+    model.evaluate(test_loader, verbose=1)
+```
+
+The source code is available in `perceptron/augmentations/cifar10_dataaug_tutorial_dataloader.py`

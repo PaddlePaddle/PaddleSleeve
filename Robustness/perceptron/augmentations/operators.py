@@ -17,6 +17,8 @@
 from __future__ import division
 
 import uuid
+
+import numpy
 import numpy as np
 import cv2
 import skimage
@@ -103,12 +105,14 @@ class ImageOperator(BaseOperator):
         if isinstance(sample, Sequence):
             for i in range(len(sample)):
                 img = sample[i]
+                if not isinstance(img, np.ndarray):
+                    img = img.numpy()
                 if self._format == 'CHW':
-                    img = np.transpose(sample[i], [1, 2, 0])
+                    img = np.transpose(img, [1, 2, 0])
                 if self._bound == (0, 1):
                     img = (img * 255).astype('uint8')
 
-                img = self.apply(img, **kwargs)
+                img = self.apply(img.astype('uint8'), **kwargs)
 
                 if self._format == 'CHW':
                     img = np.transpose(img, [2, 0, 1])
@@ -117,12 +121,14 @@ class ImageOperator(BaseOperator):
                 sample[i] = img
         else:
             img = sample
+            if not isinstance(img, np.ndarray):
+                img = img.numpy()
             if self._format == 'CHW':
-                img = np.transpose(sample, [1, 2, 0])
+                img = np.transpose(img, [1, 2, 0])
             if self._bound == (0, 1):
                 img = (img * 255).astype('uint8')
 
-            img = self.apply(img, **kwargs)
+            img = self.apply(img.astype('uint8'), **kwargs)
 
             if self._format == 'CHW':
                 img = np.transpose(img, [2, 0, 1])
@@ -162,8 +168,10 @@ class ArrayOperator(BaseOperator):
         if isinstance(sample, Sequence):
             for i in range(len(sample)):
                 img = sample[i]
+                if not isinstance(img, np.ndarray):
+                    img = img.numpy()
                 if self._format != 'CHW':
-                    img = np.transpose(sample[i], [2, 0, 1])
+                    img = np.transpose(img, [2, 0, 1])
                 if self._bound != (0, 1):
                     img = img / 255
 
@@ -176,8 +184,10 @@ class ArrayOperator(BaseOperator):
                 sample[i] = img
         else:
             img = sample
+            if not isinstance(img, np.ndarray):
+                img = img.numpy()
             if self._format != 'CHW':
-                img = np.transpose(sample, [2, 0, 1])
+                img = np.transpose(img, [2, 0, 1])
             if self._bound != (0, 1):
                 img = img / 255
 
@@ -474,7 +484,6 @@ class Rotate(ImageOperator):
     def apply(self, img, mag=0):
         h, w, c = img.shape
         side = max(h, w)
-
         img = Image.fromarray(img)
         img = img.resize((side, side), Image.BICUBIC)
 
@@ -1404,6 +1413,7 @@ class OpticalDistortion(ImageOperator):
         return img
 
 
+@register_op
 class Translation(ImageOperator):
     def __init__(self, format='CHW', bound=(0, 1), border=None):
         super(Translation, self).__init__(format=format, bound=bound)
@@ -1428,6 +1438,7 @@ class Translation(ImageOperator):
         return img
 
 
+@register_op
 class RandomCrop(ImageOperator):
     def __init__(self, format='CHW', bound=(0, 1)):
         super(RandomCrop, self).__init__(format=format, bound=bound)
@@ -1447,6 +1458,7 @@ class RandomCrop(ImageOperator):
         return img
 
 
+@register_op
 class RandomMask(ArrayOperator):
     def __init__(self, format='CHW', bound=(0, 1), pattern=None):
         super(RandomMask, self).__init__(format=format, bound=bound)

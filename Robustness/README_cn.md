@@ -295,3 +295,398 @@ python examples/paddle_userupload_br.py
 <img src="./perceptron/utils/images/doc/console_brightness_truck2bird.jpeg" style="zoom:60%;" />
 
 <img src="./perceptron/utils/images/doc/pic_brightness_truck2bird.jpeg" style="zoom:60%;" />
+
+
+## Data Augmentation 数据增强模块
+
+数组增强指的是通过对输入的图片进行一系列的变换，从而得到与原图片有少许不同的一组图片。数据增强额技巧在机器学习模型训练中应用十分广泛：在训练数据集规模较小时，可以通过数据增强来达到扩充训练集的目的；同时通过在训练中引入经过变换之后的图片，可以达到增强模型鲁棒性的目的。在Robustness目录下我们也提供了一个数据增强模块，其中包含了8个大类，共计超过40种图像增强的算子可供直接调用。同时，我们也支持用户自行组合基本算子从而完成更复杂的变换。
+
+数据增强模块设计的初衷是为了增强深度网络在不同自然环境下的鲁棒性。它可以被应用到深度网络模型的训练过程中，尤其是当训练集规模较小的时候。本模块支持各个主流深度学习框架，尽管提供的示例使用了PaddlePaddle框架下的模型，但在如TensorFlow和PyTorch等其他框架下也可以使用数据增强模块。
+
+数组增强在自动驾驶模型的训练中显得尤为重要。自然道路的环境复杂多变，雨，雪，雾，强光照等极端天气情况以及因其他事故或意外而造成的摄像头输入图片扭曲失真都会干扰到模型对道路上物体的检测效果。因此，自动驾驶模型必须对环境变化有较强的鲁棒性，做到能够在任何自然条件下准确识别出道路上的物体在文档的下一部分中我们将会以一张汽车牌照的图片为例子，来展示数据增强模块中的各个算子的效果希望可以让用户更直观的感受到本模块在实际场景中的应用。
+
+## 1. 基础增强效果一览
+
+<table>
+  <tr><td align="center">Original image</td></tr>
+  <tr><td align="center"><img src="./perceptron/augmentations/images/car_plate.jpg" width=200></td></tr>
+
+</table>
+
+- **形变 Deformation**
+<table>
+  <tr>
+    <td align="center">Curve</td>
+    <td align="center">Distort</td>
+    <td align="center">Stretch</td>
+    <td align="center">GridDistortion</td>
+    <td align="center">OpticalDistortion</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Curve.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Distort.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Stretch.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/GridDistortion.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/OpticalDistortion.jpg" width=150></td>
+</tr>
+
+</table>
+
+- **几何变换 Geometry Transformation**
+<table>
+  <tr>
+    <td align="center">Rotate</td>
+    <td align="center">Perspective</td>
+    <td align="center">Transpose</td>
+    <td align="center">Translation</td>
+    <td align="center">RandomCrop</td>
+    <td align="center">RandomMask</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Rotate.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Perspective.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Transpose.jpg" height=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Translation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomCrop.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomMask.jpg" width=150></td>
+</tr>
+</table>
+
+- **添加图案 Pattern**
+<table>
+  <tr>
+    <td align="center">VerticalGrid</td>
+    <td align="center">HorizontalGrid</td>
+    <td align="center">Rectangle/EllipticalGrid</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/VGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/HGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/RectGrid.jpg" width=150></td>
+</tr>
+</table>
+
+- **模糊处理 Blur**
+<table>
+  <tr>
+    <td align="center">GaussianBlur</td>
+    <td align="center">MedianBlur</td>
+    <td align="center">DefocusBlur</td>
+    <td align="center">GlassBlur</td>
+    <td align="center">ZoomBlur</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/GaussianBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/MedianBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/DefocusBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/GlassBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/ZoomBlur.jpg" width=150></td>
+</tr>
+  
+<tr>
+     <td align="center">MotionBlur</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/MotionBlur.jpg" width=150></td>
+</tr>
+</table>
+
+- **添加噪声 Additive Noise**
+<table>
+  <tr>
+    <td align="center">GaussianNoise</td>
+    <td align="center">ShotNoise</td>
+    <td align="center">ImpulseNoise</td>
+    <td align="center">SpeckleNoise</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/GaussianNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/ShotNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/ImpulseNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/SpeckleNoise.jpg" width=150></td>
+</table>
+
+- **气候 Weather**
+<table>
+  <tr>
+    <td align="center">Fog</td>
+    <td align="center">Rain</td>
+    <td align="center">Snow</td>
+    <td align="center">Shadow</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Fog.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Rain.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Snow.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Shadow.jpg" width=150></td>
+</tr>
+</table>
+
+- **图片视觉处理 Image Processing**
+<table>
+  <tr>
+    <td align="center">Contrast</td>
+    <td align="center">Brightness</td>
+    <td align="center">Sharpness</td>
+    <td align="center">Posterize</td>
+    <td align="center">Solarize</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Contrast.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Brightness.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Sharpness.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Posterize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Solarize.jpg" width=150></td>
+</tr>
+ 
+<tr>
+    <td align="center">Color</td>
+    <td align="center">HueSaturation</td>
+    <td align="center">Equalize</td>
+    <td align="center">Invert</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Color.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/HueSaturation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Equalize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Invert.jpg" width=150></td>
+ </tr>
+</table>
+
+- **平滑和压缩 Smoothing & Compression**
+<table>
+  <tr>
+    <td align="center">JPEGCompression</td>
+    <td align="center">Pixelate</td>
+    <td align="center">BitReduction</td>
+    <td align="center">MaxSmoothing</td>
+    <td align="center">AverageSmoothing</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/JPEG_Compression.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Pixelate.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/BitReduction.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/MaxSmoothing.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/AvgSmoothing.jpg" width=150></td>
+</tr>
+</table>
+
+## 2. 使用方法
+
+我们提供了SerialAugment类来组合或调用数据增强算子。输入的图片既可以是以数组的形式，也可以是一个文件名或文件夹。详情参见下面的例子。
+
+### 2.1 初始化
+- ### 创建SerialAugment类的实例
+
+  SerialAugment类是开发者和数据增强算子之间的媒介。 
+
+  `class SerialAugment(transforms=[], format='CHW', bound=(0, 1), input_path=None, output_path=None)`
+
+ - **参数**
+     - `transforms (Dict|list(Dict))`  
+     : 使用的数据增强算子。数据类型为列表，其中每一个元素为一个字典，对应着一个模块中提供的基本算子
+     - `format (str)`  
+     : 描述输入图像的格式，必须为‘CHW’或‘HWC’的一种，默认为‘CHW’ 
+     - `bound (tuple)`
+     : 输入图像的范围. 默认为(0, 1)
+     - `input_path`
+     : 输入图像的文件名或文件夹的路径，默认：None
+     - `output_path`
+     : 增强后图像的保存路径，默认：None
+     
+ - **示例**
+ 
+ 创建一个数据增强器来在输入图片中加上椭圆条纹。
+ ```python
+     # Import the interface class
+     from perceptron.augmentations.augment import SerialAugment
+     operator = [{'RectGrid': {'ellipse': True}}]
+     data_augment = SerialAugment(operator, format='HWC', bound=(0, 255))
+
+ ```
+ 
+- ### 组合基础算子
+
+除了模块提供的基础算子之外，用户也可以根据自己的需要自行组合基本算子来完成更复杂的变换。用户只需要在初始化SerialAugment的实例时声明期望使用的算子列表，创建的数据增强器就会在后续使用中对输入图片依次进行列表中的所有处理。
+
+ - **示例**
+ 
+ 组合Rotate和GaussianNoise两个算子，创建的图像增强器将会旋转输入的图片，并添加高斯噪声。
+```python
+     # Import the interface class
+     from perceptron.augmentations.augment import SerialAugment
+     operator = [{'Rotate': {}},
+                 {'GaussianNoise': {}}]
+     data_augment = SerialAugment(operator, format='HWC', bound=(0, 255))
+
+ ```
+
+### 2.2 对指定的图片进行增强
+
+在创建好SerialAugment的实例后，就可以把它直接应用到图片上。可以通过两种方法指定输入图片：用户可以在初始化SerialAugment实例时把输入图片或文件夹的路径作为参数传入，或是通过实例的`set_image(path)`方法制定输入图片的路径。在设定好图片之后，就可以通过实例的`__call__`方法开始数据增强。
+
+`def __call__(img=None, mag=0)`
+
+**参数**
+  - `img (numpy.array|list)`: 将被增强的图片，如果是None，则会根据事先给定的路径从系统中加载图片。
+  - `mag (int)`: 对图片增强的强度，为0，1，或2的整数。0代表最轻微的变换程度，2代表最强的程度。
+
+该方法会返回经过增强后的图片。同时它也可以将增强后的图片保存到指定位置。用户可以在初始化实例的时候设定保存图片的位置，或是之后通过`set_out_path(path)`方法设定。
+
+**示例**
+
+使用上文示例中创建的Rotate & GaussianNoise算子，对`images/demo`文件夹中的所有图片进行图像增强变换，并把增强后的图片保存到`output/out_demo`目录下。
+
+```python
+  operator = [{'Rotate': {}},
+              {'GaussianNoise': {}}]
+  data_augment = SerialAugment(operator, format='HWC', bound=(0, 255))
+  
+  # set the images to be augmented 
+  data_augment.set_image('images/demo')
+  
+  # set the output path
+  data_augment.set_out_path('output/out_demo')
+  
+  # augmentation starts
+  augmented_images = data_augment(mag=0)
+```
+如果运行成功，则在`output`目录下会出现一个新的文件夹`out_demo`，其中保存着增强后的图片。
+
+<img src="./perceptron/augmentations/images/doc/IO_1.png" width=300 height=200 />      <img src="./perceptron/augmentations/images/doc/IO_2.png" width=300 height=200 />
+
+其中一张图片经过增强后的对比。
+<table>
+  <tr>
+    <td align="center">Original</td>
+    <td align="center">Augmented</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/doc/van.jpg" width=500></td>
+    <td align="center"><img src="./perceptron/augmentations/images/doc/augmented_van.jpg" width=500></td>
+</tr>
+</table>
+
+### 2.3 在模型训练中使用数据增强
+
+设计该模块的最初目的是为了增强深度网络模型的鲁棒性，它可以被添加到模型的训练中作为训练数据预处理的一部分。SerialAugment类也支持对已经被转化成numpy数组格式的图片进行处理。用户既可以手动对每一个minibatch的数据进行增强，也可以把该模块融合到dataloader里面。前者提供了更大的自由度来选择对于哪些数据需要进行增强，而后者则在代码实现上更为简洁，同时有更优的性能。
+
+ - ### 手动增强minibatch
+
+在训练中，若希望对某一minibatch的数据进行增强，只需将数据作为参数传入SerialAugment实例的`__call__`方法即可。
+
+```python
+  augmented_data = data_augment(ori_data, mag=0)
+```
+其中`ori_data`为原始数据，`augmented_data`是增强后的数据。
+
+- **示例**
+
+  以下代码展示了如何对一个minibatch的数据进行增强。示例中对PaddlePaddle框架下的ResNet34模型在Cifar10数据集上进行训练。
+  
+  ```python
+  
+    ...
+ 
+    # Initialize dataset, loader, model, optimizer, etc. 
+    train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=T.Transpose(order=(2, 0, 1)), backend='cv2')
+
+    model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
+    BATCH_SIZE = 128
+    train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=BATCH_SIZE)
+
+    learning_rate = 0.001
+    opt = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=model.parameters())
+    loss_fn = paddle.nn.CrossEntropyLoss()
+    normalize_fn = lambda x_batch: [T.normalize(x, std=[62.99, 62.08, 66.7], mean=[125.31, 122.95, 113.86]) for x in x_batch]
+
+    # Initialize data augmentor
+    data_augment = SerialAugment(transforms=[{'Rotate': {}},
+                                             {'Translation': {}},
+                                             {'RandomCrop': {}}],
+                                 format='CHW', bound=(0, 255))
+
+    num_epoch = 20
+    model.train()
+
+    # Start training
+    for epoch in range(num_epoch):
+        for i, data in enumerate(train_loader):
+            img, label = data
+
+            # Start augmenting data
+            aug_img = paddle.unstack(img)
+            aug_img = data_augment(aug_img, mag=0)
+            aug_img = normalize_fn(aug_img)
+            aug_img = paddle.to_tensor(np.stack(aug_img))
+
+            # Get inference result
+            pred = model(aug_img)
+            # Backward propagate loss and update model parameters
+            loss = loss_fn(pred, label)
+            loss.backward()
+            opt.step()
+            opt.clear_grad()
+            
+   ...
+   
+   ```
+
+- ### 将数据增强模块融合到dataloader里
+
+本模块中的算子对于PaddlePaddle平台进行了优化。仅需一行代码就可以将这些算子添加到PaddlePaddle的dataloader里面，成为数据预处理的一部分。只需将初始化好的SerialAugment实例添加到dataloader的`transform`列表中，就可以实现对dataloader加载的所有数据进行增强。
+
+- **示例**
+
+以下示例展示了在Cifar10数据集上训练PaddlePaddle框架下的ResNet34模型，并使用了旋转，平移，颜色饱和度调整，以及网格扭曲四种变换来增强数据。
+
+```python
+
+def train():
+    data_augment = SerialAugment(transforms=[{'Rotate': {}},
+                                             {'Translation': {}},
+                                             {'HueSaturation': {}},
+                                             {'GridDistortion': {}}],
+                                 format='HWC', bound=(0, 255))
+    
+    # Prepending data_augment module to dataloaders' list of transform operators
+    train_transform = T.Compose([data_augment,
+                                T.Normalize(mean=[125.31, 122.95, 113.86], std=[62.99, 62.08, 66.7], data_format='HWC'),
+                                T.Transpose(order=(2, 0, 1))])
+    
+    test_transform = T.Compose([T.Normalize(mean=[125.31, 122.95, 113.86], std=[62.99, 62.08, 66.7], data_format='HWC'),
+                                T.RandomRotation(30),
+                                T.HueTransform(0.2),
+                                T.RandomCrop(size=32, padding=4),
+                                T.Transpose(order=(2, 0, 1))])
+
+    train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=train_transform, backend='cv2')
+    val_dataset = paddle.vision.datasets.Cifar10(mode='test', transform=test_transform, backend='cv2')
+
+    model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
+    model = paddle.Model(model)
+    BATCH_SIZE = 128
+    train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=BATCH_SIZE)
+    test_loader = paddle.io.DataLoader(val_dataset, batch_size=BATCH_SIZE)
+
+    learning_rate = 0.001
+    loss_fn = paddle.nn.CrossEntropyLoss()
+    opt = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=model.parameters())
+    model.prepare(optimizer=opt, loss=loss_fn, metrics=paddle.metric.Accuracy())
+
+    model.fit(train_loader, test_loader, batch_size=128, epochs=20, eval_freq=5, verbose=1)
+    model.evaluate(test_loader, verbose=1)
+```
+
+以上训练代码位于 `perceptron/augmentations/cifar10_dataaug_tutorial_dataloader.py`文件中。

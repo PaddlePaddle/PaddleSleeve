@@ -307,6 +307,8 @@ python examples/paddle_userupload_br.py
 
 ## 1. 基础增强效果一览
 
+这里，我们展示了形变，几何变换，添加图案，模糊处理，添加噪声，气候，图片视觉处理，平滑和压缩八个大类下的全部42种增强处理。本模块中Curve, Stretch, Rectangle Grid等增强算法来自**Straug**项目[https://github.com/roatienza/straug]. GridDistortion, HueSaturation等部分算法来自**Albumentations**项目[https://github.com/albumentations-team/albumentations]. 
+
 <table>
   <tr><td align="center">Original image</td></tr>
   <tr><td align="center"><img src="./perceptron/augmentations/images/car_plate.jpg" width=200></td></tr>

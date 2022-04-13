@@ -289,13 +289,15 @@ python examples/paddle_userupload_br.py
 
 ## Data Augmentation
 
-As a common trick to enhance model robustness, data augmentation, which transforms original input image into a set of slightly perturbed variants, is widely-used in ML tasks. In Robustness, we also provide a data augmentation module. It is implemented with a variety of base augmentation operators, covering 8 categories, over 40 types of common data augmentation methods, easy and ready to use. Users can also compose basic operators for more complex augmentations. For each operators, three levels of augmenting magnitude are available.
+As a common trick to enhance model robustness, data augmentation, which transforms original input image into a set of slightly perturbed variants, is widely-used in ML tasks. In Robustness, we also provide a data augmentation module. It is implemented with a variety of base augmentation operators, covering 8 categories, over 40 types of common data augmentation methods, easy and ready to use. Users can also compose basic operators for more complex augmentations. For each operators, three levels of augmenting magnitude are available. 
 
 This module is intended for enhancing the robustness of DNN models. It can be easily integreted into any DNN models to improve the performance, especially in the case of limited data. Note that although the demo uses models on PaddlePaddle platform, this module is also compatible with other mainstream ML platforms, including but not limited to TensorFlow and PyTorch, etc. 
 
 One particular scenario in which data augmentation is needed is autonomous driving. Given the real road condition is complicated and constantly-changing, the object detection model in autonoums driving vehicles must be able to correctly detect all objects on the road under any circumstances. That is, the model must give correct results even on distorted input images. In the following section, a list of images showing a car plate after all types of augmentations are exhibited. Hopefully this can give a better sense of what the effect of each augmentation looks like, and in what scenario image augmentations may be applied.
 
 ## 1. Basic Operators Inventory
+
+Here, we showcased all 42 types of aumentations, divided into 8 categories: Deformation, Geometry Transformation, Pattern, Blur, Additive Noise, Weather, Image Processing, and Compression & Smoothing. The implementation of Curve, Stretch, Rectangle Grid, and some other augmentations are based on **Straug** [https://github.com/roatienza/straug]. Implementations of GridDistortion, HueSaturation, and some other augmentations are based on **Albumentations** [https://github.com/albumentations-team/albumentations].
 
 <table>
   <tr><td align="center">Original image</td></tr>

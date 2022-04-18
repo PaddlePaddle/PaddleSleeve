@@ -307,7 +307,7 @@ python examples/paddle_userupload_br.py
 
 ## 1. 基础增强效果一览
 
-这里，我们展示了形变，几何变换，添加图案，模糊处理，添加噪声，气候，图片视觉处理，平滑和压缩八个大类下的全部42种增强处理。本模块中Curve, Stretch, Rectangle Grid等增强算法来自**Straug**项目[https://github.com/roatienza/straug]. GridDistortion, HueSaturation等部分算法来自**Albumentations**项目[https://github.com/albumentations-team/albumentations]. 
+这里，我们展示了形变，几何变换，添加图案，模糊处理，添加噪声，气候，图片视觉处理，平滑和压缩八个大类下的全部42种增强处理。本模块中Curve，Stretch，Rectangle Grid等增强算法来自[**Straug**](https://github.com/roatienza/straug)项目。 GridDistortion，HueSaturation等部分算法来自[**Albumentations**](https://github.com/albumentations-team/albumentations)项目。 
 
 <table>
   <tr><td align="center">Original image</td></tr>
@@ -353,6 +353,15 @@ python examples/paddle_userupload_br.py
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Translation.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomCrop.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomMask.jpg" width=150></td>
+</tr>
+    <tr>
+    <td align="center">VerticalFlip</td>
+    <td align="center">HorizontalFlip</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/VFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/HFlip.jpg" width=150></td>
 </tr>
 </table>
 

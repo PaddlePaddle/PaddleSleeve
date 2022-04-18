@@ -535,6 +535,32 @@ class Perspective(ImageOperator):
         img = cv2.warpPerspective(img, M, (w, h))
 
         return img
+    
+
+@register_op
+class VFlip(ArrayOperator):
+    def __init__(self, format='CHW', bound=(0,1)):
+        super(VFlip, self).__init__(format=format, bound=bound)
+
+    def apply(self, img, mag=0):
+        c, h, w = img.shape
+        pert = np.zeros_like(img)
+        for i in range(h):
+            pert[:, i, :] = img[:, h-i-1, :]
+        return pert
+
+
+@register_op
+class HFlip(ArrayOperator):
+    def __init__(self, format='CHW', bound=(0,1)):
+        super(HFlip, self).__init__(format=format, bound=bound)
+
+    def apply(self, img, mag=0):
+        c, h, w = img.shape
+        pert = np.zeros_like(img)
+        for i in range(w):
+            pert[:, :, i] = img[:, :, w-1-i]
+        return pert
 
 
 @register_op

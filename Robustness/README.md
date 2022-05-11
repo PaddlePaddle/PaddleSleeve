@@ -297,7 +297,8 @@ One particular scenario in which data augmentation is needed is autonomous drivi
 
 ## 1. Basic Operators Inventory
 
-Here, we showcased all 42 types of aumentations, divided into 8 categories: Deformation, Geometry Transformation, Pattern, Blur, Additive Noise, Weather, Image Processing, and Compression & Smoothing. The implementation of Curve, Stretch, Rectangle Grid, and some other augmentations are based on **Straug** [https://github.com/roatienza/straug]. Implementations of GridDistortion, HueSaturation, and some other augmentations are based on **Albumentations** [https://github.com/albumentations-team/albumentations].
+Here, we showcased all 45 types of aumentations, divided into 8 categories: Deformation, Geometry Transformation, Pattern, Blur, Additive Noise, Weather, Image Processing, and Compression & Smoothing. The implementation of Curve, Stretch, Rectangle Grid, and some other augmentations are based on [**Straug**](https://github.com/roatienza/straug). Implementations of GridDistortion, HueSaturation, and some other augmentations are based on [**Albumentations**](https://github.com/albumentations-team/albumentations).
+
 
 <table>
   <tr><td align="center">Original image</td></tr>
@@ -306,6 +307,7 @@ Here, we showcased all 42 types of aumentations, divided into 8 categories: Defo
 </table>
 
 - **Deformation**
+
 <table>
   <tr>
     <td align="center">Curve</td>
@@ -322,31 +324,44 @@ Here, we showcased all 42 types of aumentations, divided into 8 categories: Defo
     <td align="center"><img src="./perceptron/augmentations/output/showcase/GridDistortion.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/OpticalDistortion.jpg" width=150></td>
 </tr>
-
-</table>
-
-- **Geometry Transformation**
-<table>
   <tr>
     <td align="center">Rotate</td>
     <td align="center">Perspective</td>
-    <td align="center">Transpose</td>
-    <td align="center">Translation</td>
-    <td align="center">RandomCrop</td>
-    <td align="center">RandomMask</td>
-</tr>
+    <td align="center">Shrink</td>
+  </tr>
   
 <tr>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Rotate.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Perspective.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Shrink.jpg" width=150></td>
+</tr>
+
+</table>
+
+- **Geometry Transformation**
+
+<table>
+  <tr>
+    <td align="center">Transpose</td>
+    <td align="center">Translation</td>
+    <td align="center">HorizontalFlip</td>
+    <td align="center">VerticalFlip</td>
+    <td align="center">RandomCrop</td>
+    <td align="center">RandomMask</td>
+  </tr>
+  
+<tr>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Transpose.jpg" height=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Translation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/HFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/VFlip.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomCrop.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomMask.jpg" width=150></td>
 </tr>
 </table>
-
+  
 - **Pattern**
+  
 <table>
   <tr>
     <td align="center">VerticalGrid</td>
@@ -362,7 +377,8 @@ Here, we showcased all 42 types of aumentations, divided into 8 categories: Defo
 </table>
 
 - **Blur**
-<table>
+
+<table > 
   <tr>
     <td align="center">GaussianBlur</td>
     <td align="center">MedianBlur</td>
@@ -566,10 +582,11 @@ Visualize the augmentation effect
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/images/doc/van.jpg" width=500></td>
-    <td align="center"><img src="./perceptron/augmentations/images/doc/augmented_van.jpg" width=500></td>
+    <td align="center"><img src="./perceptron/augmentations/images/demo/roadsign.jpeg" width=200></td>
+    <td align="center"><img src="./perceptron/augmentations/images/doc/trans_roadsign.jpeg" width=200></td>
 </tr>
 </table>
+
 
 ### 2.3 Incorporated in Model Training
 
@@ -680,3 +697,4 @@ def train():
 ```
 
 The source code is available in `perceptron/augmentations/cifar10_dataaug_tutorial_dataloader.py`
+

@@ -299,23 +299,24 @@ python examples/paddle_userupload_br.py
 
 ## Data Augmentation 数据增强模块
 
-数组增强指的是通过对输入的图片进行一系列的变换，从而得到与原图片有少许不同的一组图片。数据增强的技巧在机器学习模型训练中应用十分广泛：在训练数据集规模较小时，可以通过数据增强来达到扩充训练集的目的；同时通过在训练中引入经过变换之后的图片，可以达到增强模型鲁棒性的目的。在Robustness目录下我们也提供了一个数据增强模块，其中包含了8个大类，共计超过40种图像增强的算子可供直接调用。同时，我们也支持用户自行组合基本算子从而完成更复杂的变换。
+数据增强指的是通过对输入的图片进行一系列的变换，从而得到与原图片有少许不同的一组图片。数据增强的技巧在机器学习模型训练中应用十分广泛：在训练数据集规模较小时，可以通过数据增强来达到扩充训练集的目的；同时通过在训练中引入经过变换之后的图片，可以达到增强模型鲁棒性的目的。在Robustness目录下我们也提供了一个数据增强模块，其中包含了8个大类，共计超过40种图像增强的算子可供直接调用。同时，我们也支持用户自行组合基本算子从而完成更复杂的变换。
 
 数据增强模块设计的初衷是为了增强深度网络在不同自然环境下的鲁棒性。它可以被应用到深度网络模型的训练过程中，尤其是当训练集规模较小的时候。本模块支持各个主流深度学习框架，尽管提供的示例使用了PaddlePaddle框架下的模型，但在如TensorFlow和PyTorch等其他框架下也可以使用数据增强模块。
 
-数组增强在自动驾驶模型的训练中显得尤为重要。自然道路的环境复杂多变：雨，雪，雾，强光照等极端天气情况，以及因其他事故或意外而造成的摄像头输入图片扭曲失真都会干扰到模型对道路上物体的检测效果。因此，自动驾驶模型必须对环境变化有较强的鲁棒性，做到能够在任何自然条件下准确识别出道路上的物体。在文档的下一部分中我们将会以一张汽车牌照的图片为例子，来展示数据增强模块中的各个算子的效果，希望可以让用户更直观的感受到本模块在实际场景中的应用。
+数据增强在自动驾驶模型的训练中显得尤为重要。自然道路的环境复杂多变：雨、雪、雾、强光照等极端天气情况，以及因其他事故或意外而造成的摄像头输入图片扭曲失真都会干扰到模型对道路上物体的检测效果。因此，自动驾驶模型必须对环境变化有较强的鲁棒性，做到能够在任何自然条件下准确识别出道路上的物体。在文档的下一部分中我们将会以一张汽车牌照的图片为例子，来展示数据增强模块中的各个算子的效果，希望可以让用户更直观的感受到本模块在实际场景中的应用。
 
 ## 1. 基础增强效果一览
 
 这里，我们展示了形变，几何变换，添加图案，模糊处理，添加噪声，气候，图片视觉处理，平滑和压缩八个大类下的全部42种增强处理。本模块中Curve，Stretch，Rectangle Grid等增强算法来自[**Straug**](https://github.com/roatienza/straug)项目。 GridDistortion，HueSaturation等部分算法来自[**Albumentations**](https://github.com/albumentations-team/albumentations)项目。 
 
 <table>
-  <tr><td align="center">Original image</td></tr>
+  <tr><td align="center">原始图片</td></tr>
   <tr><td align="center"><img src="./perceptron/augmentations/images/car_plate.jpg" width=200></td></tr>
 
 </table>
 
 - **形变 Deformation**
+
 <table>
   <tr>
     <td align="center">Curve</td>
@@ -332,40 +333,44 @@ python examples/paddle_userupload_br.py
     <td align="center"><img src="./perceptron/augmentations/output/showcase/GridDistortion.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/OpticalDistortion.jpg" width=150></td>
 </tr>
-
-</table>
-
-- **几何变换 Geometry Transformation**
-<table>
   <tr>
     <td align="center">Rotate</td>
     <td align="center">Perspective</td>
-    <td align="center">Transpose</td>
-    <td align="center">Translation</td>
-    <td align="center">RandomCrop</td>
-    <td align="center">RandomMask</td>
-</tr>
+    <td align="center">Shrink</td>
+  </tr>
   
 <tr>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Rotate.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Perspective.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/Shrink.jpg" width=150></td>
+</tr>
+
+</table>
+
+- **几何变换 Geometry Transformation**
+
+<table>
+  <tr>
+    <td align="center">Transpose</td>
+    <td align="center">Translation</td>
+    <td align="center">HorizontalFlip</td>
+    <td align="center">VerticalFlip</td>
+    <td align="center">RandomCrop</td>
+    <td align="center">RandomMask</td>
+  </tr>
+  
+<tr>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Transpose.jpg" height=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/Translation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/HFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/output/showcase/VFlip.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomCrop.jpg" width=150></td>
     <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomMask.jpg" width=150></td>
 </tr>
-    <tr>
-    <td align="center">VerticalFlip</td>
-    <td align="center">HorizontalFlip</td>
-</tr>
-  
-<tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/VFlip.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/HFlip.jpg" width=150></td>
-</tr>
 </table>
-
+  
 - **添加图案 Pattern**
+  
 <table>
   <tr>
     <td align="center">VerticalGrid</td>
@@ -380,8 +385,9 @@ python examples/paddle_userupload_br.py
 </tr>
 </table>
 
-- **模糊处理 Blur**
-<table>
+- **模糊 Blur**
+
+<table > 
   <tr>
     <td align="center">GaussianBlur</td>
     <td align="center">MedianBlur</td>
@@ -440,7 +446,7 @@ python examples/paddle_userupload_br.py
 </tr>
 </table>
 
-- **图片视觉处理 Image Processing**
+- **图像视觉处理 Image Processing**
 <table>
   <tr>
     <td align="center">Contrast</td>
@@ -579,13 +585,13 @@ python examples/paddle_userupload_br.py
 其中一张图片经过增强后的对比。
 <table>
   <tr>
-    <td align="center">Original</td>
-    <td align="center">Augmented</td>
+    <td align="center">原始图像</td>
+    <td align="center">增强图像</td>
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/images/doc/van.jpg" width=500></td>
-    <td align="center"><img src="./perceptron/augmentations/images/doc/augmented_van.jpg" width=500></td>
+    <td align="center"><img src="./perceptron/augmentations/images/demo/roadsign.jpeg" width=200></td>
+    <td align="center"><img src="./perceptron/augmentations/output/out_demo/roadsign.jpeg" width=200></td>
 </tr>
 </table>
 

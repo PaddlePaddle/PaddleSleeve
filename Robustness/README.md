@@ -583,7 +583,7 @@ Visualize the augmentation effect
   
 <tr>
     <td align="center"><img src="./perceptron/augmentations/images/demo/roadsign.jpeg" width=200></td>
-    <td align="center"><img src="./perceptron/augmentations/images/doc/trans_roadsign.jpeg" width=200></td>
+    <td align="center"><img src="./perceptron/augmentations/output/out_demo/roadsign.jpeg" width=200></td>
 </tr>
 </table>
 

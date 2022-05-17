@@ -286,3 +286,415 @@ python examples/paddle_userupload_br.py
 <img src="./perceptron/utils/images/doc/console_brightness_truck2bird.jpeg" style="zoom:60%;" />
 
 <img src="./perceptron/utils/images/doc/pic_brightness_truck2bird.jpeg" style="zoom:60%;" />
+
+## Data Augmentation
+
+As a common trick to enhance model robustness, data augmentation, which transforms original input image into a set of slightly perturbed variants, is widely-used in ML tasks. In Robustness, we also provide a data augmentation module. It is implemented with a variety of base augmentation operators, covering 8 categories, over 40 types of common data augmentation methods, easy and ready to use. Users can also compose basic operators for more complex augmentations. For each operators, three levels of augmenting magnitude are available. 
+
+This module is intended for enhancing the robustness of DNN models. It can be easily integreted into any DNN models to improve the performance, especially in the case of limited data. Note that although the demo uses models on PaddlePaddle platform, this module is also compatible with other mainstream ML platforms, including but not limited to TensorFlow and PyTorch, etc. 
+
+One particular scenario in which data augmentation is needed is autonomous driving. Given the real road condition is complicated and constantly-changing, the object detection model in autonoums driving vehicles must be able to correctly detect all objects on the road under any circumstances. That is, the model must give correct results even on distorted input images. In the following section, a list of images showing a car plate after all types of augmentations are exhibited. Hopefully this can give a better sense of what the effect of each augmentation looks like, and in what scenario image augmentations may be applied.
+
+## 1. Basic Operators Inventory
+
+Here, we showcased all 45 types of aumentations, divided into 8 categories: Deformation, Geometry Transformation, Pattern, Blur, Additive Noise, Weather, Image Processing, and Compression & Smoothing. The implementation of Curve, Stretch, Rectangle Grid, and some other augmentations are based on [**Straug**](https://github.com/roatienza/straug). Implementations of GridDistortion, HueSaturation, and some other augmentations are based on [**Albumentations**](https://github.com/albumentations-team/albumentations).
+
+
+<table>
+  <tr><td align="center">Original image</td></tr>
+  <tr><td align="center"><img src="./perceptron/augmentations/images/showcase/orig_car_plate.jpg" width=200></td></tr>
+
+</table>
+
+- **Deformation**
+
+<table>
+  <tr>
+    <td align="center">Curve</td>
+    <td align="center">Distort</td>
+    <td align="center">Stretch</td>
+    <td align="center">GridDistortion</td>
+    <td align="center">OpticalDistortion</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Curve.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Distort.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Stretch.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GridDistortion.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/OpticalDistortion.jpg" width=150></td>
+</tr>
+  <tr>
+    <td align="center">Rotate</td>
+    <td align="center">Perspective</td>
+    <td align="center">Shrink</td>
+  </tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Rotate.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Perspective.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Shrink.jpg" width=150></td>
+</tr>
+
+</table>
+
+- **Geometry Transformation**
+
+<table>
+  <tr>
+    <td align="center">Transpose</td>
+    <td align="center">Translation</td>
+    <td align="center">HorizontalFlip</td>
+    <td align="center">VerticalFlip</td>
+    <td align="center">RandomCrop</td>
+    <td align="center">RandomMask</td>
+  </tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Transpose.jpg" height=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Translation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/HFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/VFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/RandomCrop.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/RandomMask.jpg" width=150></td>
+</tr>
+</table>
+  
+- **Pattern**
+  
+<table>
+  <tr>
+    <td align="center">VerticalGrid</td>
+    <td align="center">HorizontalGrid</td>
+    <td align="center">Rectangle/EllipticalGrid</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/VGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/HGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/RectGrid.jpg" width=150></td>
+</tr>
+</table>
+
+- **Blur**
+
+<table > 
+  <tr>
+    <td align="center">GaussianBlur</td>
+    <td align="center">MedianBlur</td>
+    <td align="center">DefocusBlur</td>
+    <td align="center">GlassBlur</td>
+    <td align="center">ZoomBlur</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GaussianBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/MedianBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/DefocusBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GlassBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/ZoomBlur.jpg" width=150></td>
+</tr>
+  
+<tr>
+     <td align="center">MotionBlur</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/MotionBlur.jpg" width=150></td>
+</tr>
+</table>
+
+- **Additive Noise**
+<table>
+  <tr>
+    <td align="center">GaussianNoise</td>
+    <td align="center">ShotNoise</td>
+    <td align="center">ImpulseNoise</td>
+    <td align="center">SpeckleNoise</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GaussianNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/ShotNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/ImpulseNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/SpeckleNoise.jpg" width=150></td>
+</table>
+
+- **Weather**
+<table>
+  <tr>
+    <td align="center">Fog</td>
+    <td align="center">Rain</td>
+    <td align="center">Snow</td>
+    <td align="center">Shadow</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Fog.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Rain.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Snow.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Shadow.jpg" width=150></td>
+</tr>
+</table>
+
+- **Image Processing**
+<table>
+  <tr>
+    <td align="center">Contrast</td>
+    <td align="center">Brightness</td>
+    <td align="center">Sharpness</td>
+    <td align="center">Posterize</td>
+    <td align="center">Solarize</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Contrast.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Brightness.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Sharpness.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Posterize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Solarize.jpg" width=150></td>
+</tr>
+ 
+<tr>
+    <td align="center">Color</td>
+    <td align="center">HueSaturation</td>
+    <td align="center">Equalize</td>
+    <td align="center">Invert</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Color.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/HueSaturation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Equalize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Invert.jpg" width=150></td>
+ </tr>
+</table>
+
+- **Smoothing & Compression**
+<table>
+  <tr>
+    <td align="center">JPEGCompression</td>
+    <td align="center">Pixelate</td>
+    <td align="center">BitReduction</td>
+    <td align="center">MaxSmoothing</td>
+    <td align="center">AverageSmoothing</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/JPEG_Compression.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Pixelate.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/BitReduction.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/MaxSmoothing.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/AvgSmoothing.jpg" width=150></td>
+</tr>
+</table>
+
+## 2. Usage
+
+Users should use instances of SerialAugment class to compose base operators or to apply them. These operators can function on either tensors or images. In the former case, the input should be a numpy array, or it can be a path pointing to an image or an image folder in the file system, as in the second case. Detailed explaination with demos can be found below. 
+
+### 2.1 Initialization
+- ### Create a SerialAugment Instance
+
+  The SerialAugment class is the interface between users and the aumentation operators. 
+
+  `class SerialAugment(transforms=[], format='CHW', bound=(0, 1), input_path=None, output_path=None)`
+
+ - **Parameters**
+     - `transforms (Dict|list(Dict))`  
+     : The types of augmentation to use. This should be a list of Dicts, and each Dict specifies the class name and initialization arguments for one operator
+     - `format (str)`  
+     : The data format of the inputs. Should be 'HWC' or 'CHW'. Default: 'CHW'. 
+     - `bound (tuple)`
+     : A tuple of integers that specifies the range of input data. Default: (0, 1)
+     - `input_path`
+     : This specifies the path to input images. Default: None
+     - `output_path`
+     : The place to save the augmented images. Default: None
+     
+ - **Examples**
+ 
+ The following code segment instantiates an augment operator that draws elliptical grids on the input image.
+ ```python
+     # Import the interface class
+     from perceptron.augmentations.augment import SerialAugment
+     operator = [{'RectGrid': {'ellipse': True}}]
+     data_augment = SerialAugment(operator, format='HWC', bound=(0, 255))
+
+ ```
+ 
+- ### Compose Operators
+
+In addition to the pre-implemented operators, users can also combine them to achieve more complex augmentation effect. To compose base operators, simply pass to the SerialAugment constructor the list of base augmentations you want to use. All augmentations declared will be applied in sequence to the same image. 
+
+ - **Examples**
+ 
+ The following code composes Rotate and GaussianNoise. When applied to an image, it will rotate the image then add Gaussian noise to it.
+```python
+     # Import the interface class
+     from perceptron.augmentations.augment import SerialAugment
+     operator = [{'Rotate': {}},
+                 {'GaussianNoise': {}}]
+     data_augment = SerialAugment(operator, format='HWC', bound=(0, 255))
+
+ ```
+
+### 2.2 Quick Trial: Augmentations with I/O
+
+After initializing the data augmentor, users can directly apply it to some images. There are two ways to specify the images to be augmented: users can set the input path by either passing it to the constructor, or by calling `set_image(path)` funtion. The SerialAugment instances are callable objects, so once the input images are set, augmentation can be initiated by calling the object. 
+
+`def __call__(img=None, mag=0)`
+
+**Parameters**
+  - `img (numpy.array|list)`: Images to be augmented. if None, then the augmentor will load images specified by `set_image` method from file system.
+  - `mag (int)`: The augmentation magnitude. Must be one of 0, 1, or 2. Level 0 for the modest augmentation and level 2 for the most radical augmentation.
+
+This function returns augmented images. It can also save augmented images to the place specified by users. Same as input path, the output path can be set either by the constructor, or via `set_out_path(path)` function.
+
+**Examples**
+
+The above example continues. Following code snippet applies the composed Rotate & GaussianNoise augmentor to images in `images/demo` folder, and save augmented images to the `output/out_demo` folder.
+
+```python
+  operator = [{'Rotate': {}},
+              {'GaussianNoise': {}}]
+  data_augment = SerialAugment(operator, format='HWC', bound=(0, 255))
+  
+  # set the images to be augmented 
+  data_augment.set_image('images/demo')
+  
+  # set the output path
+  data_augment.set_out_path('output/out_demo')
+  
+  # augmentation starts
+  augmented_images = data_augment(mag=0)
+```
+
+If successful, there will be a new folder `output_demo`, in which all augmented images are saved. 
+
+<img src="./perceptron/augmentations/images/doc/IO_1.png" width=300 height=200 />      <img src="./perceptron/augmentations/images/doc/IO_2.png" width=300 height=200 />
+
+Visualize the augmentation effect 
+<table>
+  <tr>
+    <td align="center">Original</td>
+    <td align="center">Augmented</td>
+</tr>
+  
+<tr>
+    <td align="center"><img src="./perceptron/augmentations/images/demo/roadsign.jpeg" width=200></td>
+    <td align="center"><img src="./perceptron/augmentations/output/out_demo/roadsign.jpeg" width=200></td>
+</tr>
+</table>
+
+
+### 2.3 Incorporated in Model Training
+
+This module is intended for enhancing the performance of DNN models. It can be smoothly incorporated in model training as part of the data preprocessing. Users can either augment each minibatch of data manually, which provides more flexibility in case only part of training data should be augmented. Or users may choose to incorporate the data augmentor in the dataloader, easier to implement and faster in speed. 
+
+ - ### Augment Single MiniBatch
+
+During training, users can augment a single mini-batch of data by calling the augmentor and passing in the data as argument. Suppose `data_augment` is a SerialAugment instance, and `ori_data` is a mini batch of data, then run the following command to augment the data. 
+```python
+  augmented_data = data_augment(ori_data, mag=0)
+```
+- **demo**
+
+  The following code manually augments each mini-batch of training data. This demo trains PaddlePaddle's ResNet34 model on Cifar10 dataset.
+  
+  ```python
+  
+    ...
+ 
+    # Initialize dataset, loader, model, optimizer, etc. 
+    train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=T.Transpose(order=(2, 0, 1)), backend='cv2')
+
+    model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
+    BATCH_SIZE = 128
+    train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=BATCH_SIZE)
+
+    learning_rate = 0.001
+    opt = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=model.parameters())
+    loss_fn = paddle.nn.CrossEntropyLoss()
+    normalize_fn = lambda x_batch: [T.normalize(x, std=[62.99, 62.08, 66.7], mean=[125.31, 122.95, 113.86]) for x in x_batch]
+
+    # Initialize data augmentor
+    data_augment = SerialAugment(transforms=[{'Rotate': {}},
+                                             {'Translation': {}},
+                                             {'RandomCrop': {}}],
+                                 format='CHW', bound=(0, 255))
+
+    num_epoch = 20
+    model.train()
+
+    # Start training
+    for epoch in range(num_epoch):
+        for i, data in enumerate(train_loader):
+            img, label = data
+
+            # Start augmenting data
+            aug_img = paddle.unstack(img)
+            aug_img = data_augment(aug_img, mag=0)
+            aug_img = normalize_fn(aug_img)
+            aug_img = paddle.to_tensor(np.stack(aug_img))
+
+            # Get inference result
+            pred = model(aug_img)
+            # Backward propagate loss and update model parameters
+            loss = loss_fn(pred, label)
+            loss.backward()
+            opt.step()
+            opt.clear_grad()
+            
+   ...
+   
+   ```
+
+- ### Combine with Dataloader
+
+Operators in the data augmentation module has a special optimization for PaddlePaddle framework that allows them to be deployed with only one line of code. By simply adding an instance of SerialAugment to dataloaders' list of `transform` operators, data augmentation will be incorporated into dataloaders' preprocessing procedures frictionlessly. 
+
+- **demo**
+
+The following example demonstrates the entire process of using augmented images to train PaddlePaddle's ResNet34 model on Cifar10 dataset. 
+
+```python
+
+def train():
+    data_augment = SerialAugment(transforms=[{'Rotate': {}},
+                                             {'Translation': {}},
+                                             {'HueSaturation': {}},
+                                             {'GridDistortion': {}}],
+                                 format='HWC', bound=(0, 255))
+    
+    # Prepending data_augment module to dataloaders' list of transform operators
+    train_transform = T.Compose([data_augment,
+                                T.Normalize(mean=[125.31, 122.95, 113.86], std=[62.99, 62.08, 66.7], data_format='HWC'),
+                                T.Transpose(order=(2, 0, 1))])
+    
+    test_transform = T.Compose([T.Normalize(mean=[125.31, 122.95, 113.86], std=[62.99, 62.08, 66.7], data_format='HWC'),
+                                T.RandomRotation(30),
+                                T.HueTransform(0.2),
+                                T.RandomCrop(size=32, padding=4),
+                                T.Transpose(order=(2, 0, 1))])
+
+    train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=train_transform, backend='cv2')
+    val_dataset = paddle.vision.datasets.Cifar10(mode='test', transform=test_transform, backend='cv2')
+
+    model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
+    model = paddle.Model(model)
+    BATCH_SIZE = 128
+    train_loader = paddle.io.DataLoader(train_dataset, shuffle=True, batch_size=BATCH_SIZE)
+    test_loader = paddle.io.DataLoader(val_dataset, batch_size=BATCH_SIZE)
+
+    learning_rate = 0.001
+    loss_fn = paddle.nn.CrossEntropyLoss()
+    opt = paddle.optimizer.Adam(learning_rate=learning_rate, parameters=model.parameters())
+    model.prepare(optimizer=opt, loss=loss_fn, metrics=paddle.metric.Accuracy())
+
+    model.fit(train_loader, test_loader, batch_size=128, epochs=20, eval_freq=5, verbose=1)
+    model.evaluate(test_loader, verbose=1)
+```
+
+The source code is available in `perceptron/augmentations/cifar10_dataaug_tutorial_dataloader.py`
+

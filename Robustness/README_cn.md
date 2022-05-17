@@ -310,8 +310,8 @@ python examples/paddle_userupload_br.py
 这里，我们展示了形变，几何变换，添加图案，模糊处理，添加噪声，气候，图片视觉处理，平滑和压缩八个大类下的全部42种增强处理。本模块中Curve，Stretch，Rectangle Grid等增强算法来自[**Straug**](https://github.com/roatienza/straug)项目。 GridDistortion，HueSaturation等部分算法来自[**Albumentations**](https://github.com/albumentations-team/albumentations)项目。 
 
 <table>
-  <tr><td align="center">原始图片</td></tr>
-  <tr><td align="center"><img src="./perceptron/augmentations/images/car_plate.jpg" width=200></td></tr>
+  <tr><td align="center">原始图像</td></tr>
+  <tr><td align="center"><img src="./perceptron/augmentations/images/showcase/orig_car_plate.jpg" width=200></td></tr>
 
 </table>
 
@@ -327,11 +327,11 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Curve.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Distort.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Stretch.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/GridDistortion.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/OpticalDistortion.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Curve.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Distort.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Stretch.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GridDistortion.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/OpticalDistortion.jpg" width=150></td>
 </tr>
   <tr>
     <td align="center">Rotate</td>
@@ -340,9 +340,9 @@ python examples/paddle_userupload_br.py
   </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Rotate.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Perspective.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Shrink.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Rotate.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Perspective.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Shrink.jpg" width=150></td>
 </tr>
 
 </table>
@@ -360,16 +360,16 @@ python examples/paddle_userupload_br.py
   </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Transpose.jpg" height=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Translation.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/HFlip.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/VFlip.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomCrop.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/RandomMask.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Transpose.jpg" height=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Translation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/HFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/VFlip.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/RandomCrop.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/RandomMask.jpg" width=150></td>
 </tr>
 </table>
   
-- **添加图案 Pattern**
+- **图案 Pattern**
   
 <table>
   <tr>
@@ -379,9 +379,9 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/VGrid.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/HGrid.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/RectGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/VGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/HGrid.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/RectGrid.jpg" width=150></td>
 </tr>
 </table>
 
@@ -397,11 +397,11 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/GaussianBlur.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/MedianBlur.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/DefocusBlur.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/GlassBlur.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/ZoomBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GaussianBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/MedianBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/DefocusBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GlassBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/ZoomBlur.jpg" width=150></td>
 </tr>
   
 <tr>
@@ -409,7 +409,7 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/MotionBlur.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/MotionBlur.jpg" width=150></td>
 </tr>
 </table>
 
@@ -423,13 +423,13 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/GaussianNoise.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/ShotNoise.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/ImpulseNoise.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/SpeckleNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/GaussianNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/ShotNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/ImpulseNoise.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/SpeckleNoise.jpg" width=150></td>
 </table>
 
-- **气候 Weather**
+- **天气 Weather**
 <table>
   <tr>
     <td align="center">Fog</td>
@@ -439,10 +439,10 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Fog.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Rain.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Snow.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Shadow.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Fog.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Rain.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Snow.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Shadow.jpg" width=150></td>
 </tr>
 </table>
 
@@ -457,11 +457,11 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Contrast.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Brightness.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Sharpness.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Posterize.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Solarize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Contrast.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Brightness.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Sharpness.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Posterize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Solarize.jpg" width=150></td>
 </tr>
  
 <tr>
@@ -472,10 +472,10 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Color.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/HueSaturation.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Equalize.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Invert.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Color.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/HueSaturation.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Equalize.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Invert.jpg" width=150></td>
  </tr>
 </table>
 
@@ -490,11 +490,11 @@ python examples/paddle_userupload_br.py
 </tr>
   
 <tr>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/JPEG_Compression.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/Pixelate.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/BitReduction.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/MaxSmoothing.jpg" width=150></td>
-    <td align="center"><img src="./perceptron/augmentations/output/showcase/AvgSmoothing.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/JPEG_Compression.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/Pixelate.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/BitReduction.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/MaxSmoothing.jpg" width=150></td>
+    <td align="center"><img src="./perceptron/augmentations/images/showcase/AvgSmoothing.jpg" width=150></td>
 </tr>
 </table>
 

@@ -220,14 +220,6 @@ def main():
                 
                 prob_cond = paddle.where(preds_idx>0, probs, preds_idx.astype("float32"))
                 loss = paddle.fluid.layers.reduce_sum(prob_cond) / num_of_EOT_transforms
-                '''
-                index1 = [2, 8, 14, 17, 24]
-                index2 = [2697, 4741, 3587, 3589, 1381]
-                prob_cond = 0.
-                for i,j in zip(index1, index2):
-                    prob_cond += paddle.fluid.layers.reduce_sum(preds[:, i, j])
-                loss = prob_cond / (num_of_EOT_transforms*5)
-                '''
                 print('Step:', step, '======loss:', loss.numpy())
                 loss.backward(retain_graph = True) 
                 gradient = adv_img_concat.grad 
@@ -248,7 +240,7 @@ def main():
             adv_img_patch = (adv_img_patch * 0.5 + 0.5) * 255.
             adv_img_vis = (adv_img_patch[0].transpose((1, 2, 0))).numpy()
             adv_img_vis = cv2.resize(adv_img_vis, (img_cv.shape[1], img_cv.shape[0]), cv2.INTER_CUBIC)
-            cv2.imwrite("./adv_img_vis.png", adv_img_vis)
+            cv2.imwrite("./output/adv_img_vis.png", adv_img_vis)
         
             post_result = post_process_class(preds)
             info = None

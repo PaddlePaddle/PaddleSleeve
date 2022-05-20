@@ -265,20 +265,6 @@ of object detectors. Here we provide a demonstration to generate adversarial
 perturbation for PP-YOLO in the digital world. The demonstration is based on 
 **[PaddleDetection](#https://github.com/PaddlePaddle/PaddleDetection)** . 
 
-**Images used for Feed & Sniff**
-
-<table align="center">
-<tr>
-    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
-    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
-</tr>
-
-<tr>
-    <td align="center">Original Image</td>
-    <td align="center">Masked Image</td>
-</tr>
-</table>
-
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 
 between victim and target feature map in PP-YOLO, successfully making it 
@@ -301,6 +287,20 @@ the intermediate output `pcls`, the tensor stands for classification confidence 
 After changing all `sync-bn` components into `bn`, run the following commandlines.
 1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
 2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
+
+**Images used for Feed & Sniff**
+
+<table align="center">
+<tr>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image</td>
+    <td align="center">Masked Image</td>
+</tr>
+</table>
 
 The successful execution of the `target_ghosting_demo.py`, will produce the following outputs.
 

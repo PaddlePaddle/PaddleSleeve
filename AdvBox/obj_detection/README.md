@@ -251,12 +251,12 @@ As malice adversaries increasingly threat AI security, people have proposed nume
   
   - **Examples**
   
-    Users can initiate an adversarial training by the following command
+    Users can initiate an adversarial training by the following command:
     ```shell
     cd obj_detection/attack/defense
     python advtrain_launcher.py --model yolov3_darknet53_advtrain --defense natural_advtrain --pretrained True
     ```
-    The script will save the model after each epoch. Both the model and optimizer are saved in `obj_detection/attack/outputs/models/` directory
+    The script will save the model after each epoch. Both the model and optimizer are saved in `obj_detection/attack/outputs/models/`.
 
 
 

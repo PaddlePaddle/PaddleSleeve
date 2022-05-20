@@ -16,8 +16,8 @@ the disturbance in the real world, including random rotation, translation, addin
 
 ```python
 cd PaddleSleeve/AdvBox/text_recognition/
-python tools/infer_rec.py -c configs/rec/ch_ppocr_v2.0/rec_chinese_lite_train_v2.0.yml -o           Global.pretrained_model=./ch_ppocr_mobile_v2.0_rec_train/best_accuracy.pdparams Global.load_static_weights=false Global.infer_img=./imgs_words/word_1.png
-python tools/ocr_eot_attack_demo.py -c configs/rec/ch_ppocr_v2.0/rec_chinese_lite_train_v2.0.yml -o   Global.pretrained_model=./ch_ppocr_mobile_v2.0_rec_train/best_accuracy.pdparams Global.load_static_weights=false Global.infer_img=./imgs_words/word_1.png
+python tools/infer_rec.py -c configs/rec/ch_ppocr_v2.0/rec_chinese_lite_train_v2.0.yml -o Global.pretrained_model=./ch_ppocr_mobile_v2.0_rec_train/best_accuracy.pdparams Global.load_static_weights=false Global.infer_img=./imgs_words/word_1.png
+python tools/ocr_eot_attack_demo.py -c configs/rec/ch_ppocr_v2.0/rec_chinese_lite_train_v2.0.yml -o Global.pretrained_model=./ch_ppocr_mobile_v2.0_rec_train/best_accuracy.pdparams Global.load_static_weights=false Global.infer_img=./imgs_words/word_1.png
 ```
 
 ## Image Compares

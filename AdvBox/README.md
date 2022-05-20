@@ -267,7 +267,7 @@ perturbation for PP-YOLO in the digital world. The demonstration is based on
 
 **Images used for Feed & Sniff**
 
-<table>
+<table align="center">
 <tr>
     <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
     <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>

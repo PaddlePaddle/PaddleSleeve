@@ -15,8 +15,8 @@ stands for segmentation confidence in BiseNetv2. The adversarial example trainin
 
 Run the following commandlines to adversarial example train and test:
 ```python
-  cd PaddleSleeve/AdvBox/img_segmentation
-  CUDA_VISIBLE_DEVICES=0 python image_ghosting_attack.py  --config configs/quick_start/bisenet_optic_disc_512x512_1k.yml  --model_path ./model/model_add_oppo2.pdparams  --image_path ./dataloader  --save_dir output
+cd PaddleSleeve/AdvBox/img_segmentation
+CUDA_VISIBLE_DEVICES=0 python image_ghosting_attack.py  --config configs/quick_start/bisenet_optic_disc_512x512_1k.yml  --model_path ./model/model_add_oppo2.pdparams  --image_path ./dataloader  --save_dir output
 ```
 
 The successful execution of the `image_ghosting_attack.py`, will produce the following outputs.

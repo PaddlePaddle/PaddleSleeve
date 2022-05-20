@@ -321,7 +321,6 @@ The successful execution of the `target_patch_eto_ppyolo.py`, will produce the f
 </table>
 The result shows that the confidence score of the object groundtruth label "car" is decreased from 0.98 to lower than 0.5, and the confidence scores of "motorcycle" and "truck" are increased to 0.89 and 0.61, and thus the predicted label is falsely detected as "motorcycle" and "truck". However, we find the "motorcycle" and "truck" are both the car-related labels. If we further want to make the "car" disappear or falsely detected as the lables unrelated to cars. We add the "motorcycle" and "truck" lable as the attacked label, combine them to the loss computation with different weights according to the confidence scores. The weights can be adjusted according to the objetcts you use. The example usage are as follows:
 
-    ```python
     pcls_3 = paddle.reshape(pcls[:, :, :, :, self.label_id], [b, anc*h*w])  # self.label_id: 3
     pcls_3 = paddle.fluid.layers.reduce_max(pcls_3, 1)
     pcls_3 = paddle.fluid.layers.reduce_sum(pcls_3, 0) # b, 1
@@ -334,7 +333,6 @@ The result shows that the confidence score of the object groundtruth label "car"
     pcls_8 = paddle.fluid.layers.reduce_max(pcls_8, 1) # b
     pcls_8 = paddle.fluid.layers.reduce_sum(pcls_8, 0) # b, 1
     C_target += 0.4*pcls_8
-    ```
     
 The improved results are as follows:
 <table align="center">

@@ -283,19 +283,20 @@ thus, the attack is able to succeed.
 ### Run Target Patch Adversarial Train
   After changing all `sync-bn` components into `bn`, run the following commandlines.
 
-    1. `cd PaddleSleeve/AdvBox/obj_detection/patch_attack`
+    1. cd PaddleSleeve/AdvBox/obj_detection/patch_attack
 
   **single attack**: respectively use ppyolo, yolov3 and ssd detection models:
 
-    2. `python target_patch_eto_ppyolo.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg`
+    2. python target_patch_eto_ppyolo.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg
  
-    3. `python target_patch_eto_yolov3.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
+    3. python target_patch_eto_yolov3.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg
 
-    4. `python target_patch_eto_ssd.py -c ../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_05.jpeg`
+    4. python target_patch_eto_ssd.py -c ../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_05.jpeg
 
   **ensemble attack**: using ppyolo and yolov3 detection models:
 
-    5. `python target_patch_eto_ensemble.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml,../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams,https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg`
+    5. python target_patch_eto_ensemble.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml,../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams,https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg
+    
  **Note**: the origin image size, the added patch size and position, and the object label shoud be manually set in `PaddleSleeve/AdvBox/obj_detection/patch_attack/patch_def/EOTB_car*.xml`.
 
 
@@ -319,7 +320,7 @@ The successful execution of the `target_patch_eto_ppyolo.py`, will produce the f
 </tr>
 </table>
 The result shows that the confidence score of the object groundtruth label "car" is decreased from 0.98 to lower than 0.5, and the confidence scores of "motorcycle" and "truck" are increased to 0.89 and 0.61, and thus the predicted label is falsely detected as "motorcycle" and "truck". However, we find the "motorcycle" and "truck" are both the car-related labels. If we further want to make the "car" disappear or falsely detected as the lables unrelated to cars. We add the "motorcycle" and "truck" lable as the attacked label, combine them to the loss computation with different weights according to the confidence scores. The weights can be adjusted according to the objetcts you use. The example usage are as follows:
-
+    ```python
     pcls_3 = paddle.reshape(pcls[:, :, :, :, self.label_id], [b, anc*h*w])  # self.label_id: 3
     pcls_3 = paddle.fluid.layers.reduce_max(pcls_3, 1)
     pcls_3 = paddle.fluid.layers.reduce_sum(pcls_3, 0) # b, 1
@@ -332,6 +333,8 @@ The result shows that the confidence score of the object groundtruth label "car"
     pcls_8 = paddle.fluid.layers.reduce_max(pcls_8, 1) # b
     pcls_8 = paddle.fluid.layers.reduce_sum(pcls_8, 0) # b, 1
     C_target += 0.4*pcls_8
+    ```
+    
 The improved results are as follows:
 <table align="center">
 <tr>

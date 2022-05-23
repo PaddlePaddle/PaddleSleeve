@@ -1,0 +1,27 @@
+{
+  "device": "cuda:0",
+  "MAX_EPOCHES": 60,
+
+  "dataset": {
+    "dataset_name": "SimLane",
+    "batch_size": 32,
+    "resize_shape": [512, 288]
+  },
+
+  "optim": {
+    "lr": 15e-2,
+    "momentum": 0.9,
+    "weight_decay": 1e-4,
+    "nesterov": true
+  },
+
+  "lr_scheduler": {
+    "warmup": 20,
+    "max_iter": 1500,
+    "min_lrs": 1e-10
+  },
+
+  "model": {
+    "scale_exist": 0.07
+  }
+}

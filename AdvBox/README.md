@@ -10,17 +10,42 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 (A command-line tool is given to generate adversarial examples with Zero-Coding which is inspired and based on FoolBox v1.)
 
-# Attack Methods
+## Attack Methods
 
-### PGD targeted attack
-<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:14%;" />
 
-### CW targeted attack
-<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:14%;" />
+| Adversarial Attack Methods                                    | White-Box | Black-Box | Ensemble  |  AdvTrain   |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--:|:--:|:--:|:--:|
+| [FGSM (FastGradientSignMethodAttack)](attacks/gradient_method.py)                | ✓  |   | ✓ | ✓ |
+| [FGSMT (FastGradientSignMethodTargetedAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
+| [BIM (BasicIterativeMethodAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
+| [ILCM (IterativeLeastLikelyClassMethodAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
+| [MI-FGSM (MomentumIteratorAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
+| [PGD (ProjectedGradientDescentAttack)](attacks/gradient_method.py)               | ✓  |   | ✓ | ✓ |
+| [CW_L2 (CWL2Attack)](attacks/cw.py)                                              | ✓  |   |   | ✓ |
+| [SinglePixelAttack](attacks/single_pixel_attack.py)                              |    | ✓ |   |   |
+| [HopSkipJumpAttack](attacks/hop_skip_jump_attack.py)                             |    | ✓ |   |   |
+| [GeneticPixelAttack](attacks/genetic_pixel_attack.py)                            |    | ✓ |   |   |
+| [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
+PGD targeted attack
+</p>
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/cw_adv.png", width=500><br>
+C/W targeted attack
+</p>
+
+
+
+
 
 ### Genetic Pixels attack
 Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixel Attack and utilizes genetic algorithm to enhance the performance. 
-<img src="./examples/image_cls/output/GPAttack.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/GPAttack.png", width=500><br>
+</p>
 
 **Usage:** 
 - **Command-line parameters**
@@ -32,16 +57,19 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
     : target class label, -1 if untargeted attack
     - `--max_pixels`  
     : the maximum number of pixels allowed to be changed. This is equivalent to the radius of Lp ball in L0
-    
-    
-    
-    
-### Square Attack (L2)
-**Untargeted Attack**
-<img src="./examples/image_cls/output/SquareAttackL2.png" style="zoom:14%;" />
 
-**Targeted Attack**
-<img src="./examples/image_cls/output/SquareAttackL2targeted.png" style="zoom:14%;" />
+        
+### Square Attack (L2)
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2.png", width=500><br>
+Untargeted Attack
+</p>
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2targeted.png", width=500><br>
+Targeted Attack
+</p>
+
 
 **Usage:** 
 - **Command-line parameters**
@@ -59,10 +87,15 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
  
  
  ### Square Attack (LInf)
-**Untargeted Attack**
-<img src="./examples/image_cls/output/SquareAttackLInf.png" style="zoom:14%;" />
-**Targeted Attack**
-<img src="./examples/image_cls/output/SquareAttackLInftargeted.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackLInf.png", width=500><br>
+Untargeted Attack
+</p>
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackLInftargeted.png", width=500><br>
+Targeted Attack
+</p>
 
 **Usage:** 
 - **Command-line parameters**
@@ -99,21 +132,7 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
     
     
 
-## Table of Adversarial Attack Methods
 
-| Adversarial Attack Methods                                    | White-Box | Black-Box | Ensemble  |  AdvTrain   |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--:|:--:|:--:|:--:|
-| [FGSM (FastGradientSignMethodAttack)](attacks/gradient_method.py)                | ✓  |   | ✓ | ✓ |
-| [FGSMT (FastGradientSignMethodTargetedAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
-| [BIM (BasicIterativeMethodAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
-| [ILCM (IterativeLeastLikelyClassMethodAttack)](attacks/gradient_method.py)       | ✓  |   | ✓ | ✓ |
-| [MI-FGSM (MomentumIteratorAttack)](attacks/gradient_method.py)                   | ✓  |   | ✓ | ✓ |
-| [PGD (ProjectedGradientDescentAttack)](attacks/gradient_method.py)               | ✓  |   | ✓ | ✓ |
-| [CW_L2 (CWL2Attack)](attacks/cw.py)                                              | ✓  |   |   | ✓ |
-| [SinglePixelAttack](attacks/single_pixel_attack.py)                              |    | ✓ |   |   |
-| [HopSkipJumpAttack](attacks/hop_skip_jump_attack.py)                             |    | ✓ |   |   |
-| [GeneticPixelAttack](attacks/genetic_pixel_attack.py)                            |    | ✓ |   |   |
-| [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
 ## To generate an AE in AdvBox
 
@@ -422,82 +441,50 @@ GaussianBlur denoise done
 3. Using GaussianBlur to denoise, the label of the denoising result is school bus.
 ```
 
-#### Qualitative result:
-<div align=center>
-<img src="./examples/image_cls/output/GaussianBlur_Denoising_Comparison.png" style="zoom:40%;"/>
-</div>
+#### Usage of the other denoising methods
 
-#### Usage of other denoising methods
-
-**Median Blur**
-```shell
-python imagenet_tutorial_fgsm_denoise.py --method='MedianBlur' --image_path='input/vase.png'
-```
-<div align=center>
-<img src="./examples/image_cls/output/MedianBlur_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
-
-**Mean Filter**
-```shell
-python imagenet_tutorial_fgsm_denoise.py --method='MeanFilter' --image_path='input/lion.png'
-```
-
-<div align=center>
-<img src="./examples/image_cls/output/MeanFilter_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
-
-
-**Box Filter**
-```shell
-python imagenet_tutorial_fgsm_denoise.py --method='BoxFilter' --image_path='input/hourglass.png'
-```
-<div align=center>
-<img src="./examples/image_cls/output/BoxFilter_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
-
-
-**Bilateral Filter**
-```shell
-python imagenet_tutorial_fgsm_denoise.py --method='BilateralFilter' --image_path='input/crate.png'
-```
-<div align=center>
-<img src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
-
-
-**Pixel Deflection**
-```shell
-python imagenet_tutorial_fgsm_denoise.py --method='PixelDeflection' --image_path='input/malamute.png'
-```
-<div align=center>
-<img src="./examples/image_cls/output/PixelDeflection_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
-
-
-
-**JPEG Compression**
-```shell
-python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path='input/schoolbus.png'
-```
-<div align=center>
-<img src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
-
-
-
-**Feature Squeezing**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='FeatureSqueezing' --image_path='input/hourglass.png'
 ```
+<p align="center">
+<img align="center" src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png", width=500><br>
+</p>
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/FeatureSqueezing_effect_Comparison.png", width=500><br>
+Comparing the effect of FeatureSqueezing choosing different bit-length
+</p>
+
+##### Denoised results:
+                                                                  
+                                      
 <div align=center>
-<img src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png" width = "640" height = "400" />
+<img src="./examples/image_cls/output/MedianBlur_Denoising_Comparison.png" width=550;" />
+</div><br/>    
+               
+<div align=center>
+<img src="./examples/image_cls/output/GaussianBlur_Denoising_Comparison.png" width=550;"/>
+</div>                                                                                                                                                                 
+<div align=center>
+<img src="./examples/image_cls/output/MeanFilter_Denoising_Comparison.png" width=550;" />
 </div><br/>
 
-*Comparing the effect of FeatureSqueezing choosing different bit-length*
+<div align=center>
+<img src="./examples/image_cls/output/BoxFilter_Denoising_Comparison.png" width=550;" />
+</div><br/>
 
 <div align=center>
-<img src="./examples/image_cls/output/FeatureSqueezing_effect_Comparison.png" width = "640" height = "400" />
+<img src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png" width=550;" />
 </div><br/>
+
+<div align=center>
+<img src="./examples/image_cls/output/PixelDeflection_Denoising_Comparison.png" width=550;" />
+</div><br/>
+
+<div align=center>
+<img src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png" width=550;" />
+</div><br/>
+
 
 ### On the mini-imagenet dataset
 Given the mini-imagenet dataset, the FGSM is first used for generating the adversarial example (AE), and then the denoising method is applied to the input image and the AE.
@@ -530,10 +517,5 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | ResizePadding   | 43.9%  | 7.3%  | 33.0% | 42.8% |
 | FeatureSqueezing (3 bits)| 43.9%  | 7.3%  | 11.6% | 35.1% |
 
-
-
 # Contributing
 We appreciate your contributions!
-
-# Citing
-If you find this toolbox useful for your research, please consider citing.

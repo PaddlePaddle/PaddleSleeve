@@ -277,6 +277,171 @@ for batch_id, data in enumerate(train_loader()):
     x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
 ```
 
+## Parallel Training
+Advbox also supports adversarial training on multi-card devices. The following table summarizes all adversarial training methods in Advbox.
+
+| Adversarial Training Methods                | Multi-method Training | Multi-card Training |
+|---------------------------------------------|:--:|:--:|
+| Natural Adversarial Training                | ✓  | ✓ |
+| TRADES                                      | ✓  |   |
+| Adversarial Weights Perturbation            |    | ✓ |
+| FreeAT                                      |    | ✓ |
+
+### **Multi-card Training Usage**
+
+- ### Data Preparation
+   The MINIIMAGENET class in Advbox inherits `paddle.io.Dataset` and can be directly incorporated into adversarial training. Instance of MINIIMAGENET reads `.pkl` file. A cached mini-imagenet pickle file can be downloaded from **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)**. Users need to change the following lines in the demo scripts to the path to their own dataset. 
+   ```python
+    ... 
+   
+    # Load dataset
+    transform = T.Compose([T.Normalize(MEAN, STD, data_format='CHW')])
+    
+    # Change to your dataset 
+    train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
+                                      'dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
+    val_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
+                                    'dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
+                                
+    ...
+    ```
+    
+ - **Re-split Dataset**
+    
+    Note that the train, val, and test sets in the original paper contain completely seperate classes , so users may want to re-split the dataset before use. Advbox provides a tool in `examples/dataset/split.py` that splits the dataset and generates corresponding `.pkl` file. To use it, users need to download the entire mini-imagenet dataset, including all images and three annotation files in `.csv` format. These could be downloaded from **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing)**. Once finished downloading the dataset, modify the following line in the code and run the script. 
+    ```python
+    
+    # Change to the path on your own device
+    dataset_dir = '/Path to Your Dataset/'
+    image_dir = '/Path to Your Images/'
+    train_save_path = '/Place to Save Cached TrainSet/'
+    test_save_path = '/Place to Save Cached TestSet/'
+    ```
+    
+    Run the split tool.
+    ```
+    python examples/dataset/split.py
+    ```
+
+- ### Quick Start from Command-Line
+   Parallel adversarial training tasks can be easily launched from command-line. The following command launches natural adversarial train on Resnet50 model using cifar10 dataset.
+   
+   ```
+   python -m paddle.distributed.launch defences/advtrain_natural.py
+   ```
+   
+   **Command-Line Parameters**
+   - `--model` 
+   : the CNN model to be trained. Currently support mobilenet_v1 and resnet seriers
+   - `--dataset`
+   : the dataset to use in training. Choose from `cifar10` or `mini-imagenet`
+   - `--epoch`
+   : number of epochs 
+   - `--weights`
+   : specify the model weights to load. Used when finetuning pretrained models or resuming from previous trainings
+   - `opt_weights`
+   : specify optimizer parameters when resuming trainings
+   - `--save_path`
+   : directory to save model after training
+   - Other training schedules, including choices of batch_size, optimizer, learning rate, scheduler, regularizer, etc., can also be specified by corresponding flags
+
+    **Examples**
+    
+    The Following commands launches adversarial weights perturbation training on 4 cards. This task trains resnet50 model on mini-imagenet dataset, with Adam optimizer used.
+    ```
+    export CUDA_VISIBLE_DEVICES=0,1,2,3
+    python -m paddle.distributed.launch defences/advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
+    
+- ### Incorporate into Existing Training Process
+
+    It is also possible to launch the adversarial training process by directly calling the correspoding training method. This way provides more flexibility in configuring the training process. Models, datasets, and other method-specific parameters are all passed as function arguments. 
+
+- **Parameters**
+
+    - **Natural Advtrain**
+    ```python 
+        from defences.advtrain_natural import adversarial_train_natural
+        from defences.pgd_perturb import PGDTransform
+        training_config = {'epoch_num': 60,  # Number of epochs 
+                           'advtrain_start_num': 20,  # Adversarial training may start later
+                           'batch_size': 256,
+                           'adversarial_trans': PGDTransform(model, p=0.1),  # Instance of PGDTransform class that generate AE
+                           'optimizer': paddle.optimizer.Adam(learning_rate=0.0005,  # Instance of paddle optimizer
+                                                              parameters=model.parameters()),
+                           'metrics': paddle.metric.Accuracy(),  # Instance of paddle metric to evaluate model during training
+                           'weights': None,  # Weights from previous training. None if new training
+                           'opt_weights': None}
+
+        save_path = os.path.join(os.path.dirname(__file__), "output/mini_imagenet_demo_advtrain_natural")
+        adversarial_train_natural(model=m,
+                                  train_set=train_dataset,
+                                  test_set=test_dataset,
+                                  save_path=save_path,
+                                  **training_config)
+    ```
+    A ready-to-use demo script is available in `examples/image_adversarial_training/mini_imagenet_tutorial_advtrain_natural.py`. No additional arguments or parameters need to be specified. Simply launch it by the following command to get first experience with adversarial training. 
+    ```
+    cd Advbox
+    export CUDA_VISIBLE_DEVICES=0,1,2,3
+    python -m paddle.distributed.launch examples/image_adversarial_training/mini_imagenet_tutorial_parallel_advtrain_natural.py
+    ```
+    
+    - **FreeAT**
+    ```python
+        from defences.advtrain_free import free_advtrain
+        training_config = {'epoch_num': 20,  # Number of epochs 
+                           'advtrain_start_num': 0,  # Adversarial training may start later
+                           'batch_size': 256,
+                           'steps': 8,  # Number of iterations for a mini-batch of data 
+                           'optimizer': paddle.optimizer.Adam(learning_rate=0.0005,  # Instance of paddle optimizer
+                                                              parameters=model.parameters()),
+                           'metrics': paddle.metric.Accuracy(),  # Instance of paddle metric to evaluate model during training
+                           'weights': None,  # Weights from previous training. None if new training
+                           'opt_weights': None}
+
+        save_path = os.path.join(os.path.dirname(__file__), "output/mini_imagenet_demo_freeat")
+        free_advtrain(model=m,
+                      train_set=train_dataset,
+                      test_set=test_dataset,
+                      save_path=save_path,
+                      **training_config)
+    ```
+    A demo script is available here. `examples/image_adversarial_training/mini_imagenet_tutorial_parallel_freeat.py`
+    
+    - **AWP**
+    ```python
+        from defences.advtrain_awp_mod_para import adversarial_train_awp
+        from defences.pgd_perturb import PGDTransform
+        training_config = {'epoch_num': 60,  # Number of epochs 
+                           'advtrain_start_num': 20,  # Adversarial training may start later
+                           'batch_size': 256,
+                           'gamma': 0.01,  # Amplitude of adversarial weights perturbation
+                           'adversarial_trans': PGDTransform(model, p=0.1),  # Instance of PGDTransform class that generate AE
+                           'optimizer': paddle.optimizer.Adam(learning_rate=0.0005,  # Instance of paddle optimizer
+                                                              parameters=model.parameters()),
+                           'metrics': paddle.metric.Accuracy(),  # Instance of paddle metric to evaluate model during training
+                           'weights': None,  # Weights from previous training. None if new training
+                           'opt_weights': None}
+
+        save_path = os.path.join(os.path.dirname(__file__), "output/mini_imagenet_demo_awp")
+        adversarial_train_awp(model=m,
+                              train_set=train_dataset,
+                              test_set=test_dataset,
+                              save_path=save_path,
+                              **training_config)
+    ```
+    A demo script is available here. `examples/image_adversarial_training/mini_imagenet_tutorial_parallel_awp.py`
+    
+- ### Resnet Robustness Under Various Adversarial Training Settings
+    | Evaluation-Method | Mini-ImageNet-PGD-10 (L2 Norm) | Mini-ImageNet-PGD-10 (Linf Norm) |
+    | :----: | :----: | :----: |
+    |   natural_acc: _ / AE_acc: _ / fooling_rate: _  |   resnet50   |   resnet50   |
+    |  No AdvTrain                             |  0.881 / 0.026 / 0.970 |  0.881 / 0.006 / 0.993 |
+    |  Natural AdvTrain(p=0.1, PGD(default))   |  0.847 / 0.240 / 0.717 |  0.847 / 0.519 / 0.387 |
+    |  FreeAT(steps=8)                         |  0.860 / 0.168 / 0.805 |  0.860 / 0.533 / 0.380 |
+    |  AWP(gamma=0.02)                         |  0.843 / 0.501 / 0.406 |  0.843 / 0.281 / 0.667 |
+
+
 # Adversarial Perturbation for Object Detection
 Adversarial perturbation for object detection, usually grouped into digital and 
 physical classes, is used for adversarial training and evaluating the robustness 

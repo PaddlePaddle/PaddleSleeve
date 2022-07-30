@@ -323,6 +323,177 @@ for batch_id, data in enumerate(train_loader()):
     x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
 ```
 
+## 多卡对抗训练
+部分对抗训练方法同时支持在多GPU上的分布式训练。下表总结了各种不同训练方法支持的功能情况。
+
+| 对抗训练方法                | 多对抗攻击方法训练 | 多卡训练 |
+|---------------------------------------------|:--:|:--:|
+| Natural Adversarial Training                | ✓  | ✓ |
+| TRADES                                      | ✓  |   |
+| Adversarial Weights Perturbation            |    | ✓ |
+| FreeAT                                      |    | ✓ |
+
+### **多卡训练使用方法**
+
+- ### 数据准备
+   Advbox 中提供的MINIIMAGENET类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中。该类别的输入是`.pkl`文件，提前制作好的数据集pickle文件可以从 **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)** 官网下载。在开始训练前需要修改代码中的相应路径。
+   
+   ```python
+    ... 
+   
+    # Load dataset
+    transform = T.Compose([T.Normalize(MEAN, STD, data_format='CHW')])
+    
+    # Change to your dataset 
+    train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
+                                      'dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
+    val_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
+                                    'dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
+                                
+    ...
+    ```
+    
+ - **重新划分数据集**
+    
+    需要注意，原论文中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`examples/dataset/split.py`中提供了相关工具。若要重新划分，则需首先下载完整的mini-imagenet数据集，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing)** 下载。下载完成后修改`split.py`脚本里的对应路径并直接运行即可。脚本会自动生成`.pkl`格式的数据集文件并保存到指定路径。
+  
+    ```python
+    
+    # Change to the path on your own device
+    dataset_dir = '/Path to Your Dataset/'
+    image_dir = '/Path to Your Images/'
+    train_save_path = '/Place to Save Cached TrainSet/'
+    test_save_path = '/Place to Save Cached TestSet/'
+    ```
+    
+    运行脚本
+    ```
+    python examples/dataset/split.py
+    ```
+
+- ### 命令行启动对抗训练
+
+   Advbox中提供的多卡对抗训练方法支持命令行启动。下列指令会启动natrual advtrain训练，默认使用当前可见的全部GPU。
+   
+   ```
+   python -m paddle.distributed.launch defences/advtrain_natural.py
+   ```
+   
+   **Command-Line Parameters**
+   - `--model` 
+   : 用于对抗训练的图像分类模型，目前支持mobilenet和resnet系列模型
+   - `--dataset`
+   : 训练中使用的数据集，支持cifar-10和mini-imagenet
+   - `--epoch`
+   : 训练轮数
+   - `--weights`
+   : 模型要加载的预训练权重，若要恢复中断的训练可通过该参数指定需要恢复的模型参数
+   - `opt_weights`
+   : 指定恢复训练时要加载的优化器参数
+   - `--save_path`
+   : 模型的保存路径
+   - 其他的训练配置，包括batch_size，优化器的选择，学习率，正则化等等都可以通过相应的参数来声明。
+ 
+ 
+    **演示**
+    
+    下列指令将会在4张卡上启动awp训练。训练中使用resnet50模型和mini-imagenet数据集。
+    ```
+    export CUDA_VISIBLE_DEVICES=0,1,2,3
+    python -m paddle.distributed.launch defences/advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
+    
+- ### 在代码中调用训练方法
+
+    对抗训练方法也可以从用户自己的训练代码中直接调用。这种使用方法可以让用户更灵活的配置自己的训练。
+    
+- **参数**
+
+    - **Natural Advtrain**
+    ```python 
+        from defences.advtrain_natural import adversarial_train_natural
+        from defences.pgd_perturb import PGDTransform
+        training_config = {'epoch_num': 60,  # Number of epochs 
+                           'advtrain_start_num': 20,  # Adversarial training may start later
+                           'batch_size': 256,
+                           'adversarial_trans': PGDTransform(model, p=0.1),  # Instance of PGDTransform class that generate AE
+                           'optimizer': paddle.optimizer.Adam(learning_rate=0.0005,  # Instance of paddle optimizer
+                                                              parameters=model.parameters()),
+                           'metrics': paddle.metric.Accuracy(),  # Instance of paddle metric to evaluate model during training
+                           'weights': None,  # Weights from previous training. None if new training
+                           'opt_weights': None}
+
+        save_path = os.path.join(os.path.dirname(__file__), "output/mini_imagenet_demo_advtrain_natural")
+        adversarial_train_natural(model=m,
+                                  train_set=train_dataset,
+                                  test_set=test_dataset,
+                                  save_path=save_path,
+                                  **training_config)
+    ```
+    在`examples/image_adversarial_training/`目录下提供了一个`mini_imagenet_demo_parallel_advtrain_natural.py`的展示脚本。无需添加另外的参数或命令即可直接启动。用户只需运行下列指令即可初步感受natural advtrain对抗训练。 
+    ```
+    cd Advbox
+    export CUDA_VISIBLE_DEVICES=0,1,2,3
+    python -m paddle.distributed.launch examples/image_adversarial_training/mini_imagenet_tutorial_parallel_advtrain_natural.py
+    ```
+    
+    - **FreeAT**
+    ```python
+        from defences.advtrain_free import free_advtrain
+        training_config = {'epoch_num': 20,  # Number of epochs 
+                           'advtrain_start_num': 0,  # Adversarial training may start later
+                           'batch_size': 256,
+                           'steps': 8,  # Number of iterations for a mini-batch of data 
+                           'optimizer': paddle.optimizer.Adam(learning_rate=0.0005,  # Instance of paddle optimizer
+                                                              parameters=model.parameters()),
+                           'metrics': paddle.metric.Accuracy(),  # Instance of paddle metric to evaluate model during training
+                           'weights': None,  # Weights from previous training. None if new training
+                           'opt_weights': None}
+
+        save_path = os.path.join(os.path.dirname(__file__), "output/mini_imagenet_demo_freeat")
+        free_advtrain(model=m,
+                      train_set=train_dataset,
+                      test_set=test_dataset,
+                      save_path=save_path,
+                      **training_config)
+    ```
+    对应的展示脚本为 `examples/image_adversarial_training/mini_imagenet_demo_parallel_freeat.py`。
+    
+    - **AWP**
+    ```python
+        from defences.advtrain_awp_mod_para import adversarial_train_awp
+        from defences.pgd_perturb import PGDTransform
+        training_config = {'epoch_num': 60,  # Number of epochs 
+                           'advtrain_start_num': 20,  # Adversarial training may start later
+                           'batch_size': 256,
+                           'gamma': 0.01,  # Amplitude of adversarial weights perturbation
+                           'adversarial_trans': PGDTransform(model, p=0.1),  # Instance of PGDTransform class that generate AE
+                           'optimizer': paddle.optimizer.Adam(learning_rate=0.0005,  # Instance of paddle optimizer
+                                                              parameters=model.parameters()),
+                           'metrics': paddle.metric.Accuracy(),  # Instance of paddle metric to evaluate model during training
+                           'weights': None,  # Weights from previous training. None if new training
+                           'opt_weights': None}
+
+        save_path = os.path.join(os.path.dirname(__file__), "output/mini_imagenet_demo_awp")
+        adversarial_train_awp(model=m,
+                              train_set=train_dataset,
+                              test_set=test_dataset,
+                              save_path=save_path,
+                              **training_config)
+    ```
+    对应的展示脚本为 `examples/image_adversarial_training/mini_imagenet_tutorial_parallel_awp.py`。
+    
+    
+- ### 不同对抗训练效果对比
+| 对抗训练 | Mini-ImageNet-PGD-10 (L2) | Mini-ImageNet-PGD-10 (Linf) |
+| :----: | :----: | :----: |
+|   natural_acc: _ / AE_acc: _ / fooling_rate: _  |   resnet50   |   resnet50   |
+|  No AdvTrain                             |  0.881 / 0.026 / 0.970 |  0.881 / 0.006 / 0.993 |
+|  Natural AdvTrain(p=0.1, PGD(default))   |  0.847 / 0.240 / 0.717 |  0.847 / 0.519 / 0.387 |
+|  FreeAT(steps=8)                         |  0.860 / 0.168 / 0.805 |  0.860 / 0.533 / 0.380 |
+|  AWP(gamma=0.02)                         |  0.843 / 0.501 / 0.406 |  0.843 / 0.281 / 0.667 |
+
+
+
 # 目标检测器的对抗扰动
 目标检测器的对抗扰动主要用于目标检测器的对抗训练和鲁棒性测评，主要分为电子世界下和物理世界下的对抗扰动。
 这里我们提供一种电子世界下对PP-YOLO目标检测器扰动的演示。该演示基于 **[PaddleDetection](#https://github.com/PaddlePaddle/PaddleDetection)** 项目。

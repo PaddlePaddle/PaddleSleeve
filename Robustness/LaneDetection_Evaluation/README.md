@@ -22,9 +22,9 @@ Each scene gives lane data of different intensities, such as the size of graffit
 
 ## Dataset Link
 
-  Data Files (list and images): [https://simlane.s3.amazonaws.com/simlane_data_list.zip](https://simlane.s3.amazonaws.com/simlane_data_list.zip)
+  Data Files (list and images): [https://meiyan.cdn.bcebos.com/simlane/simlane_data_list.zip](https://meiyan.cdn.bcebos.com/simlane/simlane_data_list.zip)
   
-  Test Labels: [https://meiyan.cdn.bcebos.com/simlane/simlane_data_list.zip](https://meiyan.cdn.bcebos.com/simlane/simlane_test_label.zip)
+  Test Labels: [https://meiyan.cdn.bcebos.com/simlane/simlane_test_label.zip](https://meiyan.cdn.bcebos.com/simlane/simlane_test_label.zip)
 
 Please download and unzip the files in one folder, which later is represented as `Dataset_Path`. Then modify the path of `Dataset_Path` in `config.py`.
 

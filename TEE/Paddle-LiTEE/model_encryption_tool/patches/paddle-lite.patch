@@ -1,0 +1,535 @@
+diff --git a/cmake/configure.cmake b/cmake/configure.cmake
+index 3e25a41a3..266f7afcc 100644
+--- a/cmake/configure.cmake
++++ b/cmake/configure.cmake
+@@ -12,6 +12,8 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++add_definitions(-DRAPIDJSON_HAS_STDSTRING)
++
+ if(NOT WITH_PYTHON)
+     add_definitions(-DPADDLE_NO_PYTHON)
+ endif(NOT WITH_PYTHON)
+diff --git a/lite/api/light_api.cc b/lite/api/light_api.cc
+index 798753a84..be6cf1f44 100644
+--- a/lite/api/light_api.cc
++++ b/lite/api/light_api.cc
+@@ -23,24 +23,15 @@ namespace paddle {
+ namespace lite {
+ 
+ void LightPredictor::Build(const std::string& lite_model_file,
++                           const std::string& lite_config_file,
+                            bool model_from_memory) {
+   if (model_from_memory) {
+     LoadModelNaiveFromMemory(
+         lite_model_file, scope_.get(), program_desc_.get());
+   } else {
+-    LoadModelNaiveFromFile(lite_model_file, scope_.get(), program_desc_.get());
++    LoadModelNaiveFromFile(lite_model_file, scope_.get(), program_desc_.get(), lite_config_file);
+   }
+ 
+-  // For weight quantization of post training, load the int8/16 weights
+-  // for optimized model, and dequant it to fp32.
+-  DequantizeWeight();
+-#ifdef ENABLE_ARM_FP16
+-  // fp16 Weight convert
+-  WeightFP32ToFP16();
+-#endif
+-  BuildRuntimeProgram(program_desc_);
+-  PrepareFeedFetch();
+-  program_desc_.reset();
+ }
+ 
+ void LightPredictor::Build(const std::string& model_dir,
+diff --git a/lite/api/light_api.h b/lite/api/light_api.h
+index a239de46c..9dd8ea27d 100644
+--- a/lite/api/light_api.h
++++ b/lite/api/light_api.h
+@@ -44,10 +44,11 @@ class LITE_API LightPredictor {
+   // model file or buffer,`model_from_memory` refers to whther to load model
+   // from memory.
+   LightPredictor(const std::string& lite_model_file,
++                 const std::string& lite_config_file, 
+                  bool model_from_memory = false) {
+     scope_ = std::make_shared<Scope>();
+     program_desc_ = std::make_shared<cpp::ProgramDesc>();
+-    Build(lite_model_file, model_from_memory);
++    Build(lite_model_file, lite_config_file, model_from_memory);
+   }
+ 
+   // NOTE: This is a deprecated API and will be removed in latter release.
+@@ -100,6 +101,7 @@ class LITE_API LightPredictor {
+   void CheckInputValid();
+ 
+   void Build(const std::string& lite_model_file,
++             const std::string& lite_config_file,
+              bool model_from_memory = false);
+ 
+   // NOTE: This is a deprecated API and will be removed in latter release.
+diff --git a/lite/api/light_api_impl.cc b/lite/api/light_api_impl.cc
+index 2b5727d16..1573f2a96 100644
+--- a/lite/api/light_api_impl.cc
++++ b/lite/api/light_api_impl.cc
+@@ -40,7 +40,9 @@ void LightPredictorImpl::Init(const lite_api::MobileConfig& config) {
+                            config.is_model_from_memory(),
+                            lite_api::LiteModelType::kNaiveBuffer));
+   } else {
++    VLOG(4) << "lite_config_file: " << config.lite_config_file();
+     raw_predictor_.reset(new LightPredictor(config.lite_model_file(),
++                                            config.lite_config_file(),
+                                             config.is_model_from_memory()));
+   }
+   mode_ = config.power_mode();
+diff --git a/lite/api/paddle_api.cc b/lite/api/paddle_api.cc
+index 6f811af9a..86d524e6b 100644
+--- a/lite/api/paddle_api.cc
++++ b/lite/api/paddle_api.cc
+@@ -561,6 +561,9 @@ void MobileConfig::set_model_from_buffer(const std::string &x) {
+   lite_model_file_ = x;
+   model_from_memory_ = true;
+ }
++void MobileConfig::set_config_from_file(const std::string& x) {
++	lite_config_file_ = x;
++}
+ void MobileConfig::set_model_buffer(const char *model_buffer,
+                                     size_t model_buffer_size,
+                                     const char *param_buffer,
+diff --git a/lite/api/paddle_api.h b/lite/api/paddle_api.h
+index 92c542da7..d084e9673 100644
+--- a/lite/api/paddle_api.h
++++ b/lite/api/paddle_api.h
+@@ -360,6 +360,8 @@ class LITE_API MobileConfig : public ConfigBase {
+ 
+   // model data readed from file or memory buffer in combined format.
+   std::string lite_model_file_;
++  // config file for arm trustzone
++  std::string lite_config_file_;
+ 
+   // NOTE: This is a deprecated variable and will be removed in latter release.
+   std::string model_buffer_;
+@@ -371,8 +373,11 @@ class LITE_API MobileConfig : public ConfigBase {
+   // buffer
+   void set_model_from_file(const std::string& x);
+   void set_model_from_buffer(const std::string& x);
++  // set config from file
++  void set_config_from_file(const std::string& x);
+   // return model data in lite_model_file_, which is in combined format.
+   const std::string& lite_model_file() const { return lite_model_file_; }
++  const std::string& lite_config_file() const { return lite_config_file_; }
+ 
+   // return model_from_memory_, which indicates whether to load model from
+   // memory buffer.
+diff --git a/lite/api/paddle_place.cc b/lite/api/paddle_place.cc
+index 8853baae8..028e974b8 100644
+--- a/lite/api/paddle_place.cc
++++ b/lite/api/paddle_place.cc
+@@ -131,7 +131,8 @@ const std::string& TargetRepr(TargetType target) {
+                                               "kAPU",
+                                               "kHuaweiAscendNPU",
+                                               "kImaginationNNA",
+-                                              "kIntelFPGA"};
++                                              "kIntelFPGA",
++                                              "kARMTrustZone"};
+   auto x = static_cast<int>(target);
+   CHECK_LT(x, static_cast<int>(TARGET(NUM)));
+   return target2string[x];
+@@ -193,7 +194,8 @@ std::set<TargetType> ExpandValidTargets(TargetType target) {
+                                                TARGET(kFPGA),
+                                                TARGET(kHuaweiAscendNPU),
+                                                TARGET(kImaginationNNA),
+-                                               TARGET(kIntelFPGA)});
++                                               TARGET(kIntelFPGA),
++											   TARGET(kARMTrustZone)});
+   if (target == TARGET(kAny)) {
+     return valid_set;
+   }
+diff --git a/lite/api/paddle_place.h b/lite/api/paddle_place.h
+index c62ed412e..9e769375c 100644
+--- a/lite/api/paddle_place.h
++++ b/lite/api/paddle_place.h
+@@ -60,7 +60,8 @@ enum class TargetType : int {
+   kHuaweiAscendNPU = 14,
+   kImaginationNNA = 15,
+   kIntelFPGA = 16,
+-  NUM = 17,  // number of fields.
++  kARMTrustZone = 17,
++  NUM = 18,  // number of fields.
+ };
+ enum class PrecisionType : int {
+   kUnk = 0,
+diff --git a/lite/model_parser/CMakeLists.txt b/lite/model_parser/CMakeLists.txt
+index ac2bae162..331eb72ec 100644
+--- a/lite/model_parser/CMakeLists.txt
++++ b/lite/model_parser/CMakeLists.txt
+@@ -18,6 +18,15 @@ if(NOT LITE_ON_MOBILE AND NOT LITE_ON_TINY_PUBLISH)
+     endif(WITH_TESTING)
+ endif()
+ 
++find_library(libencrypt_model_file libencrypt_model.a ${PADDLE_SOURCE_DIR}/lite/model_parser/ NO_DEFAULT_PATH)
++if(libencrypt_model_file)
++	add_library(encrypt_model STATIC IMPORTED GLOBAL)
++	set_property(TARGET encrypt_model PROPERTY IMPORTED_LOCATION ${libencrypt_model_file})
++	message(STATUS "encrypt model library imported: ${libencrpyt_model_file}")
++else()
++	message(WARNING "Cannot find encrypt model library")
++endif()
++
+ if (NOT LITE_ON_TINY_PUBLISH)
+     lite_cc_library(compatible_pb SRCS compatible_pb.cc
+       DEPS ${cpp_wrapper} ${naive_wrapper} ${pb_wrapper} framework_proto fbs_io)
+@@ -31,6 +40,7 @@ lite_cc_library(model_parser SRCS model_parser.cc DEPS
+     compatible_pb
+     memory
+     paddle_api
++	encrypt_model
+     CUDA_DEPS target_wrapper_cuda)
+ lite_cc_test(test_compatible_pb SRCS compatible_pb_test.cc DEPS compatible_pb)
+ 
+diff --git a/lite/model_parser/model_parser.cc b/lite/model_parser/model_parser.cc
+index 9f89bee79..a932ed660 100644
+--- a/lite/model_parser/model_parser.cc
++++ b/lite/model_parser/model_parser.cc
+@@ -24,6 +24,7 @@
+ #include "lite/core/tensor.h"
+ #include "lite/core/variable.h"
+ #include "lite/core/version.h"
++#include "lite/core/program.h"
+ #include "lite/model_parser/base/apis.h"
+ #include "lite/model_parser/flatbuffers/io.h"
+ #include "lite/model_parser/pb/tensor_io.h"
+@@ -37,6 +38,21 @@
+ #include "lite/model_parser/pb/var_desc.h"
+ #endif
+ #include "lite/utils/io.h"
++
++#include "lite/utils/rapidjson/document.h"
++#include "lite/utils/rapidjson/istreamwrapper.h"
++#include "lite/utils/rapidjson/writer.h"
++#include "lite/utils/rapidjson/stringbuffer.h"
++#include "lite/utils/rapidjson/ostreamwrapper.h"
++
++extern "C" void generate_signed_config(const char *json_str, int len);
++
++extern "C" void encrypt_tensor(const char *plaintext, char *ciphertext, int text_len,
++							   unsigned int cmd_idx, const char *op_name, int on_len,
++							   const char *protected_tensor, int pt_len);
++
++extern "C" void write_tee_config();
++
+ namespace paddle {
+ namespace lite {
+ #ifndef LITE_ON_TINY_PUBLISH
+@@ -770,41 +786,25 @@ void LoadModelNaiveFromMemory(const std::string &model_buffer,
+ 
+ void LoadModelNaiveFromFile(const std::string &filename,
+                             Scope *scope,
+-                            cpp::ProgramDesc *cpp_prog) {
++                            cpp::ProgramDesc *cpp_prog,
++                            const std::string &config_file) {
+   CHECK(cpp_prog);
+   CHECK(scope);
+-  // ModelFile
+-  const std::string prog_path = filename;
+-  // Offset
+-  model_parser::BinaryFileReader reader(filename, 0);
++  if (config_file.empty()) {
++    model_parser::BinaryFileReader reader(filename, 0);
++    uint16_t meta_version;
++    reader.Read(&meta_version, sizeof(uint16_t));
++	VLOG(4) << "auto generate config file";
++    GenerateUserConfig(&reader, scope, cpp_prog, meta_version);
++	return ;
++  }
+ 
+-  // (1)get meta version
++  model_parser::BinaryFileReader reader(filename, 0);
+   uint16_t meta_version;
+   reader.Read(&meta_version, sizeof(uint16_t));
+   VLOG(4) << "Meta_version:" << meta_version;
+-
+-  switch (meta_version) {
+-    case 0:
+-#ifndef LITE_ON_TINY_PUBLISH
+-      LoadModelNaiveV0FromFile(filename, scope, cpp_prog);
+-#else
+-      LOG(FATAL) << "Paddle-Lite v2.7 has upgraded the naive-buffer model "
+-                    "format. Please use the OPT to generate a new model. "
+-                    "Thanks!";
+-#endif
+-      break;
+-    case 1:
+-      LoadModelFbsFromFile(&reader, scope, cpp_prog, 1);
+-      break;
+-    case 2:
+-      LoadModelFbsFromFile(&reader, scope, cpp_prog, 2);
+-      break;
+-    default:
+-      LOG(FATAL) << "The model format cannot be recognized. Please make sure "
+-                    "you use the correct interface and model file.";
+-      break;
+-  }
+-  VLOG(4) << "Load naive buffer model in '" << filename << "' successfully";
++  VLOG(4) << "config_file: " << config_file;
++  LoadModelFbsFromFile(&reader, scope, cpp_prog, meta_version, config_file);
+ }
+ #ifndef LITE_ON_TINY_PUBLISH
+ void LoadModelNaiveV0FromFile(const std::string &filename,
+@@ -861,10 +861,206 @@ void LoadModelNaiveV0FromFile(const std::string &filename,
+   VLOG(4) << "Load naive buffer model in '" << filename << "' successfully";
+ }
+ #endif  // LITE_ON_TINY_PUBLISH
++
++void EncryptTensor(Scope *scope,
++                   cpp::ProgramDesc *cpp_prog,
++		           const std::string &config_file) {
++  std::ifstream ifs(config_file);
++  CHECK(ifs.is_open()) << "Error opening config file";
++  rapidjson::IStreamWrapper isw(ifs);
++  // read and parse config.json
++  rapidjson::Document d;
++  d.ParseStream(isw);
++  rapidjson::StringBuffer buffer;
++  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
++  d.Accept(writer);
++  CHECK(!d.HasParseError()) << d.GetParseError();
++  std::string json_str(buffer.GetString());
++  VLOG(4) << "Use rapidjson to read user config";
++  VLOG(4) << json_str;
++  // generate TEE config file
++  VLOG(4) << "Generate TEE config in CA";
++  //std::cin.get();
++  generate_signed_config(json_str.c_str(), json_str.size());
++
++  if (d.HasMember("op_list")) {
++    const rapidjson::Value &op_list = d["op_list"];
++    CHECK(op_list.IsArray());
++     
++	unsigned int cmd_idx = 0;
++
++    // modify kernel type
++    auto block_size = cpp_prog->BlocksSize();
++    CHECK(block_size) << "No block found!";
++    auto block_desc = cpp_prog->GetBlock<cpp::BlockDesc>(kRootBlockIdx);
++
++	for (auto &o : op_list.GetArray()) {
++      const int op_idx = o["index"].GetInt(); // op index
++      const std::string name = o["name"].GetString(); // op name
++	  VLOG(4) << "op name: " << name;
++      auto op_desc = block_desc->GetOp<cpp::OpDesc>(op_idx);
++      CHECK(op_desc);
++      if (op_desc->HasAttr(kKernelTypeAttr)) {
++        auto kernel_type = op_desc->GetAttr<std::string>(kKernelTypeAttr);
++        VLOG(4) << "Kernel Type: " << kernel_type;
++		// TODO: modify kernel type considering precision
++        std::string new_type = name + "/def/19/1/1";
++        op_desc->SetAttr<std::string>(kKernelTypeAttr, new_type);
++      }
++
++	  CHECK(o["protected_param"].IsArray());
++	  for (auto &p : o["protected_param"].GetArray()) {
++        const std::string protected_tensor = p.GetString(); // fc7_weights
++
++        // get param data
++        auto *tensor = scope->Var(protected_tensor)->GetMutable<lite::Tensor>();
++        auto data_size = tensor->data_size();
++        VLOG(4) << protected_tensor << " data size: " << data_size;
++        int memory_size = tensor->memory_size();
++        VLOG(4) << protected_tensor << " memory size: " << memory_size;
++
++        // encrypt param data
++        const char *plaintext = tensor->data<char>();
++        char *ciphertext = (char *)tensor->mutable_data<float>();
++		VLOG(4) << "encrypt tensor " << protected_tensor << " in TA"; 
++		//std::cin.get();
++        encrypt_tensor(plaintext, ciphertext, memory_size, cmd_idx, name.c_str(), name.size(),
++			   	       protected_tensor.c_str(), protected_tensor.size());
++
++		// TODO: set precision according to kernel type
++        tensor->set_precision(PrecisionType::kFloat);
++        memory_size = tensor->memory_size();
++	  }
++	  cmd_idx++;
++    }
++	// write to tee_config.json
++	write_tee_config();
++
++    // write to model_tee.nb
++    const std::string model_file = "./model_tee";
++    SaveModelNaive(model_file, *scope, *cpp_prog);
++    VLOG(4) << "Write encrypt param to ./model_tee.nb successfully!";
++  }
++}
++
++void GenerateUserConfig(model_parser::BinaryFileReader *reader,
++						Scope *scope,
++						cpp::ProgramDesc *cpp_prog,
++						uint16_t meta_version) {
++  CHECK(cpp_prog);
++  CHECK(scope);
++  CHECK_EQ(cpp_prog->BlocksSize(), 0);
++  // read from file op name and param name
++  // std::vector<std::string> support_ops = {"fc", "softmax"};
++
++  std::ifstream ifs("supported_ops.json");
++  CHECK(ifs.is_open()) << "Error opening support ops json file";
++  rapidjson::IStreamWrapper isw(ifs);
++  rapidjson::Document d;
++  d.ParseStream(isw);
++  CHECK(!d.HasParseError()) << d.GetParseError();
++
++  // get opt version
++  char opt_version[16];
++  const uint64_t opt_version_length = 16 * sizeof(char);
++  reader->Read(opt_version, opt_version_length);
++  VLOG(4) << "Opt_version:" << static_cast<const char *>(opt_version);
++  // check version, opt's version should be consistent with current Paddle-Lite
++  // version.
++  const std::string paddle_version = version();
++  const std::string opt_version_str = opt_version;
++  if (paddle_version != opt_version_str) {
++    LOG(WARNING) << "\nwarning: the version of opt that transformed this model "
++                    "is not consistent with current Paddle-Lite version."
++                    "\n      version of opt:"
++                 << static_cast<const char *>(opt_version)
++                 << "\n      version of current Paddle-Lite:" << paddle_version;
++  }
++  // (3)get topo_size
++  uint64_t topo_size;
++  reader->Read(&topo_size, sizeof(uint64_t));
++  VLOG(4) << "topo_size: " << topo_size;
++
++#ifdef LITE_ON_FLATBUFFERS_DESC_VIEW
++  lite::model_parser::Buffer buf(topo_size);
++  reader->Read(buf.data(), topo_size);
++  cpp_prog->Init(std::move(buf));
++#elif LITE_ON_TINY_PUBLISH
++  LOG(FATAL) << "Since no data structure of Flatbuffers has been constructed, "
++                "the model cannot be loaded.";
++#else
++  lite::model_parser::Buffer buf(topo_size);
++  reader->Read(buf.data(), topo_size);
++  fbs::ProgramDesc program(buf);
++  TransformProgramDescAnyToCpp(program, cpp_prog);
++#endif
++
++  /* 2. Load scope from params.fbs */
++  switch (meta_version) {
++    case 1: {
++      /* load scope from param.fbs with meta_version=1 */
++      lite::model_parser::Buffer buf(reader->length() - reader->current());
++      reader->Read(buf.data(), reader->length() - reader->current());
++      fbs::CombinedParamsDescView params(std::move(buf));
++      fbs::deprecated::SetScopeWithCombinedParams(scope, params);
++      break;
++    }
++    case 2: {
++      /* load scope from param.fbs with meta_version=2 */
++      fbs::ParamDeserializer deserializer(reader);
++      deserializer.ForwardRead(scope);
++      break;
++    }
++    default:
++      LOG(FATAL) << "Unspported model meta_version " << meta_version;
++      break;
++  }
++  auto block_size = cpp_prog->BlocksSize();
++  CHECK(block_size) << "No block found!";
++  auto block_desc = cpp_prog->GetBlock<cpp::BlockDesc>(kRootBlockIdx);
++  auto op_size = block_desc->OpsSize();
++
++  rapidjson::Document doc;
++  doc.SetObject();
++  rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
++  rapidjson::Value op_list(rapidjson::kArrayType);
++
++  for (size_t op_idx = 0; op_idx < op_size; op_idx++) {
++    auto op_desc = block_desc->GetOp<cpp::OpDesc>(op_idx);
++    CHECK(op_desc);
++	std::string op_type = op_desc->Type();
++	if (d.HasMember(op_type)) {
++		rapidjson::Value array_obj(rapidjson::kObjectType);
++		array_obj.AddMember("index", rapidjson::Value(op_idx), allocator);
++		array_obj.AddMember("name", op_type, allocator);
++		rapidjson::Value param(rapidjson::kArrayType);
++		rapidjson::Value &in_list = d[op_type];
++		CHECK(in_list.IsArray());
++		for (auto &p : in_list.GetArray()) {
++			const std::string pname = op_desc->Input(p.GetString()).front();
++			VLOG(4) << "pname = " << pname;
++			param.PushBack(rapidjson::Value().SetString(pname, allocator), allocator);
++		}
++		array_obj.AddMember("protected_param", param, allocator);
++		op_list.PushBack(array_obj, allocator);
++	}
++  }
++
++  doc.AddMember("op_list", op_list, allocator);
++  const std::string config_file = "user_config.json";
++  std::ofstream ofs(config_file);
++  rapidjson::OStreamWrapper osw(ofs);
++  rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
++  doc.Accept(writer);
++  VLOG(4) << "Successful write to user_config.json";
++  EncryptTensor(scope, cpp_prog, config_file);
++}
++
+ void LoadModelFbsFromFile(model_parser::BinaryFileReader *reader,
+                           Scope *scope,
+                           cpp::ProgramDesc *cpp_prog,
+-                          uint16_t meta_version) {
++                          uint16_t meta_version,
++						  const std::string &config_file) {
+   CHECK(cpp_prog);
+   CHECK(scope);
+   CHECK_EQ(cpp_prog->BlocksSize(), 0);
+@@ -924,6 +1120,7 @@ void LoadModelFbsFromFile(model_parser::BinaryFileReader *reader,
+       LOG(FATAL) << "Unspported model meta_version " << meta_version;
+       break;
+   }
++  EncryptTensor(scope, cpp_prog, config_file);
+ }
+ 
+ void LoadModelNaiveFromMemory(const std::string &model_buffer,
+diff --git a/lite/model_parser/model_parser.h b/lite/model_parser/model_parser.h
+index 27f289f0c..d62a93c54 100644
+--- a/lite/model_parser/model_parser.h
++++ b/lite/model_parser/model_parser.h
+@@ -29,6 +29,8 @@
+ #include "lite/model_parser/base/io.h"
+ #include "lite/model_parser/compatible_pb.h"
+ 
++#include "lite/utils/rapidjson/istreamwrapper.h"
++
+ namespace paddle {
+ namespace lite {
+ #ifndef LITE_ON_TINY_PUBLISH
+@@ -139,14 +141,26 @@ void LoadNonCombinedParamsPb(const std::string& model_dir,
+                              const lite_api::CxxModelBuffer& model_buffer,
+                              Scope* scope);
+ #endif  // LITE_ON_TINY_PUBLISH
+-void LoadModelFbsFromFile(model_parser::BinaryFileReader* reader,
++
++void EncryptTensor(Scope* scope,
++		           cpp::ProgramDesc* cpp_prog,
++				   const std::string &config_file);
++
++void GenerateUserConfig(model_parser::BinaryFileReader* reader,
+                           Scope* scope,
+                           cpp::ProgramDesc* cpp_prog,
+                           uint16_t meta_version);
+ 
++void LoadModelFbsFromFile(model_parser::BinaryFileReader* reader,
++                          Scope* scope,
++                          cpp::ProgramDesc* cpp_prog,
++                          uint16_t meta_version,
++						  const std::string &config_file);
++
+ void LoadModelNaiveFromFile(const std::string& filename,
+                             lite::Scope* scope,
+-                            cpp::ProgramDesc* prog);
++                            cpp::ProgramDesc* prog,
++                            const std::string &config_file = "");
+ 
+ void LoadModelNaiveFromMemory(const std::string& model_buffer,
+                               lite::Scope* scope,

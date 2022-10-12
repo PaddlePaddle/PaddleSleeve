@@ -213,11 +213,10 @@ The code for HopSkipJumpAttack runs with Python and one deep learning framework.
 - `scipy`
 
     If use Tensoflow or Pytorch framework, just only modify the method from numpy array to tensor, and the input image prcoessing methods for sepcific object detection methods, as follows:
-        ```python
-        
-        1. perturbed = paddle.to_tensor(perturbed, dtype='float32', place=paddle.CUDAPlace(0))
-        2. data0, datainfo0  = _image2outs(FLAGS.infer_dir, FLAGS.infer_img, cfg)
-        ```
+    ```python 
+    1. perturbed = paddle.to_tensor(perturbed, dtype='float32', place=paddle.CUDAPlace(0))
+    2. data0, datainfo0  = _image2outs(FLAGS.infer_dir, FLAGS.infer_img, cfg)
+    ```
        
 #### Run HSJA Attack Adversarial Train
 The black attack HSJA algorithm should support different object detection models, thus we test four different types of detection methods, yolov3 and ppyolo, ssd, faster-rcnn, deter.

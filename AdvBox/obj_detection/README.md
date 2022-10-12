@@ -217,7 +217,6 @@ The code for HopSkipJumpAttack runs with Python and one deep learning framework.
         
         1. perturbed = paddle.to_tensor(perturbed, dtype='float32', place=paddle.CUDAPlace(0))
         2. data0, datainfo0  = _image2outs(FLAGS.infer_dir, FLAGS.infer_img, cfg)
-        
         ```
        
 #### Run HSJA Attack Adversarial Train

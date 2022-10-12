@@ -58,7 +58,6 @@ class_label = 3
 sim_label = [3, 8, 6]
 target_label = 11
 
-
 def parse_args():
     parser = ArgsParser()
     parser.add_argument(
@@ -91,15 +90,19 @@ def parse_args():
         type=str,
         default="vdl_log_dir/image",
         help='VisualDL logging directory for image.')
-
-    parser.add_argument('--max_steps', type=int, default=500, help="maximum steps")
-
-    parser.add_argument('--norm', type=str, default='l2', help="specify the norm of the attack, choose one from 'l2'or 'linf'")
-
+    parser.add_argument(
+        '--max_steps', 
+        type=int, 
+        default=500, 
+        help="maximum steps")
+    parser.add_argument(
+        '--norm', 
+        type=str, 
+        default='l2', 
+        help="specify the norm of the attack, choose one from 'l2'or 'linf'")
 
     args = parser.parse_args()
     return args
-
 
 def get_test_images(infer_dir, infer_img):
     """
@@ -128,7 +131,6 @@ def get_test_images(infer_dir, infer_img):
 
     assert len(images) > 0, "no image found in {}".format(infer_dir)
     logger.info("Found {} inference images in total.".format(len(images)))
-
     return images
 
 
@@ -148,40 +150,24 @@ def decision_function(model, images, params, datainfo, data0):
     for j in range(c):
         images[j] = old_div(images[j] - mean[j],
                             std[j])
-
-
     images = paddle.unsqueeze(images, axis=0)
 
     data0["image"] = images
-    # import pdb
-    # pdb.set_trace()
     prob_label, score, score_orig = ext_score(model(data0), data0, datainfo)
-    #print("prob_label=======", prob_label, score)
     if score_orig > 0.3:
         prob_label = class_label
-
-
-    #  add distance constraint
-
-
-
-
     if params['target_label'] is None:
-
         if score_orig == 0. and prob_label == class_label:
             return np.array([score_orig == 0.])
-
         return np.array([prob_label != params['original_label'] and prob_label not in sim_label])
     else:
         return np.array([prob_label == params['target_label']])
-
 
 def clip_image(image, clip_min, clip_max):
     """
     Clip an image, or an image batch, with upper and lower threshold.
     """
     return np.minimum(np.maximum(clip_min, image), clip_max)
-
 
 def compute_distance(x_ori, x_pert, constraint = 'l2'):
     """
@@ -198,7 +184,6 @@ def compute_distance(x_ori, x_pert, constraint = 'l2'):
         return np.linalg.norm(x_ori - x_pert)
     elif constraint == 'linf':
         return np.max(abs(x_ori - x_pert))
-
 
 def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data0):
     """
@@ -221,7 +206,6 @@ def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data
     rv = (perturbed - sample) / delta
 
     # query the model.
-
     decisions = decision_function(model, perturbed, params, datainfo, data0) * 1
 
 
@@ -241,7 +225,6 @@ def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data
 
         # Get the gradient direction.
     gradf = gradf / np.linalg.norm(gradf)
-
     return gradf
 
 def initialize(model, sample, params, datainfo, data0, orig):
@@ -250,23 +233,13 @@ def initialize(model, sample, params, datainfo, data0, orig):
     """
     success = 0
     num_evals = 0
-
-
     if params['target_image'] is None:
         # Find a misclassified random noise.
         while True:
             random_noise = np.random.uniform(params['clip_min'],
                                              params['clip_max'],
                                              size=params['shape'])
-            # random_noise = np.random.uniform(params['clip_min'],
-            #                                  params['clip_max'],
-            #                                  size=(638, 850))
-            #
-            # random_noise = cv2.resize(random_noise, params['shape'], interpolation=cv2.INTER_LINEAR)
             success = decision_function(model, random_noise[None], params, datainfo, data0) # 寻找导致分类错误的噪声
-
-            # dist= compute_distance(orig, random_noise, constraint='l2')
-
             num_evals += 1
             if success: #and dist < 700:
                 break
@@ -382,8 +355,6 @@ def binary_search_batch(model, original_image, perturbed_images, params, datainf
         # Update highs and lows based on model decisions.
         decisions = decision_function(model, mid_images, params, datainfo, data0)
 
-
-
         if isinstance(decisions, paddle.Tensor):
             decisions = decisions.numpy()
         lows = np.where(decisions == 0, mids, lows)
@@ -393,7 +364,6 @@ def binary_search_batch(model, original_image, perturbed_images, params, datainf
 
     # Compute distance of the output image to select the best choice.
     # (only used when stepsize_search is grid_search.)
-
 
     dists = np.array([
             compute_distance(
@@ -407,8 +377,6 @@ def binary_search_batch(model, original_image, perturbed_images, params, datainf
     dist = dists_post_update[idx]
     out_image = out_images[idx]
     return out_image, dist
-
-
 
 def hsja(
          model,
@@ -428,8 +396,6 @@ def hsja(
          max_num_evals=1e4,
          init_num_evals=100,
          verbose=True):
-
-
 
     params = {'clip_max': clip_max, 'clip_min': clip_min,
               'shape': sample.shape,
@@ -454,8 +420,7 @@ def hsja(
 
     # Initialize.
     perturbed = initialize(model, sample, params, datainfo, data0, orig)
-    print("initialize success================")
-
+ 
     # Project the initialization to the boundary.
     perturbed, dist_post_update = binary_search_batch(model, orig, # sample
                                                            np.expand_dims(perturbed, 0),
@@ -560,17 +525,9 @@ def run(FLAGS, cfg):
 
     else:
         target_image = None
-
-
-
-
-
+        
     trainer.model.eval()
-    # import pdb
-    # pdb.set_trace()
-    # img =  paddle.to_tensor(np.load("./data.npy"))
-    # data0["image"] = img
-
+    
     orig_label, score, score_orig = ext_score(trainer.model(data0), data0, datainfo0)
     if score_orig > 0.3:
         orig_label = class_label
@@ -584,7 +541,6 @@ def run(FLAGS, cfg):
         adv_img[i] = inputs[i] * depre_settings["DenormalizeImage"]["std"][i] +  depre_settings["DenormalizeImage"]["mean"][i]
 
     for i in range(FLAGS.max_steps):
-
         print("step=======", i)
         perturbed = np.copy(adv_img)
         perturbed = np.clip(perturbed, 0., 1.)
@@ -600,7 +556,7 @@ def run(FLAGS, cfg):
         data0["image"] = perturbed_normalized
 
         adv_label, score, orig = ext_score(trainer.model(data0), data0, datainfo0)
-        if orig > 0.3:  # 0.3
+        if orig > 0.3: 
             adv_label = class_label
         print(adv_label, score, orig)
 
@@ -610,12 +566,9 @@ def run(FLAGS, cfg):
         # if dist1 > 550: # fatser-rcnn, detr: 2200, yolov3:450, ppyolo:630, ssd: 250
         #     continue
         if target_label is None:
-            if adv_label not in sim_label: # 此处可以根据需求添加约束条件 !=8
-                 print("succes==============success")
-                 # np.save(file="data.npy", arr=perturbed_normalized.detach().cpu().numpy())
+            if adv_label not in sim_label: 
                  data_adv = depreprocessor(perturbed_normalized[0].detach())
                  cv2.imwrite("./adv_detr.png", data_adv)
-
                  # 添加下面代码的原因是，图像输出和原图大小有一定的区别，而扰动是添加在模型输入图像上的，因此，扰动还原到原图上时，
                  # 扰动数据的分布会发生一定的变化，导致攻击的效果发生变化，因此为了确保攻击的成功率，对于初步攻击成功的样本进行检测判断，
                  # 确定检测结果失效，则保存攻击样本，否则继续执行攻击算法。
@@ -699,10 +652,7 @@ def ext_score(outs, data, datainfo):
             score_orig = box["score"]
     start = 0
     max_score = 0.
-
     max_label = orig_label
-
-
     bbox_num = outs['bbox_num']
     for i, im_id in enumerate(outs['im_id']):
         end = start + bbox_num[i]
@@ -715,57 +665,7 @@ def ext_score(outs, data, datainfo):
             if score > max_score:
                 max_score = score
                 max_label = catid
-
-
     return max_label, max_score, score_orig
-
-
-def _draw_result_and_save(image_path, out_dir,  outs, data, datainfo, draw_threshold):
-    """
-    visualize the detection result on the input data and save.
-    Args:
-        image_path(str): the input image path
-        out_dir(str): the visualization image save path
-        outs(dict): output of the input data
-        datainfo(dict): data information of the specific dataset
-        draw_threshold(float): the detection score threshold
-    """
-    clsid2catid = datainfo['clsid2catid']
-    catid2name = datainfo['catid2name']
-
-    for key in ['im_shape', 'scale_factor', 'im_id']:
-        outs[key] = data[key]
-    for key, value in outs.items():
-        if hasattr(value, 'numpy'):
-            outs[key] = value.numpy()
-
-    batch_res = get_infer_results(outs, clsid2catid)
-    bbox_num = outs['bbox_num']
-
-    start = 0
-    for i, im_id in enumerate(outs['im_id']):
-        end = start + bbox_num[i]
-        image = Image.open(image_path).convert('RGB')
-
-        bbox_res = batch_res['bbox'][start:end] \
-            if 'bbox' in batch_res else None
-        mask_res = batch_res['mask'][start:end] \
-            if 'mask' in batch_res else None
-        segm_res = batch_res['segm'][start:end] \
-            if 'segm' in batch_res else None
-        keypoint_res = batch_res['keypoint'][start:end] \
-            if 'keypoint' in batch_res else None
-        image = visualize_results(
-            image, bbox_res, mask_res, segm_res, keypoint_res,
-            int(im_id), catid2name, draw_threshold)
-
-        # save image with detection
-        save_name = out_dir + image_path.split('/')[-1]
-        logger.info("Detection bbox results save in {}".format(
-            save_name))
-        image.save(save_name, quality=95)
-        start = end
-
 
 def test():
     FLAGS = parse_args()
@@ -786,7 +686,6 @@ def test():
     check_gpu(cfg.use_gpu)
     check_version()
     run(FLAGS, cfg)
-
 
 if __name__ == '__main__':
     test()

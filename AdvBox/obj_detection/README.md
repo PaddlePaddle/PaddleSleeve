@@ -230,6 +230,61 @@ python hsja.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https:
 python hsja.py -c ../configs/detr/detr_r50_1x_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/detr_r50_1x_coco.pdparams --infer_img=dataloader/car_05.jpeg
 ```
 See hsja.py for details.
+**Image Compares**
+
+<table align="center">
+<tr>
+    <td align="center"><img src="./attack/dataloader/car_05.jpeg" width=300></td>
+    <td align="center"><img src="./attack/output/out_yolov3.png" width=300></td>
+    <td align="center"><img src="./attack/output/adv_yolov3.png" width=300></td>
+    <td align="center"><img src="./attack/output/out_adv_yolov3.png" width=300></td>
+    <td align="center"><img src="./attack/output/diff_yolov3.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center"><img src="./attack/dataloader/car_05.jpeg" width=300></td>
+    <td align="center"><img src="./attack/output/out_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/output/adv_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/output/out_adv_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/output/diff_ppyolo.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center"><img src="./attack/dataloader/car_05.jpeg" width=300></td>
+    <td align="center"><img src="./attack/output/out_ssd.png" width=300></td>
+    <td align="center"><img src="./attack/output/adv_ssd.png" width=300></td>
+    <td align="center"><img src="./attack/output/out_adv_ssd.png" width=300></td>
+    <td align="center"><img src="./attack/output/diff_ssd.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center"><img src="./attack/dataloader/car_05.jpeg" width=300></td>
+    <td align="center"><img src="./attack/output/out_faster_rcnn.png" width=300></td>
+    <td align="center"><img src="./attack/output/adv_faster_rcnn.png" width=300></td>
+    <td align="center"><img src="./attack/output/out_adv_faster_rcnn.png" width=300></td>
+    <td align="center"><img src="./attack/output/diff_faster_rcnn.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center"><img src="./attack/dataloader/car_05.jpeg" width=300></td>
+    <td align="center"><img src="./attack/output/out_detr.png" width=300></td>
+    <td align="center"><img src="./attack/output/adv_detr.png" width=300></td>
+    <td align="center"><img src="./attack/output/out_adv_detr.png" width=300></td>
+    <td align="center"><img src="./attack/output/diff_detr.png" width=300></td>
+</tr>
+
+
+<tr>
+    <td align="center">Model</td>
+    <td align="center">Original Image</td>
+    <td align="center">Original Detection Results</td>
+    <td align="center">Acquired Adversarial Image </td>
+    <td align="center">Adversarial Detection Results </td>
+    <td align="center">Diff*100</td>
+    
+</tr>
+</table>
+
 
 ## Citation
 If you use this code for your research, please cite our [paper](https://arxiv.org/abs/1904.02144):

@@ -244,7 +244,7 @@ See hsja.py for details.
 </tr>
 
 <tr>
-    <td align="center"><yolov3</td>
+    <td align="center">yolov3</td>
     <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/out_yolov3.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_yolov3.png" width=300></td>
@@ -253,7 +253,7 @@ See hsja.py for details.
 </tr>
 
 <tr>
-    <td align="center"><img src="ppyolo" width=300></td>
+    <td align="center">ppyolo</td>
     <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/out_ppyolo.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_ppyolo.png" width=300></td>
@@ -262,7 +262,7 @@ See hsja.py for details.
 </tr>
 
 <tr>
-    <td align="center"><img src="ssd" width=300></td>
+    <td align="center">ssd</td>
     <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/out_ssd.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_ssd.png" width=300></td>
@@ -271,7 +271,7 @@ See hsja.py for details.
 </tr>
 
 <tr>
-    <td align="center"><img src="faster-rcnn" width=300></td>
+    <td align="center">faster-rcnn</td>
     <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/out_faster_rcnn.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_faster_rcnn.png" width=300></td>
@@ -280,7 +280,7 @@ See hsja.py for details.
 </tr>
 
 <tr>
-    <td align="center"><img src="Detr" width=300></td>
+    <td align="center">detr</td>
     <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/out_detr.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_detr.png" width=300></td>

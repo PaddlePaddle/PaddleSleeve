@@ -302,6 +302,7 @@ See hsja.py for details.
     <td align="center"><img src="./attack/black_attack/output/multilabel11_detr.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/multilabel11_detr_det.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_multilabel11_detr_diff.png" width=300></td>
+  
 </tr>
 
 </table>

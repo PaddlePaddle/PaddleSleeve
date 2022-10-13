@@ -230,6 +230,8 @@ python hsja.py -c ../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https:
 python hsja.py -c ../configs/detr/detr_r50_1x_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/detr_r50_1x_coco.pdparams --infer_img=dataloader/car_05.jpeg
 ```
 See hsja.py for details.
+
+
 **Image Compares for untargeted attack**
 
 <table align="center">
@@ -306,11 +308,7 @@ See hsja.py for details.
 
 </table>
 
-**Image Compares for untargeted attack**
-
-
-
-
+**Image Compares for targeted attack**
 
 <table align="center">
 

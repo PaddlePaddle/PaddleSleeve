@@ -198,9 +198,9 @@ Adversarial examples are particularly useful because of its transferability (i.e
 
 
 
-### Attacks with black-box methods
+### Attack with black-box methods
 
-In `PaddleSleeve/AdvBox/obj_detection/black_attack`, we achieve the black attack algorithm HopSkipJumpAttack(HSJA) with the decision-based adversarial attacks, a method  generating 
+In `PaddleSleeve/AdvBox/obj_detection/attack/black_attack`, we achieve the black attack algorithm HopSkipJumpAttack(HSJA) with the decision-based adversarial attacks, a method  generating 
 the adversarial examples based solely on observing output labels returned by the targeted model. The HSJA algorithm estimate the gradient direction using binary 
 information at the decision boundary. The method includes both untargeted and targeted attacks optimized for l2 and l∞ similarity metrics respectively. 
 

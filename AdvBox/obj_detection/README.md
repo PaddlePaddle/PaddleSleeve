@@ -287,8 +287,27 @@ See hsja.py for details.
     <td align="center"><img src="./attack/black_attack/output/out_adv_detr.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/diff_detr.png" width=300></td>
 </tr>
+<tr>
+    <td align="center">faster-rcnn</td>
+    <td align="center"><img src="./attack/black_attack/dataloader/multilabel.jpeg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/multilabel_det.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/mutlilabel_fast.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/mutlilabel_fast_det.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_multilabel_fast_diff.png" width=300></td>
+</tr>
+<tr>
+    <td align="center">detr</td>
+    <td align="center"><img src="./attack/black_attack/dataloader/multilabel1.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/multilabel1_det.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/multilabel11_detr.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/multilabel11_detr_det.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_multilabel11_detr_diff.png" width=300></td>
+</tr>
 
 </table>
+
+
+
 
 
 ## Citation

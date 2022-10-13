@@ -289,10 +289,10 @@ See hsja.py for details.
 </tr>
 <tr>
     <td align="center">faster-rcnn</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/multilabel.jpeg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/dataloader/multilabel.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/multilabel_det.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/mutlilabel_fast.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/mutlilabel_fast_det.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/multilabel_fast.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/multilabel_fast_det.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/adv_multilabel_fast_diff.png" width=300></td>
 </tr>
 <tr>

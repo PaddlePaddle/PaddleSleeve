@@ -54,9 +54,8 @@ from past.utils import old_div
 
 logger = setup_logger('train')
 
-class_label = 3
 sim_label = [3, 8, 6]
-target_label = 11
+target_label = None
 
 def parse_args():
     parser = ArgsParser()
@@ -100,6 +99,24 @@ def parse_args():
         type=str, 
         default='l2', 
         help="specify the norm of the attack, choose one from 'l2'or 'linf'")
+    
+    parser.add_argument(
+        '--sim_label', 
+        type=list， 
+        default=[3, 8, 6], 
+        help="specify the similar label of the object label)
+        
+    parser.add_argument(
+        '--target_label', 
+        type=int, 
+        default=11, 
+        help="specify the target label if targeted attack )
+        
+    parser.add_argument(
+        '--target_image', 
+        type=str, 
+        default='./dataloader/hydrant1.png', 
+        help="specify the target image for targeted attack if target label exists)
 
     args = parser.parse_args()
     return args
@@ -134,7 +151,7 @@ def get_test_images(infer_dir, infer_img):
     return images
 
 
-def decision_function(model, images, params, datainfo, data0):
+def decision_function(model, images, params, datainfo, data0, sim_label):
     """
     Decision function output 1 on the desired side of the boundary,
     0 otherwise.
@@ -153,11 +170,11 @@ def decision_function(model, images, params, datainfo, data0):
     images = paddle.unsqueeze(images, axis=0)
 
     data0["image"] = images
-    prob_label, score, score_orig = ext_score(model(data0), data0, datainfo)
+    prob_label, score, score_orig = ext_score(model(data0), data0, datainfo, sim_label[0])
     if score_orig > 0.3:
-        prob_label = class_label
+        prob_label = sim_label[0]
     if params['target_label'] is None:
-        if score_orig == 0. and prob_label == class_label:
+        if score_orig == 0. and prob_label == sim_label[0]:
             return np.array([score_orig == 0.])
         return np.array([prob_label != params['original_label'] and prob_label not in sim_label])
     else:
@@ -253,14 +270,14 @@ def initialize(model, sample, params, datainfo, data0, orig):
         high = 1.0
         while high - low > 0.001:
             mid = (high + low) / 2.0
-            blended = (1 - mid) * sample.numpy() + mid * random_noise
+            blended = (1 - mid) * sample + mid * random_noise
             success = decision_function(model, blended[None], params, datainfo, data0)
             if success:
                 high = mid
             else:
                 low = mid
 
-        initialization = (1 - high) * sample.numpy() + high * random_noise
+        initialization = (1 - high) * sample + high * random_noise
 
     else:
         initialization = params['target_image']
@@ -514,8 +531,8 @@ def run(FLAGS, cfg):
     data0, datainfo0  = _image2outs(FLAGS.infer_dir, FLAGS.infer_img, cfg)
     _, C, H, W = data0["image"].shape
 
-    if target_label:
-        target_image = "./dataloader/hydrant2.png"  # None
+    if FLAGS.target_label:
+        target_image = FLAGS.target_image # None
         target_image_tensor, _ = _image2outs(FLAGS.infer_dir, target_image, cfg)
         target_image = np.squeeze(target_image_tensor["image"])
         for i in range(C):
@@ -528,9 +545,9 @@ def run(FLAGS, cfg):
         
     trainer.model.eval()
     
-    orig_label, score, score_orig = ext_score(trainer.model(data0), data0, datainfo0)
+    orig_label, score, score_orig = ext_score(trainer.model(data0), data0, datainfo0, FLAGS.sim_label)
     if score_orig > 0.3:
-        orig_label = class_label
+        orig_label = FLAGS.sim_label[0]
 
     inputs = np.squeeze(data0["image"])
 
@@ -555,9 +572,9 @@ def run(FLAGS, cfg):
         perturbed_normalized = paddle.unsqueeze(perturbed_normalized, axis=0)
         data0["image"] = perturbed_normalized
 
-        adv_label, score, orig = ext_score(trainer.model(data0), data0, datainfo0)
+        adv_label, score, orig = ext_score(trainer.model(data0), data0, datainfo0, FLAGS.sim_label)
         if orig > 0.3: 
-            adv_label = class_label
+            adv_label = FLAGS.sim_label[0]
         print(adv_label, score, orig)
 
         dist1 = compute_distance(inputs, perturbed_normalized[0], constraint='l2')
@@ -575,7 +592,7 @@ def run(FLAGS, cfg):
 
                  data1, _ = _image2outs(FLAGS.infer_dir, "./adv_detr.png", cfg)
                  trainer.model.eval()
-                 orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0)
+                 orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0, FLAGS.sim_label)
                  print("orig_label======", orig_label1, score_orig1, score1)
                  if score_orig1 > 0.5 or orig_label1 in sim_label: #or orig_label1 != 1:
                      continue
@@ -589,7 +606,7 @@ def run(FLAGS, cfg):
 
                 data1, _ = _image2outs(FLAGS.infer_dir, "./adv_detr_target.png", cfg)
                 trainer.model.eval()
-                orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0)
+                orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0, FLAGS.sim_label)
                 print(orig_label1, score1, score_orig1)
                 # if orig_label1 == target_label and score1 > 0.3 and score_orig1 < 0.5:
                 if orig_label1 == target_label and score1 > 0.5 and score_orig1 < 0.5:
@@ -625,7 +642,7 @@ def _image2outs(infer_dir, infer_img, cfg):
     return data, datainfo 
    
 
-def ext_score(outs, data, datainfo):
+def ext_score(outs, data, datainfo, sim_label):
     """
     extract the detection score of the learned adversarial sample.
     Args:
@@ -652,7 +669,7 @@ def ext_score(outs, data, datainfo):
             score_orig = box["score"]
     start = 0
     max_score = 0.
-    max_label = orig_label
+    max_label = sim_label[0]
     bbox_num = outs['bbox_num']
     for i, im_id in enumerate(outs['im_id']):
         end = start + bbox_num[i]

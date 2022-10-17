@@ -54,9 +54,6 @@ from past.utils import old_div
 
 logger = setup_logger('train')
 
-sim_label = [3, 8, 6]
-target_label = None
-
 def parse_args():
     parser = ArgsParser()
     parser.add_argument(

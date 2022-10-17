@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-The Target Patch ETO Attack implementation.
+The HopSkipJumpAttack black aattack implementation on object detection.
 Contains:
-* Initialize a yolov3 detector and inference pictures.
-* Generate adversarial patch using model weights.
-* Generate adversarial image.
-
+* Initialize a inference pictures.
+* Generate adversarial perturbation by estimating the gradient direction using binary information at the decision boundary.
 Author: tianweijuan
 """
-# ignore warning log
+
 from __future__ import absolute_import
 import sys
 import os
@@ -99,21 +97,21 @@ def parse_args():
     
     parser.add_argument(
         '--sim_label', 
-        type=list， 
-        default=[3, 8, 6], 
-        help="specify the similar label of the object label)
+        nargs='+',
+        type=int,
+        help="specify the similar label of the object label, the first is groundtruth label")
         
     parser.add_argument(
         '--target_label', 
         type=int, 
-        default=11, 
-        help="specify the target label if targeted attack )
+        default=None, 
+        help="specify the target label if targeted attack")
         
     parser.add_argument(
         '--target_image', 
         type=str, 
         default='./dataloader/hydrant1.png', 
-        help="specify the target image for targeted attack if target label exists)
+        help="specify the target image for targeted attack if target label exists")
 
     args = parser.parse_args()
     return args
@@ -156,9 +154,6 @@ def decision_function(model, images, params, datainfo, data0, sim_label):
     images = clip_image(images, params['clip_min'], params['clip_max'])
     images = paddle.to_tensor(images[0].astype('float32'))
     c, _, _ = images.shape
-    # import pdb
-    # pdb.set_trace()
-
     std = [0.229, 0.224, 0.225]
     mean = [0.485, 0.456, 0.406]
     for j in range(c):
@@ -167,7 +162,7 @@ def decision_function(model, images, params, datainfo, data0, sim_label):
     images = paddle.unsqueeze(images, axis=0)
 
     data0["image"] = images
-    prob_label, score, score_orig = ext_score(model(data0), data0, datainfo, sim_label[0])
+    prob_label, score, score_orig = ext_score(model(data0), data0, datainfo, sim_label)
     if score_orig > 0.3:
         prob_label = sim_label[0]
     if params['target_label'] is None:
@@ -199,7 +194,7 @@ def compute_distance(x_ori, x_pert, constraint = 'l2'):
     elif constraint == 'linf':
         return np.max(abs(x_ori - x_pert))
 
-def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data0):
+def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data0, sim_label):
     """
     approximate gradient
     args:model, sample, num_evals, delta, params
@@ -220,7 +215,7 @@ def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data
     rv = (perturbed - sample) / delta
 
     # query the model.
-    decisions = decision_function(model, perturbed, params, datainfo, data0) * 1
+    decisions = decision_function(model, perturbed, params, datainfo, data0, sim_label) * 1
 
 
     decision_shape = [len(decisions)] + [1] * len(params['shape'])
@@ -241,19 +236,19 @@ def approximate_gradient(model, sample, num_evals, delta, params, datainfo, data
     gradf = gradf / np.linalg.norm(gradf)
     return gradf
 
-def initialize(model, sample, params, datainfo, data0, orig):
+def initialize(model, sample, params, datainfo, data0, orig, sim_label):
     """
     Efficient Implementation of BlendedUniformNoiseAttack in Foolbox.
     """
     success = 0
     num_evals = 0
-    if params['target_image'] is None:
+    if params['target_label'] is None:
         # Find a misclassified random noise.
         while True:
             random_noise = np.random.uniform(params['clip_min'],
                                              params['clip_max'],
                                              size=params['shape'])
-            success = decision_function(model, random_noise[None], params, datainfo, data0) # 寻找导致分类错误的噪声
+            success = decision_function(model, random_noise[None], params, datainfo, data0, sim_label) # 寻找导致分类错误的噪声
             num_evals += 1
             if success: #and dist < 700:
                 break
@@ -268,7 +263,7 @@ def initialize(model, sample, params, datainfo, data0, orig):
         while high - low > 0.001:
             mid = (high + low) / 2.0
             blended = (1 - mid) * sample + mid * random_noise
-            success = decision_function(model, blended[None], params, datainfo, data0)
+            success = decision_function(model, blended[None], params, datainfo, data0, sim_label)
             if success:
                 high = mid
             else:
@@ -281,7 +276,7 @@ def initialize(model, sample, params, datainfo, data0, orig):
 
     return initialization
 
-def geometric_progression_for_stepsize(model, x, update, dist, params, datainfo, data0):
+def geometric_progression_for_stepsize(model, x, update, dist, params, datainfo, data0, sim_label):
     """
     Geometric progression to search for stepsize.
     Keep decreasing stepsize by half until reaching
@@ -291,7 +286,7 @@ def geometric_progression_for_stepsize(model, x, update, dist, params, datainfo,
 
     def phi(epsilon):
         new = x + epsilon * update
-        success = decision_function(model, new[None], params, datainfo, data0)
+        success = decision_function(model, new[None], params, datainfo, data0, sim_label)
         return success
 
     while not phi(epsilon):
@@ -336,11 +331,9 @@ def project(original_image, perturbed_images, alphas, params):
         )
         return out_images
 
-def binary_search_batch(model, original_image, perturbed_images, params, datainfo, data0):
+def binary_search_batch(model, original_image, perturbed_images, params, datainfo, data0, sim_label):
     """ Binary search to approach the boundar. """
-
     # Compute distance between each of perturbed image and original image.
-
     dists_post_update = np.array([
             compute_distance(
             original_image,
@@ -348,7 +341,6 @@ def binary_search_batch(model, original_image, perturbed_images, params, datainf
             "l2"#params['constraint']
         )
         for perturbed_image in perturbed_images])
-
     # Choose upper thresholds in binary searchs based on constraint.
     if params['constraint'] == 'linf':
         highs = dists_post_update
@@ -357,28 +349,21 @@ def binary_search_batch(model, original_image, perturbed_images, params, datainf
     else:
         highs = np.ones(len(perturbed_images))
         thresholds = params['theta']
-
     lows = np.zeros(len(perturbed_images))
-
     # Call recursive function.
     while np.max((highs - lows) / thresholds) > 1:
         # projection to mids.
         mids = (highs + lows) / 2.0
         mid_images = project(original_image, perturbed_images, mids, params)
-
         # Update highs and lows based on model decisions.
-        decisions = decision_function(model, mid_images, params, datainfo, data0)
-
+        decisions = decision_function(model, mid_images, params, datainfo, data0, sim_label)
         if isinstance(decisions, paddle.Tensor):
             decisions = decisions.numpy()
         lows = np.where(decisions == 0, mids, lows)
         highs = np.where(decisions == 1, mids, highs)
-
     out_images = project(original_image, perturbed_images, highs, params)
-
     # Compute distance of the output image to select the best choice.
     # (only used when stepsize_search is grid_search.)
-
     dists = np.array([
             compute_distance(
             original_image,
@@ -387,11 +372,9 @@ def binary_search_batch(model, original_image, perturbed_images, params, datainf
         )
         for out_image in out_images])
     idx = np.argmin(dists)
-
     dist = dists_post_update[idx]
     out_image = out_images[idx]
     return out_image, dist
-
 def hsja(
          model,
          original_label,
@@ -399,6 +382,7 @@ def hsja(
          datainfo,
          data0,
          orig,
+         sim_label,
          clip_max=1.0,
          clip_min=0.0,
          constraint='l2',
@@ -410,7 +394,6 @@ def hsja(
          max_num_evals=1e4,
          init_num_evals=100,
          verbose=True):
-
     params = {'clip_max': clip_max, 'clip_min': clip_min,
               'shape': sample.shape,
               'original_label': original_label,
@@ -425,57 +408,48 @@ def hsja(
               'init_num_evals': init_num_evals,
               'verbose': verbose,
               }
-
     # Set binary search threshold.
     if params['constraint'] == 'l2':
         params['theta'] = params['gamma'] / (np.sqrt(params['d']) * params['d'])
     else:
         params['theta'] = params['gamma'] / (params['d'] ** 2)
-
     # Initialize.
-    perturbed = initialize(model, sample, params, datainfo, data0, orig)
+    perturbed = initialize(model, sample, params, datainfo, data0, orig, sim_label)
  
     # Project the initialization to the boundary.
+    
     perturbed, dist_post_update = binary_search_batch(model, orig, # sample
                                                            np.expand_dims(perturbed, 0),
                                                            params,
                                                            datainfo,
-                                                           data0)
-
+                                                           data0,
+                                                           sim_label)
     dist = compute_distance(orig, perturbed, constraint) #sample
-
     for j in np.arange(params['num_iterations']):
         params['cur_iter'] = j + 1
-
         # Choose delta.
         delta = select_delta(params, dist_post_update)
-
         # Choose number of evaluations.
         num_evals = int(params['init_num_evals'] * np.sqrt(j + 1))
         num_evals = int(min([num_evals, params['max_num_evals']]))
-
         # approximate gradient.
-        gradf = approximate_gradient(model, perturbed, num_evals, delta, params, datainfo, data0)
+        gradf = approximate_gradient(model, perturbed, num_evals, delta, params, datainfo, data0, sim_label)
         if params['constraint'] == 'linf':
             update = np.sign(gradf)
         else:
             update = gradf
-
         # search step size.
         if params['stepsize_search'] == 'geometric_progression':
             # find step size.
             epsilon = geometric_progression_for_stepsize(model, perturbed,
-                                                              update, dist, params, datainfo, data0)
-
+                                                              update, dist, params, datainfo, data0, sim_label)
             # Update the sample.
             perturbed = clip_image(perturbed + epsilon * update,
                                         clip_min, clip_max)
-
             # Binary search to return to the boundary.
             perturbed, dist_post_update = binary_search_batch(model, orig, # sample
                                                                    perturbed[None], params,
-                                                                   datainfo, data0)
-
+                                                                   datainfo, data0, sim_label)
         elif params['stepsize_search'] == 'grid_search':
             # Grid search for stepsize.
             epsilons = np.logspace(-4, 0, num=20, endpoint=True) * dist
@@ -483,22 +457,16 @@ def hsja(
             perturbeds = perturbed + epsilons.reshape(epsilons_shape) * update
             perturbeds = clip_image(perturbeds, params['clip_min'], params['clip_max'])
             idx_perturbed = decision_function(perturbeds, params)
-
             if np.sum(idx_perturbed) > 0:
                 # Select the perturbation that yields the minimum distance # after binary search.
                 perturbed, dist_post_update = binary_search_batch(model, orig, # sample
                                                                        perturbeds[idx_perturbed], params,
-                                                                       datainfo, data0)
-
+                                                                       datainfo, data0, sim_label)
         # compute new distance.
-
         dist = compute_distance(orig, perturbed, constraint) # sample
         if verbose:
             print('iteration: {:d}, {:s} distance {:.4E}'.format(j + 1, constraint, dist))
-
     return perturbed, dist
-
-
 def run(FLAGS, cfg):
     """
     construct input data and call the AttackNet to achieve the adversarial patch learning.
@@ -527,7 +495,6 @@ def run(FLAGS, cfg):
     
     data0, datainfo0  = _image2outs(FLAGS.infer_dir, FLAGS.infer_img, cfg)
     _, C, H, W = data0["image"].shape
-
     if FLAGS.target_label:
         target_image = FLAGS.target_image # None
         target_image_tensor, _ = _image2outs(FLAGS.infer_dir, target_image, cfg)
@@ -560,8 +527,8 @@ def run(FLAGS, cfg):
         perturbed = np.clip(perturbed, 0., 1.)
         # perturbed = paddle.to_tensor(perturbed, dtype='float32', place=paddle.CUDAPlace(0))
 
-        perturbed, dist = hsja(trainer.model, orig_label, perturbed, datainfo0, data0, adv_img, constraint = FLAGS.norm,
-                               num_iterations = 1, target_label = target_label, target_image = target_image)
+        perturbed, dist = hsja(trainer.model, orig_label, perturbed, datainfo0, data0, adv_img, FLAGS.sim_label, constraint = FLAGS.norm,
+                               num_iterations = 1, target_label = FLAGS.target_label, target_image = FLAGS.target_image)
         perturbed = paddle.to_tensor(perturbed, dtype='float32', place=paddle.CUDAPlace(0))
         perturbed_normalized = perturbed.clone()
         for j in range(C):
@@ -579,8 +546,8 @@ def run(FLAGS, cfg):
 
         # if dist1 > 550: # fatser-rcnn, detr: 2200, yolov3:450, ppyolo:630, ssd: 250
         #     continue
-        if target_label is None:
-            if adv_label not in sim_label: 
+        if FLAGS.target_label is None:
+            if adv_label not in FLAGS.sim_label: 
                  data_adv = depreprocessor(perturbed_normalized[0].detach())
                  cv2.imwrite("./adv_detr.png", data_adv)
                  # 添加下面代码的原因是，图像输出和原图大小有一定的区别，而扰动是添加在模型输入图像上的，因此，扰动还原到原图上时，
@@ -591,7 +558,7 @@ def run(FLAGS, cfg):
                  trainer.model.eval()
                  orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0, FLAGS.sim_label)
                  print("orig_label======", orig_label1, score_orig1, score1)
-                 if score_orig1 > 0.5 or orig_label1 in sim_label: #or orig_label1 != 1:
+                 if score_orig1 > 0.5 or orig_label1 in FLAGS.sim_label: #or orig_label1 != 1:
                      continue
                  else:
                      break
@@ -656,24 +623,23 @@ def ext_score(outs, data, datainfo, sim_label):
     for key, value in outs.items():
         if hasattr(value, 'numpy'):
             outs[key] = value.numpy()
-
+    orig_label = sim_label[0]
     batch_res = get_infer_results(outs, clsid2catid)
     score_orig = 0.
-    orig_label = sim_label
     bbox = batch_res["bbox"]
     for box in bbox:
         if box["category_id"] == orig_label:
             score_orig = box["score"]
     start = 0
-    max_score = 0.
-    max_label = sim_label[0]
+    max_score = 0
+    max_label = orig_label
     bbox_num = outs['bbox_num']
     for i, im_id in enumerate(outs['im_id']):
         end = start + bbox_num[i]
         bbox_res = batch_res['bbox'][start:end]
         for dt in numpy.array(bbox_res):
             catid, bbox, score = dt['category_id'], dt['bbox'], dt['score']
-            if catid in orig_label:
+            if catid in sim_label:
                 if score_orig < score:
                     score_orig = score
             if score > max_score:

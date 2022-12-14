@@ -96,10 +96,13 @@ DATASETS = {
         'https://paddlemodels.bj.bcebos.com/object_detection/roadsign_coco.tar',
         '49ce5a9b5ad0d6266163cd01de4b018e', ), ], ['annotations', 'images']),
     'spine_coco': ([(
-        'https://paddledet.bj.bcebos.com/data/spine_coco.tar',
-        '7ed69ae73f842cd2a8cf4f58dc3c5535', ), ], ['annotations', 'images']),
+        'https://paddledet.bj.bcebos.com/data/spine.tar',
+        '8a3a353c2c54a2284ad7d2780b65f6a6', ), ], ['annotations', 'images']),
     'mot': (),
-    'objects365': ()
+    'objects365': (),
+    'coco_ce': ([(
+        'https://paddledet.bj.bcebos.com/data/coco_ce.tar',
+        'eadd1b79bc2f069f2744b1dd4e0c0329', ), ], [])
 }
 
 DOWNLOAD_RETRY_LIMIT = 3
@@ -384,13 +387,18 @@ def _download(url, path, md5sum=None):
                     if chunk:
                         f.write(chunk)
         shutil.move(tmp_fullname, fullname)
-        return fullname
+    return fullname
 
 
 def _download_dist(url, path, md5sum=None):
     env = os.environ
     if 'PADDLE_TRAINERS_NUM' in env and 'PADDLE_TRAINER_ID' in env:
-        trainer_id = int(env['PADDLE_TRAINER_ID'])
+        # Mainly used to solve the problem of downloading data from
+        # different machines in the case of multiple machines.
+        # Different nodes will download data, and the same node
+        # will only download data once.
+        # Reference https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/ppcls/utils/download.py#L108
+        rank_id_curr_node = int(os.environ.get("PADDLE_RANK_IN_NODE", 0))
         num_trainers = int(env['PADDLE_TRAINERS_NUM'])
         if num_trainers <= 1:
             return _download(url, path, md5sum)
@@ -403,12 +411,9 @@ def _download_dist(url, path, md5sum=None):
                 os.makedirs(path)
 
             if not osp.exists(fullname):
-                from paddle.distributed import ParallelEnv
-                unique_endpoints = _get_unique_endpoints(ParallelEnv()
-                                                         .trainer_endpoints[:])
                 with open(lock_path, 'w'):  # touch    
                     os.utime(lock_path, None)
-                if ParallelEnv().current_endpoint in unique_endpoints:
+                if rank_id_curr_node == 0:
                     _download(url, path, md5sum)
                     os.remove(lock_path)
                 else:

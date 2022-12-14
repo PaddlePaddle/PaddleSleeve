@@ -24,8 +24,8 @@ import numpy as np
 import paddle
 from .base import Metric
 from .base import call_decorator
-from obj_detection.attack.utils.func import to_tanh_space
-from obj_detection.attack.utils.distances import MSE, Linf
+from attack.utils.func import to_tanh_space
+from attack.utils.distances import MSE, Linf
 
 from PIL import Image
 

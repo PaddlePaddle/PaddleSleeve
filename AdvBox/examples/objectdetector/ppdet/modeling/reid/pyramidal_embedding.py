@@ -21,7 +21,7 @@ import paddle.nn as nn
 import paddle.nn.functional as F
 from paddle.nn.initializer import Normal, Constant
 from paddle import ParamAttr
-from .resnet import *
+from .resnet import ResNet50, ResNet101
 from ppdet.core.workspace import register
 
 __all__ = ['PCBPyramid']
@@ -37,7 +37,8 @@ class PCBPyramid(nn.Layer):
         input_ch (int): Number of channels of the input feature.
         num_stripes (int): Number of sub-parts.
         used_levels (tuple): Whether the level is used, 1 means used.
-        num_classes (int): Number of classes for identities.
+        num_classes (int): Number of classes for identities, default 751 in
+            Market-1501 dataset.
         last_conv_stride (int): Stride of the last conv.
         last_conv_dilation (int): Dilation of the last conv.
         num_conv_out_channels (int): Number of channels of conv feature.
@@ -45,6 +46,7 @@ class PCBPyramid(nn.Layer):
 
     def __init__(self,
                  input_ch=2048,
+                 model_name='ResNet101',
                  num_stripes=6,
                  used_levels=(1, 1, 1, 1, 1, 1),
                  num_classes=751,
@@ -59,7 +61,8 @@ class PCBPyramid(nn.Layer):
         self.num_in_each_level = [i for i in range(self.num_stripes, 0, -1)]
         self.num_branches = sum(self.num_in_each_level)
 
-        self.base = ResNet101(
+        assert model_name in ['ResNet50', 'ResNet101'], "Unsupported ReID arch: {}".format(model_name)
+        self.base = eval(model_name)(
             lr_mult=0.1,
             last_conv_stride=last_conv_stride,
             last_conv_dilation=last_conv_dilation)
@@ -89,16 +92,12 @@ class PCBPyramid(nn.Layer):
             if idx_branches >= sum(self.num_in_each_level[0:idx_levels + 1]):
                 idx_levels += 1
 
-            name = "Linear_branch_id_{}".format(idx_branches)
             fc = nn.Linear(
                 in_features=num_conv_out_channels,
                 out_features=self.num_classes,
-                weight_attr=ParamAttr(
-                    name=name + "_weights",
-                    initializer=Normal(
-                        mean=0., std=0.001)),
-                bias_attr=ParamAttr(
-                    name=name + "_bias", initializer=Constant(value=0.)))
+                weight_attr=ParamAttr(initializer=Normal(
+                    mean=0., std=0.001)),
+                bias_attr=ParamAttr(initializer=Constant(value=0.)))
             pyramid_fc_list.append(fc)
         return pyramid_conv_list, pyramid_fc_list
 

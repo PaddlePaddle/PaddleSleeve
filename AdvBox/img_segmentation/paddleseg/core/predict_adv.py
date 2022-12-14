@@ -19,6 +19,7 @@ Contains:
 Author: tianweijuan
 """
 
+import pdb
 import os
 import math
 
@@ -122,6 +123,13 @@ def gradient_descent_iter_attack(model, im):
     
     return adv_img      
 
+def preprocess(im_path, transforms):
+    data = {}
+    data['img'] = im_path
+    data = transforms(data)
+    data['img'] = data['img'][np.newaxis, ...]
+    data['img'] = paddle.to_tensor(data['img'])
+    return data
 
 def predict_adv(model,
             model_path,
@@ -183,21 +191,15 @@ def predict_adv(model,
                 # print("evaled!!")
                 module.eval()
     for i, im_path in enumerate(img_lists[local_rank]):
-        im = cv2.imread(im_path)
-        ori_shape = im.shape[:2]
-        im, _ = transforms(im)
-        #print(im.max(), im.min())
-        im = im[np.newaxis, ...]
-        im = paddle.to_tensor(im)
-        adv_img = gradient_descent_iter_attack(model, im)  
+        data = preprocess(im_path, transforms)
+        adv_img = gradient_descent_iter_attack(model, data['img'])  
         #adv_img = gradient_descent_optim_attack(model, im)
          
         if aug_pred:
-            pred, _  = infer.aug_inference(
+            pred, _ = infer.aug_inference(
                     model,
-                    adv_img,
-                    ori_shape=ori_shape,
-                    transforms=transforms.transforms,
+                    data['img'],
+                    trans_info=data['trans_info'],
                     scales=scales,
                     flip_horizontal=flip_horizontal,
                     flip_vertical=flip_vertical,
@@ -207,13 +209,11 @@ def predict_adv(model,
         else:
             pred, _ = infer.inference(
                     model,
-                    adv_img,
-                    ori_shape=ori_shape,
-                    transforms=transforms.transforms,
+                    data['img'],
+                    trans_info=data['trans_info'],
                     is_slide=is_slide,
                     stride=stride,
                     crop_size=crop_size)
-            
         pred = paddle.squeeze(pred)
         pred = pred.numpy().astype('uint8')
         print((np.argwhere(pred == 1)).shape, (np.argwhere(pred == 0)).shape)

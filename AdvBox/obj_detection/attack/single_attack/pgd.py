@@ -27,7 +27,7 @@ from PIL import Image
 
 from .base import Metric
 from .base import call_decorator
-from obj_detection.attack.utils.distances import MSE, Linf
+from attack.utils.distances import MSE, Linf
 
 __all__ = ['ProjectedGradientDescentMetric', 'PGD']
 

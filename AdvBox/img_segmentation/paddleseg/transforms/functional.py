@@ -15,7 +15,14 @@
 import cv2
 import numpy as np
 from PIL import Image, ImageEnhance
-from scipy.ndimage.morphology import distance_transform_edt
+from scipy.ndimage import distance_transform_edt
+
+
+def rescale_size(img_size, target_size):
+    scale = min(
+        max(target_size) / max(img_size), min(target_size) / min(img_size))
+    rescaled_size = [round(i * scale) for i in img_size]
+    return rescaled_size, scale
 
 
 def normalize(im, mean, std):
@@ -145,11 +152,12 @@ def onehot_to_binary_edge(mask, radius):
 
     edge = np.zeros(mask.shape[1:])
     # pad borders
-    mask = np.pad(
-        mask, ((0, 0), (1, 1), (1, 1)), mode='constant', constant_values=0)
+    mask = np.pad(mask, ((0, 0), (1, 1), (1, 1)),
+                  mode='constant',
+                  constant_values=0)
     for i in range(num_classes):
-        dist = distance_transform_edt(
-            mask[i, :]) + distance_transform_edt(1.0 - mask[i, :])
+        dist = distance_transform_edt(mask[i, :]) + distance_transform_edt(
+            1.0 - mask[i, :])
         dist = dist[1:-1, 1:-1]
         dist[dist > radius] = 0
         edge += dist

@@ -23,8 +23,8 @@ import paddle
 import numpy as np
 from ppdet.data.reader import TestReader
 from ppdet.data.source.dataset import ImageFolder
-from obj_detection.attack.utils.tools import get_model, get_distance, get_metric, get_criteria
-from obj_detection.attack.utils.tools import denormalize_image, plot_image_objectdetection_ppdet, bcolors
+from attack.utils.tools import get_model, get_distance, get_metric, get_criteria
+from attack.utils.tools import denormalize_image, plot_image_objectdetection_ppdet, bcolors
 
 
 def parse_summary():

@@ -42,7 +42,7 @@ class PSNR(Metric):
         Returns:
             (float): Mean square error for input of expected and actual
         """
-        mse = mse_loss(actual, expected, reduction="mean").numpy()[0]
+        mse = float(mse_loss(actual, expected, reduction="mean"))
 
         if mse == 0:
             # prevent divided by zero

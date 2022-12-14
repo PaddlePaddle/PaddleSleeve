@@ -16,6 +16,9 @@ import logging
 import os
 import imghdr
 import cv2
+import random
+import numpy as np
+import paddle
 
 
 def print_dict(d, logger, delimiter=0):
@@ -46,18 +49,23 @@ def get_check_global_params(mode):
     return check_params
 
 
+def _check_image_file(path):
+    img_end = {'jpg', 'bmp', 'png', 'jpeg', 'rgb', 'tif', 'tiff', 'gif', 'pdf'}
+    return any([path.lower().endswith(e) for e in img_end])
+
+
 def get_image_file_list(img_file):
     imgs_lists = []
     if img_file is None or not os.path.exists(img_file):
         raise Exception("not found any img file in {}".format(img_file))
 
-    img_end = {'jpg', 'bmp', 'png', 'jpeg', 'rgb', 'tif', 'tiff', 'gif', 'GIF'}
-    if os.path.isfile(img_file) and imghdr.what(img_file) in img_end:
+    img_end = {'jpg', 'bmp', 'png', 'jpeg', 'rgb', 'tif', 'tiff', 'gif', 'pdf'}
+    if os.path.isfile(img_file) and _check_image_file(img_file):
         imgs_lists.append(img_file)
     elif os.path.isdir(img_file):
         for single_file in os.listdir(img_file):
             file_path = os.path.join(img_file, single_file)
-            if os.path.isfile(file_path) and imghdr.what(file_path) in img_end:
+            if os.path.isfile(file_path) and _check_image_file(file_path):
                 imgs_lists.append(file_path)
     if len(imgs_lists) == 0:
         raise Exception("not found any img file in {}".format(img_file))
@@ -65,7 +73,7 @@ def get_image_file_list(img_file):
     return imgs_lists
 
 
-def check_and_read_gif(img_path):
+def check_and_read(img_path):
     if os.path.basename(img_path)[-3:] in ['gif', 'GIF']:
         gif = cv2.VideoCapture(img_path)
         ret, frame = gif.read()
@@ -76,5 +84,67 @@ def check_and_read_gif(img_path):
         if len(frame.shape) == 2 or frame.shape[-1] == 1:
             frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
         imgvalue = frame[:, :, ::-1]
-        return imgvalue, True
-    return None, False
+        return imgvalue, True, False
+    elif os.path.basename(img_path)[-3:] in ['pdf']:
+        import fitz
+        from PIL import Image
+        imgs = []
+        with fitz.open(img_path) as pdf:
+            for pg in range(0, pdf.pageCount):
+                page = pdf[pg]
+                mat = fitz.Matrix(2, 2)
+                pm = page.getPixmap(matrix=mat, alpha=False)
+
+                # if width or height > 2000 pixels, don't enlarge the image
+                if pm.width > 2000 or pm.height > 2000:
+                    pm = page.getPixmap(matrix=fitz.Matrix(1, 1), alpha=False)
+
+                img = Image.frombytes("RGB", [pm.width, pm.height], pm.samples)
+                img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+                imgs.append(img)
+            return imgs, False, True
+    return None, False, False
+
+
+def load_vqa_bio_label_maps(label_map_path):
+    with open(label_map_path, "r", encoding='utf-8') as fin:
+        lines = fin.readlines()
+    old_lines = [line.strip() for line in lines]
+    lines = ["O"]
+    for line in old_lines:
+        # "O" has already been in lines
+        if line.upper() in ["OTHER", "OTHERS", "IGNORE"]:
+            continue
+        lines.append(line)
+    labels = ["O"]
+    for line in lines[1:]:
+        labels.append("B-" + line)
+        labels.append("I-" + line)
+    label2id_map = {label.upper(): idx for idx, label in enumerate(labels)}
+    id2label_map = {idx: label.upper() for idx, label in enumerate(labels)}
+    return label2id_map, id2label_map
+
+
+def set_seed(seed=1024):
+    random.seed(seed)
+    np.random.seed(seed)
+    paddle.seed(seed)
+
+
+class AverageMeter:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        """reset"""
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        """update"""
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count

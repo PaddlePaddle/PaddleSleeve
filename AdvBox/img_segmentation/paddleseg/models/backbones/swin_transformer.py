@@ -134,8 +134,8 @@ class WindowAttention(nn.Layer):
 
         relative_coords = relative_coords.transpose([1, 2, 0])
 
-        relative_coords[:, :,
-                        0] += self.window_size[0] - 1  # shift to start from 0
+        relative_coords[:, :, 0] += self.window_size[
+            0] - 1  # shift to start from 0
         relative_coords[:, :, 1] += self.window_size[1] - 1
         relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
         relative_position_index = relative_coords.sum(-1)  # Wh*Ww, Wh*Ww
@@ -246,11 +246,10 @@ class SwinTransformerBlock(nn.Layer):
         self.drop_path = DropPath(drop_path) if drop_path > 0. else Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
-        self.mlp = Mlp(
-            in_features=dim,
-            hidden_features=mlp_hidden_dim,
-            act_layer=act_layer,
-            drop=drop)
+        self.mlp = Mlp(in_features=dim,
+                       hidden_features=mlp_hidden_dim,
+                       act_layer=act_layer,
+                       drop=drop)
 
         self.H = None
         self.W = None
@@ -532,7 +531,7 @@ class SwinTransformer(nn.Layer):
     Args:
         pretrain_img_size (int): Input image size for training the pretrained model, used in absolute postion embedding. Default: 224.
         patch_size (int | tuple(int)): Patch size. Default: 4.
-        in_chans (int): Number of input image channels. Default: 3.
+        in_channels (int): Number of input image channels. Default: 3.
         embed_dim (int): Number of linear projection output channels. Default: 96.
         depths (tuple[int]): Depths of each Swin Transformer stage.
         num_heads (tuple[int]): Number of attention head of each stage.
@@ -554,7 +553,7 @@ class SwinTransformer(nn.Layer):
     def __init__(self,
                  pretrain_img_size=224,
                  patch_size=4,
-                 in_chans=3,
+                 in_channels=3,
                  embed_dim=96,
                  depths=[2, 2, 6, 2],
                  num_heads=[3, 6, 12, 24],
@@ -584,7 +583,7 @@ class SwinTransformer(nn.Layer):
         # split image into non-overlapping patches
         self.patch_embed = PatchEmbed(
             patch_size=patch_size,
-            in_chans=in_chans,
+            in_chans=in_channels,
             embed_dim=embed_dim,
             norm_layer=norm_layer if self.patch_norm else None)
 
@@ -624,8 +623,8 @@ class SwinTransformer(nn.Layer):
                 attn_drop=attn_drop_rate,
                 drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
                 norm_layer=norm_layer,
-                downsample=PatchMerging if
-                (i_layer < self.num_layers - 1) else None)
+                downsample=PatchMerging
+                if (i_layer < self.num_layers - 1) else None)
             self.layers.append(layer)
 
         feat_channels = [int(embed_dim * 2**i) for i in range(self.num_layers)]

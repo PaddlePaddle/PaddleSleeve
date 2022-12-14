@@ -19,7 +19,7 @@ from __future__ import absolute_import
 import os
 import sys
 
-from obj_detection.attack.defense.base import AdvTransform
+from attack.defense.base import AdvTransform
 import copy
 import gc
 

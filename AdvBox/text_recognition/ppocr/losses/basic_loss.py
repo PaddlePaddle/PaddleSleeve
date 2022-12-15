@@ -57,17 +57,27 @@ class CELoss(nn.Layer):
 class KLJSLoss(object):
     def __init__(self, mode='kl'):
         assert mode in ['kl', 'js', 'KL', 'JS'
-                        ], "mode can only be one of ['kl', 'js', 'KL', 'JS']"
+                        ], "mode can only be one of ['kl', 'KL', 'js', 'JS']"
         self.mode = mode
 
-    def __call__(self, p1, p2, reduction="mean"):
+    def __call__(self, p1, p2, reduction="mean", eps=1e-5):
 
-        loss = paddle.multiply(p2, paddle.log((p2 + 1e-5) / (p1 + 1e-5) + 1e-5))
-
-        if self.mode.lower() == "js":
-            loss += paddle.multiply(
-                p1, paddle.log((p1 + 1e-5) / (p2 + 1e-5) + 1e-5))
+        if self.mode.lower() == 'kl':
+            loss = paddle.multiply(p2,
+                                   paddle.log((p2 + eps) / (p1 + eps) + eps))
+            loss += paddle.multiply(p1,
+                                    paddle.log((p1 + eps) / (p2 + eps) + eps))
             loss *= 0.5
+        elif self.mode.lower() == "js":
+            loss = paddle.multiply(
+                p2, paddle.log((2 * p2 + eps) / (p1 + p2 + eps) + eps))
+            loss += paddle.multiply(
+                p1, paddle.log((2 * p1 + eps) / (p1 + p2 + eps) + eps))
+            loss *= 0.5
+        else:
+            raise ValueError(
+                "The mode.lower() if KLJSLoss should be one of ['kl', 'js']")
+
         if reduction == "mean":
             loss = paddle.mean(loss, axis=[1, 2])
         elif reduction == "none" or reduction is None:
@@ -95,7 +105,7 @@ class DMLLoss(nn.Layer):
             self.act = None
 
         self.use_log = use_log
-        self.jskl_loss = KLJSLoss(mode="js")
+        self.jskl_loss = KLJSLoss(mode="kl")
 
     def _kldiv(self, x, target):
         eps = 1.0e-10
@@ -106,8 +116,8 @@ class DMLLoss(nn.Layer):
 
     def forward(self, out1, out2):
         if self.act is not None:
-            out1 = self.act(out1)
-            out2 = self.act(out2)
+            out1 = self.act(out1) + 1e-10
+            out2 = self.act(out2) + 1e-10
         if self.use_log:
             # for recognition distillation, log is needed for feature map
             log_out1 = paddle.log(out1)
@@ -138,3 +148,20 @@ class DistanceLoss(nn.Layer):
 
     def forward(self, x, y):
         return self.loss_func(x, y)
+
+
+class LossFromOutput(nn.Layer):
+    def __init__(self, key='loss', reduction='none'):
+        super().__init__()
+        self.key = key
+        self.reduction = reduction
+
+    def forward(self, predicts, batch):
+        loss = predicts
+        if self.key is not None and isinstance(predicts, dict):
+            loss = loss[self.key]
+        if self.reduction == 'mean':
+            loss = paddle.mean(loss)
+        elif self.reduction == 'sum':
+            loss = paddle.sum(loss)
+        return {'loss': loss}

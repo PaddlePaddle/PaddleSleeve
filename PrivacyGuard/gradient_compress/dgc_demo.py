@@ -180,7 +180,7 @@ def train_and_attack(args):
             opt.clear_grad()
             if id % 100 == 0:
                 print("epoch {}, batch id {}, training loss {}, acc {}."
-                       .format(i, id, paddle.mean(loss).numpy()[0], acc.accumulate()))
+                       .format(i, id, float(paddle.mean(loss)), acc.accumulate()))
     
 
 def attack(args, origin_grad, target_x, target_y, net):

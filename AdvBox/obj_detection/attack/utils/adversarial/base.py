@@ -17,8 +17,8 @@
 import numpy as np
 import numbers
 from abc import ABC
-from obj_detection.attack.utils.distances import MSE
-from obj_detection.attack.utils.distances import Distance
+from attack.utils.distances import MSE
+from attack.utils.distances import Distance
 
 
 class StopAttack(Exception):

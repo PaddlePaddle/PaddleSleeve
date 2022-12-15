@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+This code is based on https://github.com/pytorch/pytorch/blob/master/torch/nn/init.py
+Ths copyright of pytorch/pytorch is a BSD-style license, as found in the LICENSE file.
+"""
 
 import math
 import numpy as np
@@ -269,7 +273,14 @@ def linear_init_(module):
 def conv_init_(module):
     bound = 1 / np.sqrt(np.prod(module.weight.shape[1:]))
     uniform_(module.weight, -bound, bound)
-    uniform_(module.bias, -bound, bound)
+    if module.bias is not None:
+        uniform_(module.bias, -bound, bound)
+
+
+def bias_init_with_prob(prior_prob=0.01):
+    """initialize conv/fc bias value according to a given probability value."""
+    bias_init = float(-np.log((1 - prior_prob) / prior_prob))
+    return bias_init
 
 
 @paddle.no_grad()

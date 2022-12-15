@@ -62,7 +62,7 @@ def _strip_postfix(path):
     return path
 
 
-def load_weight(model, weight, optimizer=None):
+def load_weight(model, weight, optimizer=None, ema=None):
     if is_url(weight):
         weight = get_weights_path(weight)
 
@@ -72,14 +72,26 @@ def load_weight(model, weight, optimizer=None):
         raise ValueError("Model pretrain path {} does not "
                          "exists.".format(pdparam_path))
 
-    param_state_dict = paddle.load(pdparam_path)
+    if ema is not None and os.path.exists(path + '.pdema'):
+        # Exchange model and ema_model to load
+        ema_state_dict = paddle.load(pdparam_path)
+        param_state_dict = paddle.load(path + '.pdema')
+    else:
+        ema_state_dict = None
+        param_state_dict = paddle.load(pdparam_path)
+
     model_dict = model.state_dict()
     model_weight = {}
     incorrect_keys = 0
 
-    for key in model_dict.keys():
+    for key, value in model_dict.items():
         if key in param_state_dict.keys():
-            model_weight[key] = param_state_dict[key]
+            if isinstance(param_state_dict[key], np.ndarray):
+                param_state_dict[key] = paddle.to_tensor(param_state_dict[key])
+            if value.dtype == param_state_dict[key].dtype:
+                model_weight[key] = param_state_dict[key]
+            else:
+                model_weight[key] = param_state_dict[key].astype(value.dtype)
         else:
             logger.info('Unmatched key: {}'.format(key))
             incorrect_keys += 1
@@ -102,6 +114,11 @@ def load_weight(model, weight, optimizer=None):
             last_epoch = optim_state_dict.pop('last_epoch')
         optimizer.set_state_dict(optim_state_dict)
 
+        if ema_state_dict is not None:
+            ema.resume(ema_state_dict,
+                       optim_state_dict['LR_Scheduler']['last_epoch'])
+    elif ema_state_dict is not None:
+        ema.resume(ema_state_dict)
     return last_epoch
 
 
@@ -112,9 +129,9 @@ def match_state_dict(model_state_dict, weight_state_dict):
 
     The method supposes that all the names in pretrained weight state dict are
     subclass of the names in models`, if the prefix 'backbone.' in pretrained weight
-    keys is stripped. And we could get the candidates for each model key. Then we 
+    keys is stripped. And we could get the candidates for each model key. Then we
     select the name with the longest matched size as the final match result. For
-    example, the model state dict has the name of 
+    example, the model state dict has the name of
     'backbone.res2.res2a.branch2a.conv.weight' and the pretrained weight as
     name of 'res2.res2a.branch2a.conv.weight' and 'branch2a.conv.weight'. We
     match the 'res2.res2a.branch2a.conv.weight' to the model key.
@@ -124,8 +141,8 @@ def match_state_dict(model_state_dict, weight_state_dict):
     weight_keys = sorted(weight_state_dict.keys())
 
     def match(a, b):
-        if a.startswith('backbone.res5'):
-            # In Faster RCNN, res5 pretrained weights have prefix of backbone, 
+        if b.startswith('backbone.res5'):
+            # In Faster RCNN, res5 pretrained weights have prefix of backbone,
             # however, the corresponding model weights have difficult prefix,
             # bbox_head.
             b = b[9:]
@@ -139,10 +156,14 @@ def match_state_dict(model_state_dict, weight_state_dict):
     max_id = match_matrix.argmax(1)
     max_len = match_matrix.max(1)
     max_id[max_len == 0] = -1
+
+    load_id = set(max_id)
+    load_id.discard(-1)
     not_load_weight_name = []
-    for match_idx in range(len(max_id)):
-        if match_idx < len(weight_keys) and max_id[match_idx] == -1:
-            not_load_weight_name.append(weight_keys[match_idx])
+    for idx in range(len(weight_keys)):
+        if idx not in load_id:
+            not_load_weight_name.append(weight_keys[idx])
+
     if len(not_load_weight_name) > 0:
         logger.info('{} in pretrained weight is not used in the model, '
                     'and its will not be loaded'.format(not_load_weight_name))
@@ -193,33 +214,52 @@ def load_pretrain_weight(model, pretrain_weight):
     param_state_dict = paddle.load(weights_path)
     param_state_dict = match_state_dict(model_dict, param_state_dict)
 
+    for k, v in param_state_dict.items():
+        if isinstance(v, np.ndarray):
+            v = paddle.to_tensor(v)
+        if model_dict[k].dtype != v.dtype:
+            param_state_dict[k] = v.astype(model_dict[k].dtype)
+
     model.set_dict(param_state_dict)
     logger.info('Finish loading model weights: {}'.format(weights_path))
 
 
-def save_model(model, optimizer, save_dir, save_name, last_epoch):
+def save_model(model,
+               optimizer,
+               save_dir,
+               save_name,
+               last_epoch,
+               ema_model=None):
     """
     save model into disk.
 
     Args:
-        model (paddle.nn.Layer): the Layer instalce to save parameters.
+        model (dict): the model state_dict to save parameters.
         optimizer (paddle.optimizer.Optimizer): the Optimizer instance to
             save optimizer states.
         save_dir (str): the directory to be saved.
         save_name (str): the path to be saved.
         last_epoch (int): the epoch index.
+        ema_model (dict|None): the ema_model state_dict to save parameters.
     """
     if paddle.distributed.get_rank() != 0:
         return
+    assert isinstance(model, dict), ("model is not a instance of dict, "
+                                     "please call model.state_dict() to get.")
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     save_path = os.path.join(save_dir, save_name)
-    if isinstance(model, nn.Layer):
-        paddle.save(model.state_dict(), save_path + ".pdparams")
-    else:
-        assert isinstance(model,
-                          dict), 'model is not a instance of nn.layer or dict'
+    # save model
+    if ema_model is None:
         paddle.save(model, save_path + ".pdparams")
+    else:
+        assert isinstance(ema_model,
+                          dict), ("ema_model is not a instance of dict, "
+                                  "please call model.state_dict() to get.")
+        # Exchange model and ema_model to save
+        paddle.save(ema_model, save_path + ".pdparams")
+        paddle.save(model, save_path + ".pdema")
+    # save optimizer
     state_dict = optimizer.state_dict()
     state_dict['last_epoch'] = last_epoch
     paddle.save(state_dict, save_path + ".pdopt")

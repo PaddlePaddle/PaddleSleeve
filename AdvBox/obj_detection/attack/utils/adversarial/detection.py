@@ -20,8 +20,8 @@ import numpy as np
 import numbers
 from .base import Adversarial
 from .base import StopAttack
-from obj_detection.attack.utils.distances import MSE
-from obj_detection.attack.utils.distances import Distance
+from attack.utils.distances import MSE
+from attack.utils.distances import Distance
 
 
 class DetAdversarial(Adversarial):

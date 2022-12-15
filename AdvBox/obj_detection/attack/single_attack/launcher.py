@@ -22,8 +22,8 @@ import sys
 work_dir = os.path.abspath(os.getcwd())
 sys.path.append(work_dir)
 
-from obj_detection.attack.utils.tools import get_metric, get_distance, get_criteria, get_model
-from obj_detection.attack.utils.tools import plot_image_objectdetection_ppdet, bcolors
+from attack.utils.tools import get_metric, get_distance, get_criteria, get_model
+from attack.utils.tools import plot_image_objectdetection_ppdet, bcolors
 import argparse
 import numpy as np
 

@@ -16,6 +16,7 @@ import os
 import json
 from collections import defaultdict, OrderedDict
 import numpy as np
+import paddle
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from ..modeling.keypoint_utils import oks_nms
@@ -27,11 +28,10 @@ __all__ = ['KeyPointTopDownCOCOEval', 'KeyPointTopDownMPIIEval']
 
 
 class KeyPointTopDownCOCOEval(object):
-    '''
-    Adapted from
+    """refer to
         https://github.com/leoxiaobin/deep-high-resolution-net.pytorch
         Copyright (c) Microsoft, under the MIT License.
-    '''
+    """
 
     def __init__(self,
                  anno_file,
@@ -71,15 +71,23 @@ class KeyPointTopDownCOCOEval(object):
         self.results['all_preds'][self.idx:self.idx + num_images, :, 0:
                                   3] = kpts[:, :, 0:3]
         self.results['all_boxes'][self.idx:self.idx + num_images, 0:2] = inputs[
-            'center'].numpy()[:, 0:2]
+            'center'].numpy()[:, 0:2] if isinstance(
+                inputs['center'], paddle.Tensor) else inputs['center'][:, 0:2]
         self.results['all_boxes'][self.idx:self.idx + num_images, 2:4] = inputs[
-            'scale'].numpy()[:, 0:2]
+            'scale'].numpy()[:, 0:2] if isinstance(
+                inputs['scale'], paddle.Tensor) else inputs['scale'][:, 0:2]
         self.results['all_boxes'][self.idx:self.idx + num_images, 4] = np.prod(
-            inputs['scale'].numpy() * 200, 1)
-        self.results['all_boxes'][self.idx:self.idx + num_images,
-                                  5] = np.squeeze(inputs['score'].numpy())
-        self.results['image_path'].extend(inputs['im_id'].numpy())
-
+            inputs['scale'].numpy() * 200,
+            1) if isinstance(inputs['scale'], paddle.Tensor) else np.prod(
+                inputs['scale'] * 200, 1)
+        self.results['all_boxes'][
+            self.idx:self.idx + num_images,
+            5] = np.squeeze(inputs['score'].numpy()) if isinstance(
+                inputs['score'], paddle.Tensor) else np.squeeze(inputs['score'])
+        if isinstance(inputs['im_id'], paddle.Tensor):
+            self.results['image_path'].extend(inputs['im_id'].numpy())
+        else:
+            self.results['image_path'].extend(inputs['im_id'])
         self.idx += num_images
 
     def _write_coco_keypoint_results(self, keypoints):
@@ -286,7 +294,7 @@ class KeyPointTopDownMPIIEval(object):
         return self.eval_results
 
     def evaluate(self, outputs, savepath=None):
-        """Evaluate PCKh for MPII dataset. Adapted from
+        """Evaluate PCKh for MPII dataset. refer to
         https://github.com/leoxiaobin/deep-high-resolution-net.pytorch
         Copyright (c) Microsoft, under the MIT License.
 

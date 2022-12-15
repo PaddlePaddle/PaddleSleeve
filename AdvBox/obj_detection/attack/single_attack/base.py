@@ -20,9 +20,9 @@ from functools import wraps
 import warnings
 import logging
 
-from obj_detection.attack.utils.distances import MSE
-from obj_detection.attack.utils.adversarial.detection import DetAdversarial
-from obj_detection.attack.utils.adversarial.base import StopAttack
+from attack.utils.distances import MSE
+from attack.utils.adversarial.detection import DetAdversarial
+from attack.utils.adversarial.base import StopAttack
 
 
 class Metric(ABC):

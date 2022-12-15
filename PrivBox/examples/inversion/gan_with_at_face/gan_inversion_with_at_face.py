@@ -269,7 +269,7 @@ def train_and_attack(args):
             optim_d_real.clear_grad()
             
             real_acc = acc_fn.compute(p_real, real_labels)
-            real_avg_cost_set.append(real_avg_cost.numpy()[0])
+            real_avg_cost_set.append(float(real_avg_cost))
             real_acc_set.append(real_acc.numpy()[0])
 
         print("Victim Epoch: %d, real_avg_acc: %f, real_avg_cost: %f"

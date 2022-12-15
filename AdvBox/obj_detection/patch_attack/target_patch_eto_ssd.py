@@ -313,7 +313,7 @@ def run(FLAGS, cfg):
     depre_settings = {'ImPermute': {},
                       'DenormalizeImage': {'mean': [127.5, 127.5, 127.5], 'std': [127.502231, 127.502231, 127.502231],
                                            'input_channel_axis': 2, 'is_scale': False},
-                      'Resize': {'target_size': (int(size['height']), int(size['width']), int(size['depth'])), 'keep_ratio': False, 'interp': 1}
+                      'Resize': {'target_size': (int(size['height']), int(size['width']), int(size['depth'])), 'keep_ratio': False, 'interp': 1},
                       'Encode': {}
                       }
     depreprocessor = OperatorCompose(depre_settings)

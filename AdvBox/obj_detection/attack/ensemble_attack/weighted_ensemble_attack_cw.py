@@ -19,16 +19,16 @@ from __future__ import absolute_import
 import os
 import sys
 
+work_dir = os.path.abspath(os.getcwd())
+sys.path.append(work_dir)
 import paddle
-from obj_detection.attack.utils.tools import get_model, denormalize_image, bcolors, plot_image_objectdetection_ppdet
+from attack.utils.tools import get_model, denormalize_image, bcolors, plot_image_objectdetection_ppdet
 from ppdet.data.source.dataset import ImageFolder
 from ppdet.data.reader import TestReader
 
 import numpy as np
 import copy
 
-work_dir = os.path.abspath(os.getcwd())
-sys.path.append(work_dir)
 
 
 def parse_summary():

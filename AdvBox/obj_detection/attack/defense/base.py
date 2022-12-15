@@ -21,7 +21,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 
 from paddle.fluid.dataloader.collate import default_collate_fn
-from obj_detection.attack.utils.tools import get_distance, get_criteria, denormalize_image
+from attack.utils.tools import get_distance, get_criteria, denormalize_image
 
 
 class AdvTransform(object):

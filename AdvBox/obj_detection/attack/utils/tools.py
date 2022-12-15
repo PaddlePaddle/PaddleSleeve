@@ -14,7 +14,7 @@
 
 """Launcher tools."""
 
-from obj_detection.attack.utils.image import load_image, draw_bounding_box_on_image
+from attack.utils.image import load_image, draw_bounding_box_on_image
 import matplotlib.pyplot as plt
 from PIL import Image, ImageOps, ImageFile, ImageDraw
 from ppdet.utils.colormap import colormap
@@ -65,7 +65,7 @@ def get_model(model_name, framework, summary=None):
 
 def get_distance(distance_name):
     """Get the distance metric."""
-    import obj_detection.attack.utils.distances as distances
+    import attack.utils.distances as distances
     switcher = {
         'mse': distances.MSE,
         'mae': distances.MAE,
@@ -78,7 +78,7 @@ def get_distance(distance_name):
 
 def get_metric(attack_name, model, criteria, distance):
     """Get the attack class object."""
-    import obj_detection.attack.single_attack as metrics
+    import attack.single_attack as metrics
     kwargs = {
         'model': model,
         'criterion': criteria,
@@ -95,7 +95,7 @@ def get_metric(attack_name, model, criteria, distance):
 
 def get_criteria(criteria_name, target_class=None, prob=None, model_name=None):
     """Get the adversarial criteria."""
-    import obj_detection.attack.utils.criteria as criteria
+    import attack.utils.criteria as criteria
     switcher = {
         "target_class_miss": lambda: criteria.TargetClassMiss(target_class, model_name)
     }
@@ -103,7 +103,7 @@ def get_criteria(criteria_name, target_class=None, prob=None, model_name=None):
 
 
 def _load_paddledet_model(model_name, summary=None):
-    import obj_detection.attack.models.paddledet as ppdet
+    import attack.models.paddledet as ppdet
     switcher = {
         'paddledet_yolov3_darknet53': 'yolov3_darknet53_270e_coco',
         'paddledet_yolov3_mobilenet_v3_large': 'yolov3_mobilenet_v3_large_270e_coco',
@@ -132,7 +132,7 @@ def _load_paddledet_model(model_name, summary=None):
 
 def plot_image_objectdetection(adversary, kmodel, bounds=(0, 1), title=None, figname='compare.png'):
     """Plot the images."""
-    from obj_detection.attack.utils.image import draw_letterbox
+    from attack.utils.image import draw_letterbox
     pred_ori = kmodel.predictions(adversary.original_image)
     pred_adv = kmodel.predictions(adversary.image)
     class_names = kmodel.get_class()

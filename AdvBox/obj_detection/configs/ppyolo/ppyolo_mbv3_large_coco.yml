@@ -6,6 +6,7 @@ _BASE_: [
   './_base_/ppyolo_reader.yml',
 ]
 
+norm_type: bn
 snapshot_epoch: 10
 weights: output/ppyolo_mbv3_large_coco/model_final
 

@@ -24,7 +24,7 @@ from paddleseg.transforms import Compose
 class PascalContext(Dataset):
     """
     PascalVOC2010 dataset `http://host.robots.ox.ac.uk/pascal/VOC/`.
-    If you want to use pascal context dataset, please run the convert_voc2010.py in tools firstly.
+    If you want to use pascal context dataset, please run the convert_voc2010.py in tools/data firstly.
 
     Args:
         transforms (list): Transforms for image.
@@ -35,7 +35,11 @@ class PascalContext(Dataset):
     """
     NUM_CLASSES = 60
 
-    def __init__(self, transforms=None, dataset_root=None, mode='train', edge=False):
+    def __init__(self,
+                 transforms=None,
+                 dataset_root=None,
+                 mode='train',
+                 edge=False):
         self.dataset_root = dataset_root
         self.transforms = Compose(transforms)
         mode = mode.lower()

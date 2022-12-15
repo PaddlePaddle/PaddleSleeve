@@ -210,9 +210,16 @@ def create(cls_or_name, **kwargs):
     assert type(cls_or_name) in [type, str
                                  ], "should be a class or name of a class"
     name = type(cls_or_name) == str and cls_or_name or cls_or_name.__name__
-    assert name in global_config and \
-        isinstance(global_config[name], SchemaDict), \
-        "the module {} is not registered".format(name)
+    if name in global_config:
+        if isinstance(global_config[name], SchemaDict):
+            pass
+        elif hasattr(global_config[name], "__dict__"):
+            # support instance return directly
+            return global_config[name]
+        else:
+            raise ValueError("The module {} is not registered".format(name))
+    else:
+        raise ValueError("The module {} is not registered".format(name))
 
     config = global_config[name]
     cls = getattr(config.pymodule, name)
@@ -272,7 +279,5 @@ def create(cls_or_name, **kwargs):
                 raise ValueError("Unsupported injection type:", target_key)
     # prevent modification of global config values of reference types
     # (e.g., list, dict) from within the created module instances
-    # kwargs = copy.deepcopy(kwargs)
-    # import pdb
-    # pdb.set_trace()
+    #kwargs = copy.deepcopy(kwargs)
     return cls(**cls_kwargs)

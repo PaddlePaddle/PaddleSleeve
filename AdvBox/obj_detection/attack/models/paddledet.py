@@ -13,8 +13,8 @@
 """Image classification model wrapper for paddle hub models."""
 
 from __future__ import absolute_import
-from obj_detection.attack.models.base import Model
-from obj_detection.attack.utils.tools import denormalize_image
+from attack.models.base import Model
+from attack.utils.tools import denormalize_image
 import os
 import numpy as np
 import paddle
@@ -400,8 +400,9 @@ class PPdet_Rcnn_Model(PPdet_Model):
                                                 im_shape, scale_factor)
 
         # rescale the prediction back to origin image
-        bbox_pred = self._model.bbox_post_process.get_pred(bbox, bbox_num,
-                                                    im_shape, scale_factor)
+        #bbox_pred = self._model.bbox_post_process.get_pred(bbox, bbox_num,
+        #                                            im_shape, scale_factor)
+        bboxes, bbox_pred, bbox_num = self._model.bbox_post_process.get_pred(bbox, bbox_num, im_shape, scale_factor)
         return {'body_feats': body_feats, 'preds': preds, 'cls_prob_logits': cls_prob_logits,
                 'bbox_pred': bbox_pred, 'bbox_num': bbox_num}
 

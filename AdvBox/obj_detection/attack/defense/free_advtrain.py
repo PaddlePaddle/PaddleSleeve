@@ -23,7 +23,7 @@ import paddle
 import numpy as np
 import gc
 from PIL import Image
-from obj_detection.attack.utils.tools import denormalize_image
+from attack.utils.tools import denormalize_image
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):

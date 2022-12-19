@@ -38,4 +38,4 @@ class MSE(Metric):
         Returns:
             (float): Mean square error for input of expected and actual
         """
-        return mse_loss(actual, expected, reduction="mean").numpy()[0]
+        return float(mse_loss(actual, expected, reduction="mean"))

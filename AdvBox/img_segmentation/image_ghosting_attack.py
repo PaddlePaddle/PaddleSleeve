@@ -28,6 +28,7 @@ import paddle
 from paddleseg.cvlibs import manager, Config
 from paddleseg.utils import get_sys_env, logger, config_check, get_image_list
 from paddleseg.core import predict_adv
+from paddleseg.transforms import Compose
 
 
 def parse_args():
@@ -149,6 +150,7 @@ def main(args):
         raise RuntimeError('No configuration file specified.')
 
     cfg = Config(args.cfg)
+    cfg.check_sync_info()
     val_dataset = cfg.val_dataset
     if not val_dataset:
         raise RuntimeError(
@@ -161,7 +163,7 @@ def main(args):
     logger.info(msg)
 
     model = cfg.model
-    transforms = val_dataset.transforms
+    transforms = Compose(cfg.val_transforms)
     image_list, image_dir = get_image_list(args.image_path)
     logger.info('Number of predict images = {}'.format(len(image_list)))
 

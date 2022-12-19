@@ -22,8 +22,11 @@ from . import ctfocal_loss
 from . import keypoint_loss
 from . import jde_loss
 from . import fairmot_loss
+from . import gfocal_loss
 from . import detr_loss
 from . import sparsercnn_loss
+from . import focal_loss
+from . import smooth_l1_loss
 
 from .yolo_loss import *
 from .iou_aware_loss import *
@@ -35,5 +38,8 @@ from .ctfocal_loss import *
 from .keypoint_loss import *
 from .jde_loss import *
 from .fairmot_loss import *
+from .gfocal_loss import *
 from .detr_loss import *
 from .sparsercnn_loss import *
+from .focal_loss import *
+from .smooth_l1_loss import *

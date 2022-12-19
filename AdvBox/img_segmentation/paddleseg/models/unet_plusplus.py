@@ -31,8 +31,8 @@ class UNetPlusPlus(nn.Layer):
     (https://arxiv.org/abs/1807.10165).
 
     Args:
-        in_channels (int): The channel number of input image.
         num_classes (int): The unique number of target classes.
+        in_channels (int, optional): The channel number of input image. Default: 3.
         use_deconv (bool, optional): A bool value indicates whether using deconvolution in upsampling.
             If False, use resize_bilinear. Default: False.
         align_corners (bool): An argument of F.interpolate. It should be set to False when the output size of feature
@@ -42,8 +42,8 @@ class UNetPlusPlus(nn.Layer):
         """
 
     def __init__(self,
-                 in_channels,
                  num_classes,
+                 in_channels=3,
                  use_deconv=False,
                  align_corners=False,
                  pretrained=None,
@@ -195,7 +195,8 @@ class DoubleConv(nn.Layer):
         super(DoubleConv, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2D(in_channels, out_channels, filter_size, stride, padding),
-            SyncBatchNorm(out_channels), nn.ReLU(),
+            SyncBatchNorm(out_channels),
+            nn.ReLU(),
             nn.Conv2D(out_channels, out_channels, filter_size, stride, padding),
             SyncBatchNorm(out_channels), nn.ReLU())
 

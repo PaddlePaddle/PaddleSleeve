@@ -16,6 +16,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import typing
+
 try:
     from collections.abc import Sequence
 except Exception:
@@ -45,6 +47,8 @@ __all__ = [
     'PadMaskBatch',
     'Gt2GFLTarget',
     'Gt2CenterNetTarget',
+    'PadGT',
+    'PadRGT',
 ]
 
 
@@ -69,15 +73,23 @@ class PadBatch(BaseOperator):
         """
         coarsest_stride = self.pad_to_stride
 
-        max_shape = np.array([data['image'].shape for data in samples]).max(
-            axis=0)
+        # multi scale input is nested list
+        if isinstance(samples,
+                      typing.Sequence) and len(samples) > 0 and isinstance(
+                          samples[0], typing.Sequence):
+            inner_samples = samples[0]
+        else:
+            inner_samples = samples
+
+        max_shape = np.array(
+            [data['image'].shape for data in inner_samples]).max(axis=0)
         if coarsest_stride > 0:
             max_shape[1] = int(
                 np.ceil(max_shape[1] / coarsest_stride) * coarsest_stride)
             max_shape[2] = int(
                 np.ceil(max_shape[2] / coarsest_stride) * coarsest_stride)
 
-        for data in samples:
+        for data in inner_samples:
             im = data['image']
             im_c, im_h, im_w = im.shape[:]
             padding_im = np.zeros(
@@ -97,12 +109,6 @@ class PadBatch(BaseOperator):
                     dtype=np.uint8)
                 padding_segm[:, :im_h, :im_w] = gt_segm
                 data['gt_segm'] = padding_segm
-
-            if 'gt_rbox2poly' in data and data['gt_rbox2poly'] is not None:
-                # ploy to rbox
-                polys = data['gt_rbox2poly']
-                rbox = bbox_utils.poly2rbox(polys)
-                data['gt_rbox'] = rbox
 
         return samples
 
@@ -970,12 +976,6 @@ class PadMaskBatch(BaseOperator):
                 padding_mask[:im_h, :im_w] = 1.
                 data['pad_mask'] = padding_mask
 
-            if 'gt_rbox2poly' in data and data['gt_rbox2poly'] is not None:
-                # ploy to rbox
-                polys = data['gt_rbox2poly']
-                rbox = bbox_utils.poly2rbox(polys)
-                data['gt_rbox'] = rbox
-
         return samples
 
 
@@ -1058,3 +1058,110 @@ class Gt2CenterNetTarget(BaseOperator):
         sample['size'] = wh
         sample['offset'] = reg
         return sample
+
+
+@register_op
+class PadGT(BaseOperator):
+    """
+    Pad 0 to `gt_class`, `gt_bbox`, `gt_score`...
+    The num_max_boxes is the largest for batch.
+    Args:
+        return_gt_mask (bool): If true, return `pad_gt_mask`,
+                                1 means bbox, 0 means no bbox.
+    """
+
+    def __init__(self, return_gt_mask=True):
+        super(PadGT, self).__init__()
+        self.return_gt_mask = return_gt_mask
+
+    def __call__(self, samples, context=None):
+        num_max_boxes = max([len(s['gt_bbox']) for s in samples])
+        for sample in samples:
+            if self.return_gt_mask:
+                sample['pad_gt_mask'] = np.zeros(
+                    (num_max_boxes, 1), dtype=np.float32)
+            if num_max_boxes == 0:
+                continue
+
+            num_gt = len(sample['gt_bbox'])
+            pad_gt_class = np.zeros((num_max_boxes, 1), dtype=np.int32)
+            pad_gt_bbox = np.zeros((num_max_boxes, 4), dtype=np.float32)
+            if num_gt > 0:
+                pad_gt_class[:num_gt] = sample['gt_class']
+                pad_gt_bbox[:num_gt] = sample['gt_bbox']
+            sample['gt_class'] = pad_gt_class
+            sample['gt_bbox'] = pad_gt_bbox
+            # pad_gt_mask
+            if 'pad_gt_mask' in sample:
+                sample['pad_gt_mask'][:num_gt] = 1
+            # gt_score
+            if 'gt_score' in sample:
+                pad_gt_score = np.zeros((num_max_boxes, 1), dtype=np.float32)
+                if num_gt > 0:
+                    pad_gt_score[:num_gt] = sample['gt_score']
+                sample['gt_score'] = pad_gt_score
+            if 'is_crowd' in sample:
+                pad_is_crowd = np.zeros((num_max_boxes, 1), dtype=np.int32)
+                if num_gt > 0:
+                    pad_is_crowd[:num_gt] = sample['is_crowd']
+                sample['is_crowd'] = pad_is_crowd
+            if 'difficult' in sample:
+                pad_diff = np.zeros((num_max_boxes, 1), dtype=np.int32)
+                if num_gt > 0:
+                    pad_diff[:num_gt] = sample['difficult']
+                sample['difficult'] = pad_diff
+        return samples
+
+
+@register_op
+class PadRGT(BaseOperator):
+    """
+    Pad 0 to `gt_class`, `gt_bbox`, `gt_score`...
+    The num_max_boxes is the largest for batch.
+    Args:
+        return_gt_mask (bool): If true, return `pad_gt_mask`,
+                                1 means bbox, 0 means no bbox.
+    """
+
+    def __init__(self, return_gt_mask=True):
+        super(PadRGT, self).__init__()
+        self.return_gt_mask = return_gt_mask
+
+    def pad_field(self, sample, field, num_gt):
+        name, shape, dtype = field
+        if name in sample:
+            pad_v = np.zeros(shape, dtype=dtype)
+            if num_gt > 0:
+                pad_v[:num_gt] = sample[name]
+            sample[name] = pad_v
+
+    def __call__(self, samples, context=None):
+        num_max_boxes = max([len(s['gt_bbox']) for s in samples])
+        for sample in samples:
+            if self.return_gt_mask:
+                sample['pad_gt_mask'] = np.zeros(
+                    (num_max_boxes, 1), dtype=np.float32)
+            if num_max_boxes == 0:
+                continue
+
+            num_gt = len(sample['gt_bbox'])
+            pad_gt_class = np.zeros((num_max_boxes, 1), dtype=np.int32)
+            pad_gt_bbox = np.zeros((num_max_boxes, 4), dtype=np.float32)
+            if num_gt > 0:
+                pad_gt_class[:num_gt] = sample['gt_class']
+                pad_gt_bbox[:num_gt] = sample['gt_bbox']
+            sample['gt_class'] = pad_gt_class
+            sample['gt_bbox'] = pad_gt_bbox
+            # pad_gt_mask
+            if 'pad_gt_mask' in sample:
+                sample['pad_gt_mask'][:num_gt] = 1
+            # gt_score
+            names = ['gt_score', 'is_crowd', 'difficult', 'gt_poly', 'gt_rbox']
+            dims = [1, 1, 1, 8, 5]
+            dtypes = [np.float32, np.int32, np.int32, np.float32, np.float32]
+
+            for name, dim, dtype in zip(names, dims, dtypes):
+                self.pad_field(sample, [name, (num_max_boxes, dim), dtype],
+                               num_gt)
+
+        return samples

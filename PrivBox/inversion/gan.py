@@ -139,16 +139,16 @@ class GANInversionAttack(InversionAttack):
 
         # train generator to generate Indistinguishable fake data
         g_cost = self._train_g(self.gen_net, disc_net, self.fake_dataload().next()[0], target_labels)
-        self.g_avg_cost_set.append(g_cost.numpy()[0])
+        self.g_avg_cost_set.append(float(g_cost))
 
         # train discriminator to distinguish fake data
         fake_cost = self._train_d_fake(disc_net, self.gen_net, self.fake_dataload().next()[0], fake_labels)
-        self.fake_avg_cost_set.append(fake_cost.numpy()[0])
+        self.fake_avg_cost_set.append(float(fake_cost))
 
         if data is not None:
             # train discriminator for normal data
             real_cost, real_acc = self._train_d_real(disc_net, real_image, real_labels)
-            self.real_avg_cost_set.append(real_cost.numpy()[0])
+            self.real_avg_cost_set.append(float(real_cost))
             self.real_acc_set.append(real_acc.numpy()[0])
 
         if not kwargs.__contains__("epoch"):

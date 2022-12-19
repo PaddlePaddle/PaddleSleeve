@@ -20,6 +20,7 @@ import os
 import yaml
 from collections import OrderedDict
 
+import paddle
 from ppdet.data.source.category import get_categories
 
 from ppdet.utils.logger import setup_logger
@@ -40,12 +41,38 @@ TRT_MIN_SUBGRAPH = {
     'HigherHRNet': 3,
     'HRNet': 3,
     'DeepSORT': 3,
+    'ByteTrack': 10,
     'JDE': 10,
     'FairMOT': 5,
+    'GFL': 16,
+    'PicoDet': 3,
+    'CenterNet': 5,
+    'TOOD': 5,
+    'YOLOX': 8,
 }
 
 KEYPOINT_ARCH = ['HigherHRNet', 'TopDownHRNet']
-MOT_ARCH = ['DeepSORT', 'JDE', 'FairMOT']
+MOT_ARCH = ['DeepSORT', 'JDE', 'FairMOT', 'ByteTrack']
+
+
+def _prune_input_spec(input_spec, program, targets):
+    # try to prune static program to figure out pruned input spec
+    # so we perform following operations in static mode
+    device = paddle.get_device()
+    paddle.enable_static()
+    paddle.set_device(device)
+    pruned_input_spec = [{}]
+    program = program.clone()
+    program = program._prune(targets=targets)
+    global_block = program.global_block()
+    for name, spec in input_spec[0].items():
+        try:
+            v = global_block.var(name)
+            pruned_input_spec[0][name] = spec
+        except Exception:
+            pass
+    paddle.disable_static(place=device)
+    return pruned_input_spec
 
 
 def _parse_reader(reader_cfg, dataset_cfg, metric, arch, image_shape):
@@ -57,6 +84,7 @@ def _parse_reader(reader_cfg, dataset_cfg, metric, arch, image_shape):
 
     label_list = [str(cat) for cat in catid2name.values()]
 
+    fuse_normalize = reader_cfg.get('fuse_normalize', False)
     sample_transforms = reader_cfg['sample_transforms']
     for st in sample_transforms[1:]:
         for key, value in st.items():
@@ -64,6 +92,9 @@ def _parse_reader(reader_cfg, dataset_cfg, metric, arch, image_shape):
             if key == 'Resize':
                 if int(image_shape[1]) != -1:
                     value['target_size'] = image_shape[1:]
+                value['interp'] = value.get('interp', 1)  # cv2.INTER_LINEAR
+            if fuse_normalize and key == 'NormalizeImage':
+                continue
             p.update(value)
             preprocess_list.append(p)
     batch_transforms = reader_cfg.get('batch_transforms', None)
@@ -92,14 +123,23 @@ def _dump_infer_config(config, path, image_shape, model):
     arch_state = False
     from ppdet.core.config.yaml_helpers import setup_orderdict
     setup_orderdict()
-    use_dynamic_shape = True if image_shape[1] == -1 else False
+    use_dynamic_shape = True if image_shape[2] == -1 else False
     infer_cfg = OrderedDict({
-        'mode': 'fluid',
+        'mode': 'paddle',
         'draw_threshold': 0.5,
         'metric': config['metric'],
         'use_dynamic_shape': use_dynamic_shape
     })
+    export_onnx = config.get('export_onnx', False)
+    export_eb = config.get('export_eb', False)
+
     infer_arch = config['architecture']
+    if 'RCNN' in infer_arch and export_onnx:
+        logger.warning(
+            "Exporting RCNN model to ONNX only support batch_size = 1")
+        infer_cfg['export_onnx'] = True
+        infer_cfg['export_eb'] = export_eb
+
 
     if infer_arch in MOT_ARCH:
         if infer_arch == 'DeepSORT':
@@ -114,10 +154,17 @@ def _dump_infer_config(config, path, image_shape, model):
             infer_cfg['min_subgraph_size'] = min_subgraph_size
             arch_state = True
             break
+
+    if infer_arch == 'YOLOX':
+        infer_cfg['arch'] = infer_arch
+        infer_cfg['min_subgraph_size'] = TRT_MIN_SUBGRAPH[infer_arch]
+        arch_state = True
+
     if not arch_state:
         logger.error(
-            'Architecture: {} is not supported for exporting model now'.format(
-                infer_arch))
+            'Architecture: {} is not supported for exporting model now.\n'.
+            format(infer_arch) +
+            'Please set TRT_MIN_SUBGRAPH in ppdet/engine/export_utils.py')
         os._exit(0)
     if 'mask_head' in config[config['architecture']] and config[config[
             'architecture']]['mask_head']:
@@ -135,7 +182,20 @@ def _dump_infer_config(config, path, image_shape, model):
         dataset_cfg = config['TestDataset']
 
     infer_cfg['Preprocess'], infer_cfg['label_list'] = _parse_reader(
-        reader_cfg, dataset_cfg, config['metric'], label_arch, image_shape)
+        reader_cfg, dataset_cfg, config['metric'], label_arch, image_shape[1:])
+
+    if infer_arch == 'PicoDet':
+        if hasattr(config, 'export') and config['export'].get(
+                'post_process',
+                False) and not config['export'].get('benchmark', False):
+            infer_cfg['arch'] = 'GFL'
+        head_name = 'PicoHeadV2' if config['PicoHeadV2'] else 'PicoHead'
+        infer_cfg['NMS'] = config[head_name]['nms']
+        # In order to speed up the prediction, the threshold of nms 
+        # is adjusted here, which can be changed in infer_cfg.yml
+        config[head_name]['nms']["score_threshold"] = 0.3
+        config[head_name]['nms']["nms_threshold"] = 0.5
+        infer_cfg['fpn_stride'] = config[head_name]['fpn_stride']
 
     yaml.dump(infer_cfg, open(path, 'w'))
     logger.info("Export inference config file to {}".format(os.path.join(path)))

@@ -27,25 +27,46 @@ __all__ = ['PPHumanSegLite']
 class PPHumanSegLite(nn.Layer):
     "A self-developed ultra lightweight model from PaddleSeg, is suitable for real-time scene segmentation on web or mobile terminals."
 
-    def __init__(self, num_classes, pretrained=None, align_corners=False):
+    def __init__(self,
+                 num_classes,
+                 in_channels=3,
+                 pretrained=None,
+                 align_corners=False):
         super().__init__()
         self.pretrained = pretrained
         self.num_classes = num_classes
         self.align_corners = align_corners
 
-        self.conv_bn0 = _ConvBNReLU(3, 36, 3, 2, 1)
+        self.conv_bn0 = _ConvBNReLU(in_channels, 36, 3, 2, 1)
         self.conv_bn1 = _ConvBNReLU(36, 18, 1, 1, 0)
 
         self.block1 = nn.Sequential(
-            InvertedResidual(36, stride=2, out_channels=72),
-            InvertedResidual(72, stride=1), InvertedResidual(72, stride=1),
-            InvertedResidual(72, stride=1))
+            InvertedResidual(
+                36, stride=2, out_channels=72),
+            InvertedResidual(
+                72, stride=1),
+            InvertedResidual(
+                72, stride=1),
+            InvertedResidual(
+                72, stride=1))
 
         self.block2 = nn.Sequential(
-            InvertedResidual(72, stride=2), InvertedResidual(144, stride=1),
-            InvertedResidual(144, stride=1), InvertedResidual(144, stride=1),
-            InvertedResidual(144, stride=1), InvertedResidual(144, stride=1),
-            InvertedResidual(144, stride=1), InvertedResidual(144, stride=1))
+            InvertedResidual(
+                72, stride=2),
+            InvertedResidual(
+                144, stride=1),
+            InvertedResidual(
+                144, stride=1),
+            InvertedResidual(
+                144, stride=1),
+            InvertedResidual(
+                144, stride=1),
+            InvertedResidual(
+                144, stride=1),
+            InvertedResidual(
+                144, stride=1),
+            InvertedResidual(
+                144, stride=1))
 
         self.depthwise_separable0 = _SeparableConvBNReLU(144, 64, 3, stride=1)
         self.depthwise_separable1 = _SeparableConvBNReLU(82, 64, 3, stride=1)
@@ -223,4 +244,3 @@ class InvertedResidual(nn.Layer):
         output = paddle.transpose(x=output, perm=[0, 2, 1, 3, 4])
         output = paddle.reshape(x=output, shape=[0, 2 * self.in_channels, h, w])
         return output
-

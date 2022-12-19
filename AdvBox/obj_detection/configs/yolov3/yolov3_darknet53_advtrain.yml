@@ -25,7 +25,7 @@ TrainReader:
 TrainDataset:
   !COCODataSet
     image_dir: train2017
-    anno_path: annotations/instances_val2017.json
+    anno_path: annotations/instances_train2017.json
     dataset_dir: dataset/coco
     data_fields: ['image', 'gt_bbox', 'gt_class', 'gt_score', 'is_crowd']
 

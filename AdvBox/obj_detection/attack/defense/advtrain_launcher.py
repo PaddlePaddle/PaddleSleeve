@@ -17,17 +17,16 @@ paddle2 model adversarial training
 import argparse
 import os
 import sys
+work_dir = os.path.abspath(os.getcwd())
+sys.path.append(work_dir)
 
-from obj_detection.attack.utils.tools import bcolors
-
-sys.path.append("../..")
-
+from attack.utils.tools import bcolors
 import paddle
 from ppdet.core.workspace import create, load_config
 from ppdet.metrics import Metric, COCOMetric
-import obj_detection.attack.single_attack as attacks
-from obj_detection.attack.models import paddledet as models
-from obj_detection.attack import defense
+import attack.single_attack as attacks
+from attack.models import paddledet as models
+from attack import defense
 
 
 def _init_metric(cfg, dataset):
@@ -75,7 +74,7 @@ def parse_summary():
 
 
 def main(args, model):
-    from obj_detection.attack.defense.reader import TrainReader
+    from attack.defense.reader import TrainReader
     """
     Main function for running adversarial training.
     Returns:

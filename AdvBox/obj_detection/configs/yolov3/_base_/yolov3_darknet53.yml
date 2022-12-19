@@ -1,6 +1,7 @@
 architecture: YOLOv3
 pretrain_weights: https://paddledet.bj.bcebos.com/models/pretrained/DarkNet53_pretrained.pdparams
-norm_type: sync_bn
+#norm_type: sync_bn
+norm_type: bn
 
 YOLOv3:
   backbone: DarkNet

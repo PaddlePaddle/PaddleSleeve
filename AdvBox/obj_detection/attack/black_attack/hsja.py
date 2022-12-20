@@ -548,10 +548,10 @@ def run(FLAGS, cfg):
         if FLAGS.target_label is None:
             if adv_label not in FLAGS.sim_label: 
                  data_adv = depreprocessor(perturbed_normalized[0].detach())
-                 cv2.imwrite("./adv_detr.png", data_adv)
+                 cv2.imwrite("./output/adv_untarget.png", data_adv)
                  
                  # The following codes is used for judging the success rate on the initial adversarial sample due to the preprocessing operation.
-                 data1, _ = _image2outs(FLAGS.infer_dir, "./adv_detr.png", cfg)
+                 data1, _ = _image2outs(FLAGS.infer_dir, "./output/adv_untarget.png", cfg)
                  trainer.model.eval()
                  orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0, FLAGS.sim_label)
                  print("orig_label======", orig_label1, score_orig1, score1)
@@ -563,13 +563,12 @@ def run(FLAGS, cfg):
             if adv_label == FLAGS.target_label:
                
                 data_adv = depreprocessor(perturbed_normalized[0].detach())
-                cv2.imwrite("./adv_detr_target.png", data_adv)
+                cv2.imwrite("./output/adv_target.png", data_adv)
 
-                data1, _ = _image2outs(FLAGS.infer_dir, "./adv_detr_target.png", cfg)
+                data1, _ = _image2outs(FLAGS.infer_dir, "./output/adv_target.png", cfg)
                 trainer.model.eval()
                 orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0, FLAGS.sim_label)
                 print(orig_label1, score1, score_orig1)
-                # if orig_label1 == target_label and score1 > 0.3 and score_orig1 < 0.5:
                 if orig_label1 == FLAGS.target_label and score1 > 0.3 and score_orig1 < 0.3:
                     break
 

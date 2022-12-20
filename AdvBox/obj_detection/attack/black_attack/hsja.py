@@ -418,7 +418,7 @@ def hsja(
  
     # Project the initialization to the boundary.
     
-    perturbed, dist_post_update = binary_search_batch(model, orig, # sample
+    perturbed, dist_post_update = binary_search_batch(model, orig, 
                                                            np.expand_dims(perturbed, 0),
                                                            params,
                                                            datainfo,
@@ -458,8 +458,8 @@ def hsja(
             perturbeds = clip_image(perturbeds, params['clip_min'], params['clip_max'])
             idx_perturbed = decision_function(perturbeds, params)
             if np.sum(idx_perturbed) > 0:
-                # Select the perturbation that yields the minimum distance # after binary search.
-                perturbed, dist_post_update = binary_search_batch(model, orig, # sample
+                # Select the perturbation that yields the minimum distance.
+                perturbed, dist_post_update = binary_search_batch(model, orig, 
                                                                        perturbeds[idx_perturbed], params,
                                                                        datainfo, data0, sim_label)
         # compute new distance.
@@ -542,29 +542,26 @@ def run(FLAGS, cfg):
         print(adv_label, score, orig)
 
         dist1 = compute_distance(inputs, perturbed_normalized[0], constraint='l2')
-        print("dist1=======", dist1)
-
+       
         # if dist1 > 550: # fatser-rcnn, detr: 2200, yolov3:450, ppyolo:630, ssd: 250
         #     continue
         if FLAGS.target_label is None:
             if adv_label not in FLAGS.sim_label: 
                  data_adv = depreprocessor(perturbed_normalized[0].detach())
                  cv2.imwrite("./adv_detr.png", data_adv)
-                 # 添加下面代码的原因是，图像输出和原图大小有一定的区别，而扰动是添加在模型输入图像上的，因此，扰动还原到原图上时，
-                 # 扰动数据的分布会发生一定的变化，导致攻击的效果发生变化，因此为了确保攻击的成功率，对于初步攻击成功的样本进行检测判断，
-                 # 确定检测结果失效，则保存攻击样本，否则继续执行攻击算法。
-
+                 
+                 # The following codes is used for judging the success rate on the initial adversarial sample due to the preprocessing operation.
                  data1, _ = _image2outs(FLAGS.infer_dir, "./adv_detr.png", cfg)
                  trainer.model.eval()
                  orig_label1, score1, score_orig1 = ext_score(trainer.model(data1), data1, datainfo0, FLAGS.sim_label)
                  print("orig_label======", orig_label1, score_orig1, score1)
-                 if score_orig1 > 0.5 or orig_label1 in FLAGS.sim_label: #or orig_label1 != 1:
+                 if score_orig1 > 0.5 or orig_label1 in FLAGS.sim_label: 
                      continue
                  else:
                      break
         else:
             if adv_label == FLAGS.target_label:
-                print("succes==============success")
+               
                 data_adv = depreprocessor(perturbed_normalized[0].detach())
                 cv2.imwrite("./adv_detr_target.png", data_adv)
 

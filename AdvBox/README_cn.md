@@ -121,20 +121,28 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 
     python imagenet_tutorial_sq.py --norm L2 --target 390
 
-<img src="./examples/image_cls/output/SquareAttackL2targeted.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2targeted.png", width=500><br>
+</p>
+
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 
-# ### Square Attack (LInf)示例
+#### Square Attack (LInf)示例
 **Untargeted Attack**
 
     python imagenet_tutorial_sq.py --norm LInf
 
-<img src="./examples/image_cls/output/SquareAttackLInf.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackLInf.png", width=500><br>
+</p>
+
 **Targeted Attack**
 
     python imagenet_tutorial_sq.py --norm LInf --target 390
 
-<img src="./examples/image_cls/output/SquareAttackLInftargeted.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackLInftargeted.png", width=500><br>
+</p>
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 
 ### 白盒攻击示例

@@ -35,7 +35,7 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 ### 黑盒攻击示例
 进入图片分类黑盒攻击示例目录
 
-    cd examples/image_cls
+    cd PaddleSleeve/Advbox/examples/image_cls
 
 ### Single Pixel Attack
 在mnist数据集，针对自己训练的CNN模型生成对抗样本。首先生成需要攻击的模型：    
@@ -149,9 +149,14 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 
 以FGSM为例，其他攻击方法使用方式类似。采用imagenet数据集，vgg16的预训练模型作为攻击对象。
 
-#### 1.FGSM非定向攻击
+### FGSM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_fgsm.py)** 运用FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击 
+  - **参数**
+    - `--target`
+    : 目标类别, 默认为-1
 
-    cd PaddleShield/Advbox/examples/image_cls
+#### FGSM非定向攻击示例
+
     python imagenet_tutorial_fgsm.py
 
 ``` shell
@@ -163,8 +168,9 @@ fgsm attack done
 ```
 攻击成功，模型对于此图片的识别，label为717识别成label 803。
 
-**FGSM untargeted attack**      
-<img src="./examples/image_cls/output/show/fgsm_untarget_803.png" style="zoom:60%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/fgsm_untarget_803.png", width=500><br>
+</p>
 
 #### 2.FGSM定向攻击
 定向攻击类别为266   

@@ -264,8 +264,40 @@ fgsm attack done
 </p>
 
 ### LBFGS
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_lbfgs.py)** 运用LBFGS对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击 
+  - **参数**
+    - `--target`
+    : 目标类别, 默认为290
+
+#### LBFGS定向攻击示例
+
+    python imagenet_tutorial_lbfgs.py --target=290
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/lbfgs_target_adv.png", width=500><br>
+</p>
 
 ### MI-FGSM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_mifgsm.py)** 运用MI-FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击
+  - **参数**
+    - `--target`
+    : 目标类别, 默认为-1
+
+#### MI-FGSM非定向攻击示例
+
+    python imagenet_tutorial_mifgsm.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/mifgsm_untarget_adv.png", width=500><br>
+</p>
+
+#### MI-FGSM定向攻击示例
+
+    python imagenet_tutorial_mifgsm.py --target=290
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/mifgsm_target_adv.png", width=500><br>
+</p>
 
 ### 利用AdvBox生成一个对抗样本
 

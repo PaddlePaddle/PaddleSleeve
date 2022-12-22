@@ -65,13 +65,7 @@ SinglePixelAttack attack done
 ### Genetic Pixels Attack
 Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack也是在L0范数下的攻击，和Single Pixel Attack不同，它不再局限于改变原图像中的一个像素，而是同时改变原图中的若干个像素点，并运用遗传算法生成对抗样本。
 
-
-<p align="center">
-<img align="center" src="./examples/image_cls/output/GPAttack.png", width=500><br>
-</p>
-
-    python imagenet_tutorial_gp.py
-
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_gp.py)** 运用Genetic Pixels Attack对通过ImageNet数据集训练的ResNet50模型进行攻击
 **Usage:**
 - **参数**
     - `--max_gen`
@@ -82,6 +76,14 @@ Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack�
     : 目标类别标签，-1如果无目标攻击
     - `--max_pixels`
     : 允许修改的最大像素数。这等价于L0的Lp球的半径
+
+#### Genetic Pixels Attack示例
+
+    python imagenet_tutorial_gp.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/GPAttack.png", width=500><br>
+</p>
 
 ### Square Attack
 Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于模型的局部梯度

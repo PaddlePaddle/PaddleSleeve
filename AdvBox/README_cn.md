@@ -172,7 +172,7 @@ fgsm attack done
 <img align="center" src="./examples/image_cls/output/show/fgsm_untarget_803.png", width=500><br>
 </p>
 
-#### 2.FGSM定向攻击
+#### FGSM定向攻击示例
 定向攻击类别为266   
 
     python imagenet_tutorial_fgsm.py --target=266   
@@ -184,9 +184,11 @@ attack success, adversarial_label=999
 diff shape:  (224, 224, 3)
 fgsm attack done
 ```
+攻击成功，模型对于此图片的识别，虽然不是目标标签266，但是将原label为717识别成label 999。
 
-**FGSM targeted attack**
-<img src="./examples/image_cls/output/show/fgsm_target_999.png" style="zoom:60%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/fgsm_target_999.png", width=500><br>
+</p>
 
 ### 其他攻击方法示例结果
 

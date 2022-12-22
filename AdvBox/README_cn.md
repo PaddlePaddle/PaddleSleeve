@@ -200,6 +200,10 @@ fgsm attack done
 
     python imagenet_tutorial_pgd.py
 
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/pgd_adv_untarget.png", width=500><br>
+</p>
+
 #### PGD定向攻击示例
 
     python imagenet_tutorial_pgd.py --target=266
@@ -223,12 +227,19 @@ fgsm attack done
     python imagenet_tutorial_cw.py --target=126
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/cw_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/cw_adv_new.png", width=500><br>
 </p>
 
-**BIM非定向攻击**
+### BIM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_bim.py)** 运用BIM对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持非定向攻击 
 
-<img src="./examples/image_cls/output/show/bim_untarget_368.png" style="zoom:40%;" />
+#### BIM非定向攻击示例
+
+    python imagenet_tutorial_bim.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/bim_untarget_368.png", width=500><br>
+</p>
 
 ### 利用AdvBox生成一个对抗样本
 

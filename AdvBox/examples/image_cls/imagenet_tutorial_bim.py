@@ -39,7 +39,7 @@ from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
-add_arg('target', int, -1, "target class.")
+#add_arg('target', int, -1, "target class.")
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):

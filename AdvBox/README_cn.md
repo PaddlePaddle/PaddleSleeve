@@ -113,7 +113,9 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 
     python imagenet_tutorial_sq.py --norm L2
 
-<img src="./examples/image_cls/output/SquareAttackL2.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2.png", width=500><br>
+</p>
 
 **Targeted Attack**
 

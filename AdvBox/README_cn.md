@@ -209,7 +209,7 @@ fgsm attack done
 </p>
 
 ### CW
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 运用CW对通过ImageNet数据集训练的ResNet50模型进行攻击
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 运用CW对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击 
   - **参数**
     - `--target`
     : 目标类别, 默认为126

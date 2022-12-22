@@ -89,22 +89,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 信息，因此可以绕过梯度隐藏防御攻击。Square Attack是一种随机搜索方法，它
 在随机位置选择局部的方形更新，使得每次迭代时扰动近似位于可行集的边界
 
-运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击:
-
-    python imagenet_tutorial_sq.py
-
-**Usage:**
-- **参数**
-    - `--window_size`
-    : 每次迭代时选择的区域尺寸
-    - `--max_steps`
-    : 最大迭代次数
-    - `--image_path`
-    : 输入图像路径
-    - `--target`
-    : 目标类别，默认为-1
-    - `eps`
-    : 扰动大小
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** 运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击
   - **参数**
     - `--image_path`
     : 输入图像的路径，用户可以把自己的图像上传到 AdvBox/examples/image_cls/input 文件夹，我们也提供了一些来自mini-imagenet数据集的图像：
@@ -121,7 +106,9 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
     - `--eps`
     : 最大扰动
     - `--max_steps`
- ### Square Attack (L2)示例
+    : 最大迭代次数
+
+#### Square Attack (L2)示例
 **Untargeted Attack**
 
     python imagenet_tutorial_sq.py --norm L2
@@ -135,7 +122,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 <img src="./examples/image_cls/output/SquareAttackL2targeted.png" style="zoom:14%;" />
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 
- ### Square Attack (LInf)示例
+# ### Square Attack (LInf)示例
 **Untargeted Attack**
 
     python imagenet_tutorial_sq.py --norm LInf
@@ -147,26 +134,6 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 
 <img src="./examples/image_cls/output/SquareAttackLInftargeted.png" style="zoom:14%;" />
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
-
-### Square Attack 示例
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** 运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击
-  - **参数**
-    - `--image_path`  
-    : 输入图像的路径，用户可以把自己的图像上传到 AdvBox/examples/image_cls/input 文件夹，我们也提供了一些来自mini-imagenet数据集的图像：
-      + input/schoolbus.png
-      + input/vase.png
-      + input/lion.png
-      + input/hourglass.png
-      + input/crate.png
-      + input/malamute.png
-    - `--norm`
-    : 选择在 L2 或 LInf 范数下展开攻击
-    - `--target`
-    : 目标类别, 默认为-1
-    - `--eps`
-    : 最大扰动
-    - `--max_steps`
-    : 最大迭代次数
 
 ### 白盒攻击示例
 

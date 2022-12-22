@@ -56,7 +56,7 @@ class ClassificationAdversarialTransform(AdvTransform):
         if attack_method is None:
             return x, y
         else:
-            adversary = Adversary(x, y)
+            adversary = Adversary(x.numpy(), y)
             # support the CW attack.
             # TODO: more generalizable.
             if isinstance(attack_method, attacks.cw.CWL2Attack):

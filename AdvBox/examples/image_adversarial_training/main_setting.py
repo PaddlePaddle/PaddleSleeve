@@ -21,7 +21,7 @@ Contains:
 import paddle
 from paddle.regularizer import L2Decay
 print(paddle.__version__)
-from defences.advtrain_natural import adverarial_train_natural
+from defences.advtrain_natural import adversarial_train_natural
 from defences.advtrain_trades import adverarial_train_trades
 from defences.advtrain_awp import adversarial_train_awp
 from attacks.gradient_method import FGSM, PGD
@@ -75,7 +75,7 @@ if model_choice == 'towernet':
     # TowerNet
     if training_choice == training_zoo[0]:
         attack_method = None
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         # "p" controls the probability of this enhance.
         # for base model training, we set "p" == 0, so we skipped adv trans data augmentation.
@@ -95,7 +95,7 @@ if model_choice == 'towernet':
             pass
 
         attack_method = PGD
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         # for adv trained model, we set "p" == 0.05, which means each batch
         # will probably contain 3% adv trans augmented data.
@@ -137,13 +137,13 @@ elif model_choice == 'mobilenet':
     model_state_dict = paddle.load(path)
     # MobileNet V3
     if training_choice == "base":
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0}
         model = MobileNetV3_large_x1_0(class_dim=10)
         model.set_state_dict(model_state_dict)
     elif training_choice == "advtraining":
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0.05}
         # adv trained model
@@ -171,13 +171,13 @@ elif model_choice == 'resnet':
     model_state_dict = paddle.load(path)
     # ResNet V50
     if training_choice == "base":
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0}
         model = ResNet50_vd(class_dim=10)
         model.set_state_dict(model_state_dict)
     elif training_choice == "advtraining":
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0.03}
         # adv trained model
@@ -212,13 +212,13 @@ elif model_choice == 'preactresnet':
 
     if training_choice == training_zoo[0]:
         attack_method = None
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0}
         opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
     elif training_choice == training_zoo[1]:
         attack_method = PGD
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0.1}
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
@@ -283,13 +283,13 @@ elif model_choice == 'pretrained_vgg16':
 
     if training_choice == training_zoo[0]:
         attack_method = None
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0}
         opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
     elif training_choice == training_zoo[1]:
         attack_method = FGSM
-        adverarial_train = adverarial_train_natural
+        adverarial_train = adversarial_train_natural
         init_config = None
         enhance_config = {"p": 0.1}
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())

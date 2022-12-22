@@ -48,7 +48,7 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
     batch_size = kwargs["batch_size"]
     adversarial_trans = kwargs["adversarial_trans"]
     opt = kwargs["optimizer"]
-    lr = kwargs['lr']
+    lr = kwargs.get('lr', None) # lr = kwargs['lr']
     validate = test_set is not None
     metrics = kwargs.get('metrics', paddle.metric.Accuracy())
     eval_freq = 5
@@ -58,7 +58,7 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
 
     # resume training
     resume_epoch = -1
-    if kwargs['weights'] is not None:
+    if kwargs.get('weights', None) is not None:
         resume_epoch = resume_weights(model=model,
                                       model_path=kwargs['weights'],
                                       optimizer=opt,
@@ -84,9 +84,8 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
 
             # adversarial training late start
             if epoch >= advtrain_start_num and adversarial_trans is not None:
-                with model.no_sync():
-                    x_data_augmented = adversarial_trans(x_data, y_data)
-                    model.clear_gradients()
+                x_data_augmented = paddle.Tensor(adversarial_trans(x_data, y_data)[0])
+                model.clear_gradients()
             else:
                 x_data_augmented = x_data
 

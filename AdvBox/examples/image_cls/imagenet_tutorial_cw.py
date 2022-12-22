@@ -148,6 +148,6 @@ def main(image_path):
 
 
 if __name__ == '__main__':
-    main("input/tiger.jpeg")
+    # main("input/tiger.jpeg")
     # main("input/cropped_panda.jpeg")
-    # main("input/pickup_truck.jpeg")
+    main("input/pickup_truck.jpeg")

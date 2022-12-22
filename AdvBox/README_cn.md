@@ -209,12 +209,22 @@ fgsm attack done
 </p>
 
 ### CW
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 运用CW对通过ImageNet数据集训练的ResNet50模型进行攻击
+  - **参数**
+    - `--target`
+    : 目标类别, 默认为126
+    - `--class_dim`
+    : 类别数。默认值:1000。
+    - `--image_shape`
+    : 输入图像大小默认值:3,224,224。
 
-**CW定向攻击**
+#### CW定向攻击示例
 
-<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:20%;" />
+    python imagenet_tutorial_cw.py --target=126
 
-<img src="./examples/image_cls/output/show/cw_adv.png" style="zoom:20%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/cw_adv.png", width=500><br>
+</p>
 
 **BIM非定向攻击**
 

@@ -74,15 +74,24 @@ def main(image_path):
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
     img /= 255.0
-    img = old_div((img - mean), std)
+    norm = paddle.vision.transforms.Normalize(mean, std)
     img = img.transpose(2, 0, 1)
 
-    img = np.expand_dims(img, axis=0)
-    img = paddle.to_tensor(img, dtype='float32', place=paddle.CUDAPlace(0), stop_gradient=False)
-
+    img = paddle.to_tensor(img, dtype='float32', stop_gradient=False)
+    img = norm(img)
+    img = paddle.unsqueeze(img, axis=0)
     # Initialize the network
     model = paddle.vision.models.resnet50(pretrained=True)
     model.eval()
+
+    predict = model(img)[0]
+    label = np.argmax(predict)
+    img = np.squeeze(img)
+    inputs = img
+    labels = label
+    print(predict.shape)
+    print("label={}".format(label))
+    print("input img shape: ", inputs.shape)
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -99,14 +108,6 @@ def main(image_path):
     # non-targeted attack
     attack = PGD(paddle_model, epsilon_ball=16 / 255)
 
-    predict = model(img)[0]
-    label = np.argmax(predict)
-    img = np.squeeze(img)
-    inputs = img
-    labels = label
-    print(predict.shape)
-    print("label={}".format(label))
-    print("input img shape: ", inputs.shape)
     adversary = Adversary(inputs.numpy(), labels)
 
     # targeted attack
@@ -144,5 +145,5 @@ def main(image_path):
 
 
 if __name__ == '__main__':
-    # main("input/pickup_truck.jpeg")
-    main("output/img_adv_pgd.png")
+    main("input/pickup_truck.jpeg")
+    # main("output/img_adv_pgd.png")

@@ -190,11 +190,25 @@ fgsm attack done
 <img align="center" src="./examples/image_cls/output/show/fgsm_target_999.png", width=500><br>
 </p>
 
-### 其他攻击方法示例结果
+### PGD
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_pgd.py)** 运用PGD对通过ImageNet数据集训练的ResNet50模型进行攻击
+  - **参数**
+    - `--target`
+    : 目标类别, 默认为-1
 
-**PGD定向攻击**
+#### PGD非定向攻击示例
 
-<img src="./examples/image_cls/output/show/pgd_adv.png" style="zoom:20%;" />
+    python imagenet_tutorial_pgd.py
+
+#### PGD定向攻击示例
+
+    python imagenet_tutorial_pgd.py --target=266
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
+</p>
+
+### CW
 
 **CW定向攻击**
 

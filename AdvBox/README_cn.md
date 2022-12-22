@@ -33,20 +33,19 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 
 ---
 ### 黑盒攻击示例
+进入图片分类黑盒攻击示例目录
 
+    cd examples/image_cls
+
+### Single Pixel Attack
 在mnist数据集，针对自己训练的CNN模型生成对抗样本。首先生成需要攻击的模型：    
 
-    cd PaddleShield/Advbox/examples/image_cls
     python mnist_cnn_bapi.py
 
 
 如果已有paddle2训练好的模型，不指定参数为非定向攻击可直接运行:
 
     python mnist_tutorial_singlepixelattack.py    
-
-对于定向攻击，可指定目标类别，例如设置target为9（可为0-9任意值）    
-
-    python mnist_tutorial_singlepixelattack.py  --target=9
 
 ```shell
 2021-04-25 13:51:26,187 - INFO - Attack location x=19 y=25
@@ -61,38 +60,53 @@ attack success, original_label=4, adversarial_label=1, count=20
 SinglePixelAttack attack done
 ```
 
-### Single Pixel Attack
-
 <img src="./examples/image_cls/output/show/number5_adv.png" style="zoom:20%;" />
-
-**Transfer Attack**
-
-迁移攻击的两种实现方式，分别用并行和串行。  
-
-    python weighted_ensemble_attack_fgsm.py --target=330
-    python serial_ensemble_attack_fgsm.py --target=1
-
-类别282的小猫，经过黑盒攻击后被误识别为类别1金鱼。
-<img src="./examples/image_cls/output/show/serial_ensemble_fgsm_diff_1.png" style="zoom:60%;" />
 
 ### Genetic Pixels Attack
 Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack也是在L0范数下的攻击，和Single Pixel Attack不同，它不再局限于改变原图像中的一个像素，而是同时改变原图中的若干个像素点，并运用遗传算法生成对抗样本。
-<img src="./examples/image_cls/output/GPAttack.png" style="zoom:14%;" />
+<p align="center">
+<img align="center" src="./examples/image_cls/output/GPAttack.png", width=500><br>
+</p>
+
+    python imagenet_tutorial_gp.py
+
+**Usage:**
+- **Command-line parameters**
+    - `--max_gen`
+    : maximum iterative steps this attack will perform
+    - `--image_path`
+    : path of the input image, e.g. example/image_cls/input/cat_example.png
+    - `--target`
+    : target class label, -1 if untargeted attack
+    - `--max_pixels`
+    : the maximum number of pixels allowed to be changed. This is equivalent to the radius of Lp ball in L0
 
 ### Square Attack (L2)
 Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于模型的局部梯度信息，因此可以绕过梯度隐藏防御攻击。Square Attack是一种随机搜索方法，它在随机位置选择局部的方形更新，使得每次迭代时扰动近似位于可行集的边界。
 
 **Untargeted Attack**
+
+    python imagenet_tutorial_sq.py --norm L2
+
 <img src="./examples/image_cls/output/SquareAttackL2.png" style="zoom:14%;" />
 
 **Targeted Attack**
+
+    python imagenet_tutorial_sq.py --norm L2 --target 390
+
 <img src="./examples/image_cls/output/SquareAttackL2targeted.png" style="zoom:14%;" />
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 
  ### Square Attack (LInf)
 **Untargeted Attack**
+
+    python imagenet_tutorial_sq.py --norm LInf
+
 <img src="./examples/image_cls/output/SquareAttackLInf.png" style="zoom:14%;" />
 **Targeted Attack**
+
+    python imagenet_tutorial_sq.py --norm LInf --target 390
+
 <img src="./examples/image_cls/output/SquareAttackLInftargeted.png" style="zoom:14%;" />
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 

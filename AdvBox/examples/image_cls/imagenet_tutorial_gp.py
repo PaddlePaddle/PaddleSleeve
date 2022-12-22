@@ -138,7 +138,7 @@ def main(image_path):
         adv = np.clip(adv, 0, 255).astype(np.uint8)
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
-        cv2.imwrite('output/img_adv_fgsm.png', adv_cv)
+        cv2.imwrite('output/img_adv_gp.png', adv_cv)
         show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')

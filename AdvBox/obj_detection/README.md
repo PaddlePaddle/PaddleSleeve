@@ -249,82 +249,33 @@ See hsja.py for details.
 </tr>
 
 <tr>
-    <td align="center">yolov3</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_yolov3.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_yolov3.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_adv_yolov3.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/diff_yolov3.png" width=300></td>
+    <td align="center">detr</td>
+    <td align="center"><img src="./attack/black_attack/dataloader/car_test3.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outcar_test3_detr.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_untarget_detr.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outadv_untarget_detr.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/diff_detr.png" width=300></td>
 </tr>
 
 <tr>
     <td align="center">ppyolo</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_ppyolo.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_ppyolo.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_adv_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/dataloader/car_test3.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outcar_test3_ppyolo.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_untarget_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outadv_untarget_ppyolo.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/diff_ppyolo.png" width=300></td>
 </tr>
 
 <tr>
-    <td align="center">ssd</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_ssd.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_ssd.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_adv_ssd.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/diff_ssd.png" width=300></td>
-</tr>
-
-<tr>
     <td align="center">faster-rcnn</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_faster_rcnn.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_faster_rcnn.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_adv_faster_rcnn.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/diff_faster_rcnn.png" width=300></td>
-</tr>
-
-<tr>
-    <td align="center">detr</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_detr.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_detr.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_adv_detr.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/diff_detr.png" width=300></td>
-</tr>
-<tr>
-    <td align="center">faster-rcnn</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/multilabel.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/multilabel_det.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/multilabel_fast.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/multilabel_fast_det.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_multilabel_fast_diff.png" width=300></td>
-</tr>
-<tr>
-    <td align="center">detr</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/multilabel1.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/multilabel1_det.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/multilabel11_detr.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/multilabel11_detr_det.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_multilabel11_detr_diff.png" width=300></td>  
+    <td align="center"><img src="./attack/black_attack/dataloader/car_test3.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outcar_test3_faster.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_untarget_faster.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/out_adv_untarget_faster.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/diff_faster.png" width=300></td>
 </tr>
 
 </table>
-
-
-
-**Image Compares for targeted attack**
-
-<table align="center">
-
-<tr>
-    <td align="center">detr</td>
-    <td align="center"><img src="./attack/black_attack/dataloader/car_05.jpeg" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/out_detr.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_detr_target1.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_detr_target1_det.png" width=300></td>
-    <td align="center"><img src="./attack/black_attack/output/adv_detr_target1_diff.png" width=300></td>
-</tr>
 
 
 <tr>

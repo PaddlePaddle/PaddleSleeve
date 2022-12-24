@@ -224,14 +224,12 @@ cd PaddleSleeve/AdvBox/obj_detection/attack/black_attack
 # respectively use ppyolo, yolov3, ssd, faster-rcnn, detr detection models:
 python hsja.py -c ../../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
 python hsja.py -c ../../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
-python hsja.py -c ../../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
+python hsja.py -c ../../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_test3.jpg --sim_label 6 5
 python hsja.py -c ../../configs/faster_rcnn/faster_rcnn_r50_1x_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/faster_rcnn_r50_1x_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
 python hsja.py -c ../../configs/detr/detr_r50_1x_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/detr_r50_1x_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
-
-Targeted attack
-python hsja.py -c ../../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg --target_label=11 --target_image=dataloader/hydrant1.png --sim_label 3 8 6 
-
 ```
+Note: The "sim_label 3 8 6" is the labels to hide, and the first "3" is the groundtruth label of the object. The sim_label shoudld be set manually.
+
 See hsja.py for details.
 
 
@@ -274,9 +272,6 @@ See hsja.py for details.
     <td align="center"><img src="./attack/black_attack/output/out_adv_untarget_faster.png" width=300></td>
     <td align="center"><img src="./attack/black_attack/output/diff_faster.png" width=300></td>
 </tr>
-
-</table>
-
 
 <tr>
     <td align="center">Model</td>

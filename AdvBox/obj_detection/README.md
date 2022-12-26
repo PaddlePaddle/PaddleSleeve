@@ -205,7 +205,7 @@ As malice adversaries increasingly threat AI security, people have proposed nume
 
   - **Config file**
   
-    The launcher uses yaml files for model declaration and training configurations. These files can be found in `obj_detection/configs` directory, and users can add their own model there. If users want to construct their models on the base of other models, simply declear the base config file at the beginning of their own file and redefine the parameters they would like to overwrite. We also need to add base_model_name, which represents the name of the base model to automatically download the weight. 
+    The launcher uses yaml files for model declaration and training configurations. These files can be found in `obj_detection/configs` directory, and users can add their own model there. If users want to construct their models on the base of other models, simply declear the base config file at the beginning of their own file and redefine the parameters they would like to overwrite. We also need to add `base_model_name`, which represents the name of the base model to automatically download the weight. 
     
     A sample config file `yolov3_darknet53_advtrain`
       ```yaml

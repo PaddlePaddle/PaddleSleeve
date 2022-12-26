@@ -38,6 +38,18 @@ In Advbox-ObjectDetection, two well-known whitebox attacking methods, CW and PGD
   - `--metric`：Provides different attackingm method. Currently support `carlini_wagner` and `pgd`.
   - `--distance`: The distance metric to be used, choose from `l2` or `linf`
 
+- A kindly Reminder: since paddlepaddle <= 2.1 does not support gradient backward for
+ `paddle.nn.SyncBatchNorm` in eval() mode, to run the demonstration, we need to modify
+ all `sync-bn` components in detector model into `bn` (because `paddle.nn.BatchNorm`
+ supports gradient backward in eval() mode).
+
+ If you want to customize your own demo script, you should try the following methods:
+
+- For object detector like `PaddleSleeve/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
+ add `norm_type: bn` on the third line.
+- For object detector like `PaddleSleeve/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn`
+ on the 9 th line.
+
 - **Examples**
   - The following example attacks `yolov3_darknet53` models using cw attack, and l2 distance is used. 
   ```shell
@@ -281,9 +293,9 @@ thus, the attack is able to succeed.
  
  If you want to customize your own demo script, you should try the following methods:
  
-- For object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
+- For object detector like `PaddleSleeve/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
  add `norm_type: bn` on the third line.
-- For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
+- For object detector like `PaddleSleeve/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
  on the 9 th line.
 
 ### Run Target Patch Adversarial Train

@@ -205,13 +205,14 @@ As malice adversaries increasingly threat AI security, people have proposed nume
 
   - **Config file**
   
-    The launcher uses yaml files for model declaration and training configurations. These files can be found in `obj_detection/configs` directory, and users can add their own model there. If users want to construct their models on the base of other models, simply declear the base config file at the beginning of their own file and redefine the parameters they would like to overwrite. 
+    The launcher uses yaml files for model declaration and training configurations. These files can be found in `obj_detection/configs` directory, and users can add their own model there. If users want to construct their models on the base of other models, simply declear the base config file at the beginning of their own file and redefine the parameters they would like to overwrite. We also need to add base_model_name, which represents the name of the base model to automatically download the weight. 
     
     A sample config file `yolov3_darknet53_advtrain`
       ```yaml
       _BASE_: [
       './yolov3_darknet53_270e_coco.yml',
       ]
+      base_model_name: yolov3_darknet53_270e_coco
 
       epoch: 540
 
@@ -256,10 +257,12 @@ As malice adversaries increasingly threat AI security, people have proposed nume
   
     Users can initiate an adversarial training by the following command:
     ```shell
-    cd obj_detection/attack/defense
+    cd PaddleSleeve/obj_detection/attack/defense
     python advtrain_launcher.py --model yolov3_darknet53_advtrain --defense natural_advtrain --pretrained True
     ```
-    The script will save the model after each epoch. Both the model and optimizer are saved in `obj_detection/attack/outputs/models/`.
+    <sup>*</sup>*Note:* This script needs to download coco2017 to PaddleSleeve/obj_detection/dataset/coco in advance. If coco2017 is not available, the script will be downloaded automatically.
+
+    The script will save the model after each epoch. Both the model and optimizer are saved in `PaddleSleeve/obj_detection/attack/outputs/models/`.
 
 
 

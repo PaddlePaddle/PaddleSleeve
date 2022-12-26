@@ -211,7 +211,8 @@ class PPdet_Yolov3_Model(PPdet_Model):
         self._num_classes = self._cfg['num_classes']
 
         if pretrained:
-            weight_path = "ppdet://models/{}.pdparams".format(name)
+            #weight_path = "ppdet://models/{}.pdparams".format(name)
+            weight_path = "ppdet://models/{}.pdparams".format(self._cfg.base_model_name)
             load_weight(self._model, weight_path)
 
         assert isinstance(self._model, paddle.nn.Layer), 'Unrecognized model'
@@ -328,7 +329,8 @@ class PPdet_Rcnn_Model(PPdet_Model):
         self._scale_factor = None
 
         if pretrained:
-            weight_path = "ppdet://models/{}.pdparams".format(name)
+            #weight_path = "ppdet://models/{}.pdparams".format(name)
+            weight_path = "ppdet://models/{}.pdparams".format(self._cfg.base_model_name)
             load_weight(self._model, weight_path)
 
         assert isinstance(self._model, paddle.nn.Layer), 'Unrecognized model'
@@ -462,7 +464,8 @@ class PPdet_Detr_Model(PPdet_Model):
         self._scale_factor = None
 
         if pretrained:
-            weight_path = "ppdet://models/{}.pdparams".format(name)
+            #weight_path = "ppdet://models/{}.pdparams".format(name)
+            weight_path = "ppdet://models/{}.pdparams".format(self._cfg.base_model_name)
             load_weight(self._model, weight_path)
 
         assert isinstance(self._model, paddle.nn.Layer), 'Unrecognized model'

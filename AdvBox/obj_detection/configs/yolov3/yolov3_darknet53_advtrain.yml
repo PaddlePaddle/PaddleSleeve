@@ -1,6 +1,7 @@
 _BASE_: [
   './yolov3_darknet53_270e_coco.yml',
 ]
+base_model_name: yolov3_darknet53_270e_coco
 
 bias: 1
 

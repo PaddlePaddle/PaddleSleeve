@@ -795,7 +795,7 @@ python imagenet_tutorial_fgsm_denoise.py --method='BoxFilter' --image_path='inpu
 
 **双边滤波**
 ```shell
-python imagenet_tutorial_fgsm_denoise.py --method='BilateralFilter' --image_path='input/crate.png'
+python imagenet_tutorial_fgsm_denoise.py --method='BilateralFilter' --image_path='input/vase.png'
 ```
 <div align=center>
 <img src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png" style="zoom:40%;" />
@@ -811,7 +811,7 @@ python imagenet_tutorial_fgsm_denoise.py --method='PixelDeflection' --image_path
 
 **JPEG压缩**
 ```shell
-python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path='input/schoolbus.png'
+python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path='input/vase.png'
 ```
 <div align=center>
 <img src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png" style="zoom:40%;" />

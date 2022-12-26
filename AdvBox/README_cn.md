@@ -672,7 +672,7 @@ for batch_id, data in enumerate(train_loader()):
 
 ## 对抗样本去噪示例
 
-- [基本去噪方法](#AdvBox/denoisers)
+- [基本去噪方法](/AdvBox/denoisers)
     + 高斯滤波（Gaussian Filter）
     + 中值滤波（Median Filter）
     + 均值滤波（Mean Filter）
@@ -685,7 +685,7 @@ for batch_id, data in enumerate(train_loader()):
     + 高斯噪声 （GaussianNoise）
     + 椒盐噪声 （SaltPepperNoise）
     + 随机缩放填充
-- 在一幅图像上使用FGSM攻击并去噪 **[tutorial python script](#AdvBox/examples/mini_imagenet_evaluation_tool.py)**.
+- 在一幅图像上使用FGSM攻击并去噪 **[tutorial python script](/AdvBox/examples/mini_imagenet_evaluation_tool.py)**.
 - **命令行参数介绍**
   - `--image_path`  
   : 要处理的图像路径，用户可以上传图像到文件夹：AdvBox/examples/image_cls/input。我们提供了一些采集自mini-imagenet数据集的图像样本：
@@ -742,26 +742,24 @@ for batch_id, data in enumerate(train_loader()):
 
 #### 执行代码：
 ```shell
-cd PaddleShield/Advbox/examples/image_cls
-python imagenet_tutorial_fgsm_denoise.py --method='GaussianBlur' --image_path='input/schoolbus.png'
+cd PaddleSleeve/Advbox/examples/image_cls
+python imagenet_tutorial_fgsm_denoise.py --method='GaussianBlur' --image_path='input/vase.png'
 ```
 
 #### 输出结果：
 ```
-input image label: school bus
 input image shape:  [3, 84, 84]
-FGSM attack succeeded, adversarial_label: rubber eraser, rubber, pencil eraser
-FGSM attack done
+input image label: vase
+FGSM attack succeeded, adversarial_label: pitcher, ewer
 GaussianBlur denoise succeeded
 GaussianBlur denoise doesn't change the label of the input image
-GaussianBlur denoise done
 ```
 
 #### 结果解读：
 ```
-1. 原始模型将输入图像识别为：school bus；  
-2. FGSM攻击输入图像，得到对抗样本，模型将该对抗样本识别为：rubber eraser, rubber, pencil eraser；  
-3. 去噪算法对对抗样本进行去噪，得到去噪结果，模型将该结果识别为：school bus。```
+1. 原始模型将输入图像识别为：vase；  
+2. FGSM攻击输入图像，得到对抗样本，模型将该对抗样本识别为：pitcher, ewer；  
+3. 去噪算法对对抗样本进行去噪，得到去噪结果，模型将该结果识别为：vase。```
 ```
 
 #### 可视化结果

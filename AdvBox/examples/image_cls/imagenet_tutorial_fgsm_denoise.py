@@ -132,12 +132,11 @@ def main(orig):
 
     model.eval()
     predict = model(img)[0]
-    print(predict.shape)
     label = np.argmax(predict)
-    print("label={}".format(label))
     img = np.squeeze(img)
     inputs = img
     labels = label
+    
     print("input img shape: ", inputs.shape)
 
     # init a paddle model

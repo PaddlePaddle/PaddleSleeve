@@ -822,7 +822,7 @@ python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path
 
 #### 执行代码:
 ```shell
-cd PaddleShield/Advbox/examples/image_cls
+cd PaddleSleeve/Advbox/examples/image_cls
 python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='input/mini-imagenet-cache-test.pkl' --label_path='mini_imagenet_test_labels.txt'
 ```
 

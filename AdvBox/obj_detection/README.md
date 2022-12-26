@@ -119,7 +119,7 @@ Adversarial examples are particularly useful because of its transferability (i.e
 - **Weighted Ensemble Attack PGD**
 
   Another method of ensemble attack is to attack all models at the same time. The prediction results from all models are take into account when stepping the adversarial example. It is also possible to assign different weight to to models to be attacked. Models with larger weight may affect the adversarial example more greatly. 
-  <sup>*</sup>*Note:* Use PaddlePaddle>=2.2.2 solving dropout eval mode does not support backward computation of gradients.
+  <sup>*</sup>*Note:* Use PaddlePaddle>=2.2.2 solving dropout eval mode does not support backward computation of gradients. 
   
   - **Usage**
 

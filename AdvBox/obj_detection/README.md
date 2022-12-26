@@ -273,15 +273,6 @@ See hsja.py for details.
     <td align="center"><img src="./attack/black_attack/output/diff_faster.png" width=300></td>
 </tr>
 
-<tr>
-    <td align="center">Model</td>
-    <td align="center">Original Image</td>
-    <td align="center">Original Detection Results</td>
-    <td align="center">Acquired Adversarial Image </td>
-    <td align="center">Adversarial Detection Results </td>
-    <td align="center">Diff*100</td>
-    
-</tr>
 </table>
 
 

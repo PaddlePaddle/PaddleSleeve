@@ -19,8 +19,7 @@ from __future__ import absolute_import
 import os
 import sys
 
-work_dir = os.path.abspath(os.getcwd())
-sys.path.append(work_dir)
+sys.path.append("../..")
 import paddle
 from attack.utils.tools import get_model, denormalize_image, bcolors, plot_image_objectdetection_ppdet
 from ppdet.data.source.dataset import ImageFolder
@@ -183,7 +182,7 @@ if __name__ == '__main__':
     weight_list = [1, 1, 1]
 
     victim_model_name = 'paddledet_yolov3_mobilenet_v3_large'
-    dataset_dir = os.path.dirname(os.path.realpath(__file__ + '../../')) + '/utils/images/ensemble_demo'
+    dataset_dir = os.path.dirname(os.path.realpath(__file__ + '/..')) + '/utils/images/ensemble_demo'
 
     victim_model = None
     # victim_model = get_model(victim_model_name, 'paddledet', summary)
@@ -270,7 +269,7 @@ if __name__ == '__main__':
           .format(attack_success, np.mean(np.array(orig_conf)), np.mean(np.array(transfer_conf))))
 
     if best_adv is not None and best_data is not None and best_target is not None:
-        img_dir = os.path.dirname(os.path.realpath(__file__ + '../..')) + '/outputs/images'
+        img_dir = os.path.dirname(os.path.realpath(__file__ + '/..')) + '/outputs/images'
         if not os.path.exists(img_dir):
             os.makedirs(img_dir)
         victim_model._data = best_data

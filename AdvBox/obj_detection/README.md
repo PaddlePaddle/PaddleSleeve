@@ -42,10 +42,10 @@ In Advbox-ObjectDetection, two well-known whitebox attacking methods, CW and PGD
   - The following example attacks `yolov3_darknet53` models using cw attack, and l2 distance is used. 
   ```shell
   # Navigate to the correct directory 
-  cd obj_detection/attack/single_attack
+  cd PaddleSleeve/obj_detection/attack/single_attack
 
   # paddle：The results can be found under obj_detection/attacks/examples/images.
-  python attack/single_attack/launcher.py  --model paddledet_yolov3_darknet53 --criteria target_class_miss --target_class 3 --metric carlini_wagner --image motor.jpg --distance l2 
+  python launcher.py  --model paddledet_yolov3_darknet53 --criteria target_class_miss --target_class 3 --metric carlini_wagner --image motor.jpg --distance l2 
   ```
   The above attack outputs the following summary, and a comparasion between original image and the adversarial example is plotted for better visulization effect.
   
@@ -64,7 +64,7 @@ Adversarial examples are particularly useful because of its transferability (i.e
   
     This evaluation script can be executed by the following command
     ```shell
-    cd obj_detection/attack/ensemble_attack
+    cd PaddleSleeve/obj_detection/attack/ensemble_attack
     python serial_attack_eval.py
     ```
     Note that this script does not take command-line arguments. Users should modify the model list<sup>*</sup> and attack settings specification in the code in order to fit their own task. `dataset_dir`is the path to the input images. The default folder contains about 30 images. Users can add/remove images from the folder, or switch to their own test dataset if desired. 
@@ -124,6 +124,7 @@ Adversarial examples are particularly useful because of its transferability (i.e
 
     Use the following command to run the PGD ensemble attack
     ```shell
+    cd PaddleSleeve/obj_detection/attack/ensemble_attack
     python weighted_ensemble_attack_pgd.py
     ```
     Similar as in serial ensemble attack, users are welcome to change the list of models to be attacked<sup>*</sup> as well as other configs directly in the code. 

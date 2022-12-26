@@ -19,9 +19,7 @@ from __future__ import absolute_import
 import os
 import sys
 
-work_dir = os.path.abspath(os.getcwd())
-sys.path.append(work_dir)
-
+sys.path.append("../..")
 from attack.utils.tools import get_metric, get_distance, get_criteria, get_model
 from attack.utils.tools import plot_image_objectdetection_ppdet, bcolors
 import argparse
@@ -87,7 +85,7 @@ def parse_summary():
     import json
     import os
     with open(
-            os.path.dirname(os.path.realpath(__file__ + '../..')) +
+            os.path.dirname(os.path.realpath(__file__ + '/..')) +
             '/utils/summary.json') as f:
         summary = json.load(f)
 
@@ -101,7 +99,7 @@ def run_attack(args, summary):
     distance = get_distance(args.distance)
 
     channel_axis = 'channels_first' if args.framework == 'paddledet' else 'channels_last'
-    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__ + '../..')), 'utils/images/%s' % args.image)
+    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__ + '/..')), 'utils/images/%s' % args.image)
     if args.framework == 'paddledet':
         image = model.load_image([image_path]).numpy()
     else:
@@ -149,7 +147,7 @@ def run_attack(args, summary):
               + str(adversary.distance) + bcolors.ENDC)
         print('\n')
 
-        img_dir = os.path.dirname(os.path.realpath(__file__ + '../..')) + '/outputs/images'
+        img_dir = os.path.dirname(os.path.realpath(__file__ + '/..')) + '/outputs/images'
         if not os.path.exists(img_dir):
             os.makedirs(img_dir)
         plot_image_objectdetection_ppdet(adversary, model,

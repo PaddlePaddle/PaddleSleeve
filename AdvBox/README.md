@@ -38,102 +38,72 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 ---
 # Attack
-Go to the attack example directory
+Go to the attack example directory:
 
     cd PaddleSleeve/Advbox/examples/image_cls
 
 ## Example of a black-box attack
 ### Single Pixel Attack
-- **[tutorial python script](/AdvBox/examples/image_cls/mnist_tutorial_singlepixelattack.py)** Single Pixel Attack was used to attack the CNN model trained through the mnist dataset to generate adversarial samples.
+- **[tutorial python script](/AdvBox/examples/image_cls/mnist_tutorial_singlepixelattack.py)** Single Pixel Attack was used to attack the CNN model trained through the mnist dataset to generate adversarial samples. Only non-targeted attacks are supported.
+
+#### Example of Single Pixel Attack
+First, generate the model to attack:
+
+    python mnist_cnn_bapi.py
+
+
+Using Single Pixel Attack to generate adversarial examples:
+
+    python mnist_tutorial_singlepixelattack.py
+
+```shell
+2021-04-25 13:51:26,187 - INFO - Attack location x=19 y=25
+attack success, original_label=9, adversarial_label=2, count=17
+2021-04-25 13:51:26,386 - INFO - Attack location x=1 y=6
+attack success, original_label=7, adversarial_label=3, count=18
+2021-04-25 13:51:26,587 - INFO - Attack location x=5 y=19
+attack success, original_label=3, adversarial_label=8, count=19
+2021-04-25 13:51:26,788 - INFO - Attack location x=20 y=20
+attack success, original_label=4, adversarial_label=1, count=20
+[TEST_DATASET]: fooling_count=20, total_count=20, fooling_rate=1.000000
+SinglePixelAttack attack done
+```
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
-PGD targeted attack
+<img align="center" src="./examples/image_cls/output/show/number5_adv.png", width=500><br>
 </p>
-
-<p align="center">
-<img align="center" src="./examples/image_cls/output/show/cw_adv.png", width=500><br>
-C/W targeted attack
-</p>
-
-
-
-
 
 ### Genetic Pixels attack
 Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixel Attack and utilizes genetic algorithm to enhance the performance. 
+
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_gp.py)** The Genetic Pixels Attack was used to attack the ResNet50 model trained on the ImageNet dataset.
+  - **Command-line parameters**
+    - `--max_gen`
+    : maximum iterative steps this attack will perform.
+    - `--image_path`
+    : path of the input image, e.g. example/image_cls/input/cat_example.png.
+    - `--target`
+    : target class label, -1 if untargeted attack.
+    - `--max_pixels`
+    : the maximum number of pixels allowed to be changed. This is equivalent to the radius of Lp ball in L0.
+    - `--temp`
+    : initial temp. Controls how likely an unfavored candidate will be selected as parent.
+
+#### Example of Genetic Pixels Attack
+
+    python imagenet_tutorial_gp.py
+
 <p align="center">
 <img align="center" src="./examples/image_cls/output/GPAttack.png", width=500><br>
 </p>
 
-**Usage:** 
-- **Command-line parameters**
-    - `--max_gen`  
-    : maximum iterative steps this attack will perform 
-    - `--image_path`
-    : path of the input image, e.g. example/image_cls/input/cat_example.png
-    - `--target`
-    : target class label, -1 if untargeted attack
-    - `--max_pixels`  
-    : the maximum number of pixels allowed to be changed. This is equivalent to the radius of Lp ball in L0
+### Square Attack
+Square attack is a black-box attack algorithm based on score. The model does not rely on the local gradient information of the model, so it can bypass the gradient hiding defense attack. Square Attack is a randomized search method that selects local square updates at random locations such that the perturbation lies approximately on the boundary of the feasible set at each iteration.
 
-        
-### Square Attack (L2)
-<p align="center">
-<img align="center" src="./examples/image_cls/output/SquareAttackL2.png", width=500><br>
-Untargeted Attack
-</p>
-
-<p align="center">
-<img align="center" src="./examples/image_cls/output/SquareAttackL2targeted.png", width=500><br>
-Targeted Attack
-</p>
-
-
-**Usage:** 
-- **Command-line parameters**
-    - `--window_size`  
-    : the initial size of the noise window
-    - `--max_steps`  
-    : the maximum iterative steps this attack will perform 
-    - `--image_path`
-    : the path of the input image, e.g. example/image_cls/input/cat_example.png
-    - `--target`
-    : the target class label, -1 if untargeted attack
-    - `eps`
-    : radius of the Lp ball
-    
- 
- 
- ### Square Attack (LInf)
-<p align="center">
-<img align="center" src="./examples/image_cls/output/SquareAttackLInf.png", width=500><br>
-Untargeted Attack
-</p>
-
-<p align="center">
-<img align="center" src="./examples/image_cls/output/SquareAttackLInftargeted.png", width=500><br>
-Targeted Attack
-</p>
-
-**Usage:** 
-- **Command-line parameters**
-    - `--window_size`  
-    : the initial size of the noise window
-    - `--max_steps`  
-    : the maximum iterative steps this attack will perform 
-    - `--image_path`
-    : the path of the input image, e.g. example/image_cls/input/cat_example.png
-    - `--target`
-    : the target class label, -1 if untargeted attack
-    - `eps`
-    : radius of the Lp ball
-    
-#### Square Attack Demo
-- A **[tutorial python script](#AdvBox/examples/imagenet_tutorial_sq.py)** conducts Square Attack on pretrained ResNet50 model.
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** The Square Attack is applied to the ResNet50 model trained on the ImageNet dataset.
   - **Command-line parameters**
-    - `--image_path`  
-    : the path of the input image, one can upload images to the folder: AdvBox/examples/image_cls/input. We provide some images sampled from the mini-imagenet dataset:
+    - `--image_path`
+    : the path of the input image, Users can upload their own images to the AdvBox/examples/image_cls/input folder, and we have also provided some images from the mini-imagenet dataset:
       + input/schoolbus.png
       + input/vase.png
       + input/lion.png
@@ -141,17 +111,205 @@ Targeted Attack
       + input/crate.png
       + input/malamute.png
     - `--norm`
-    : specify which norm to use, valid choices are 'L2' or 'Linf'
+    : Choose to launch the attack in the L2 or LInf norm.
     - `--target`
-    : target class label, -1 if untargeted attack
-    - `--eps`
-    : the radius of the Lp ball
+    : the target class label, -1 if untargeted attack
+    - `eps`
+    : radius of the Lp ball
     - `--max_steps`
-    : maximum steps the attack will perform
-    
-    
+    : the maximum iterative steps this attack will perform
+    - `--window_size`
+    : the initial size of the noise window
 
 
+#### Example of Square Attack (L2)
+**Untargeted Attack**
+
+    python imagenet_tutorial_sq.py --norm L2
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2.png", width=500><br>
+</p>
+
+**Targeted Attack**
+
+    python imagenet_tutorial_sq.py --norm L2 --target 390
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2targeted.png", width=500><br>
+</p>
+
+
+#### Example of Square Attack (LInf)
+**Untargeted Attack**
+
+    python imagenet_tutorial_sq.py --norm LInf
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackLInf.png", width=500><br>
+</p>
+
+**Targeted Attack**
+
+    python imagenet_tutorial_sq.py --norm LInf --target 390
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackLInftargeted.png", width=500><br>
+</p>
+The tiger cat, of class 282, was misidentified as class 390 eel after the black-box attack.
+
+## Example of white-box attack
+In the case of FGSM, other attack methods are used in a similar way. The resnet50 pre-trained model trained on imagenet dataset is used as the attack object.
+
+### FGSM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_fgsm.py)** FGSM is used to attack the ResNet50 model trained on the ImageNet dataset.
+  - **Command-line parameters**
+    - `--target`
+    : target class. Default: -1.
+
+#### Example of untargeted FGSM
+
+    python imagenet_tutorial_fgsm.py
+
+``` shell
+label=717
+input img shape:  [3, 224, 224]
+attack success, adversarial_label=803
+diff shape:  (224, 224, 3)
+fgsm attack done
+```
+The attack was successful, and the model recognized label 717 as label 803 for this image.
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/fgsm_untarget_803.png", width=500><br>
+</p>
+
+#### Example of targeted FGSM
+The targeted attack category is 266:
+
+    python imagenet_tutorial_fgsm.py --target=266
+
+``` shell
+label=717
+input img shape:  [3, 224, 224]
+attack success, adversarial_label=999
+diff shape:  (224, 224, 3)
+fgsm attack done
+```
+The attack was successful. Although the target label 266 was not identified by the model, the original label 717 was identified as label 999.
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/fgsm_target_999.png", width=500><br>
+</p>
+
+### PGD
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_pgd.py)** PGD is used to attack the ResNet50 model trained on the ImageNet dataset.
+  - **Command-line parameters**
+    - `--target`
+    : target class. Default: -1.
+
+#### Example of untargeted PGD
+
+    python imagenet_tutorial_pgd.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/pgd_adv_untarget.png", width=500><br>
+</p>
+
+#### Example of targeted PGD
+
+    python imagenet_tutorial_pgd.py --target=266
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
+</p>
+
+### CW
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 
+  - **Command-line parameters**
+    - `--target`
+    : target class. Default: 126.
+    - `--class_dim`
+    : Class number. Default: 1000.
+    - `--image_shape`
+    : Input image size Default: 3,224,224.
+
+#### Example of targeted CW
+
+    python imagenet_tutorial_cw.py --target=126
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/cw_adv_new.png", width=500><br>
+</p>
+
+### BIM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_bim.py)** BIM is used to attack the ResNet50 model trained through the ImageNet dataset, and only untargeted attacks are supported
+
+#### Example of untargeted BIM
+
+    python imagenet_tutorial_bim.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/bim_untarget_new.png", width=500><br>
+</p>
+
+### ILCM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_ilcm.py)** ILCM is used to attack the ResNet50 model trained on the ImageNet dataset.
+  - **Command-line parameters**
+    - `--target`
+    : target class. Default: -1.
+
+#### Example of untargeted ILCM
+
+    python imagenet_tutorial_ilcm.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/ilcm_untarget_adv.png", width=500><br>
+</p>
+
+#### Example of targeted ILCM
+
+    python imagenet_tutorial_ilcm.py --target=266
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/ilcm_target_adv.png", width=500><br>
+</p>
+
+### LBFGS
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_lbfgs.py)** LBFGS is used to attack the ResNet50 model trained by the ImageNet dataset, and only supports targeted attacks.
+  - **Command-line parameters**
+    - `--target`
+    : target class. Default: 290.
+
+#### Example of targeted LBFGS
+
+    python imagenet_tutorial_lbfgs.py --target=290
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/lbfgs_target_adv.png", width=500><br>
+</p>
+
+### MI-FGSM
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_mifgsm.py)** MI-FGSM is used to attack the ResNet50 model trained by ImageNet dataset.
+  - **Command-line parameters**
+    - `--target`
+    : target class. Default: -1.
+
+#### Example of untargeted MI-FGSM
+
+    python imagenet_tutorial_mifgsm.py
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/mifgsm_untarget_adv.png", width=500><br>
+</p>
+
+#### Example of targeted MI-FGSM
+
+    python imagenet_tutorial_mifgsm.py --target=290
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/show/mifgsm_target_adv.png", width=500><br>
+</p>
 
 ## To generate an AE in AdvBox
 
@@ -242,8 +400,7 @@ Run the following commandlines to launch the demonstration.
 |  TRADES(beta=1.0, PGD(default))  |  0.990 / 0.992 / 0.028  |  0.990 / 0.996 / 0.540  |
 |  TRADES(beta=1.0, LD(default))  |  0.990 / 0.996 / 0.020  |  0.990 / 0.992 / 0.734  |
 
-As shown above, the adversarial trainings boost preactresnet's robustness at the cost of 
-marginal model accuracy loss.
+As shown above, the adversarial trainings boost preactresnet's robustness at the cost of marginal model accuracy loss.
 
 ## Easy to use adversarial training
 ```python

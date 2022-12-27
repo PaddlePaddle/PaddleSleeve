@@ -33,7 +33,7 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 
 ---
 # 攻击
-进入攻击示例目录
+进入攻击示例目录：
 
     cd PaddleSleeve/Advbox/examples/image_cls
 
@@ -47,7 +47,7 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
     python mnist_cnn_bapi.py
 
 
-如果已有paddle2训练好的模型，可直接运行:
+运用Single Pixel Attack生成对抗样本:
 
     python mnist_tutorial_singlepixelattack.py    
 
@@ -71,16 +71,18 @@ SinglePixelAttack attack done
 ### Genetic Pixels Attack
 Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack也是在L0范数下的攻击，和Single Pixel Attack不同，它不再局限于改变原图像中的一个像素，而是同时改变原图中的若干个像素点，并运用遗传算法生成对抗样本。
 
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_gp.py)** 运用Genetic Pixels Attack对通过ImageNet数据集训练的ResNet50模型进行攻击 
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_gp.py)** 运用Genetic Pixels Attack对通过ImageNet数据集训练的ResNet50模型进行攻击。  
   - **参数**
     - `--max_gen`
-    : 此攻击执行的最大迭代步数
+    : 此攻击执行的最大迭代步数。
     - `--image_path`
-    : 输入图像的路径，例如input/cat_example.png
+    : 输入图像的路径，例如input/cat_example.png。
     - `--target`
-    : 目标类别标签，-1如果无目标攻击
+    : 目标类别标签，如果无目标攻击为-1。
     - `--max_pixels`
-    : 允许修改的最大像素数。这等价于L0的Lp球的半径
+    : 允许修改的最大像素数。这等价于L0的Lp球的半径。
+    - `--temp`
+    : 初始化temp. 控制不受欢迎的候选点被选为父母的可能性。
 
 #### Genetic Pixels Attack示例
 
@@ -93,9 +95,9 @@ Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack�
 ### Square Attack
 Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于模型的局部梯度
 信息，因此可以绕过梯度隐藏防御攻击。Square Attack是一种随机搜索方法，它
-在随机位置选择局部的方形更新，使得每次迭代时扰动近似位于可行集的边界
+在随机位置选择局部的方形更新，使得每次迭代时扰动近似位于可行集的边界。 
 
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** 运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** 运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击。
   - **参数**
     - `--image_path`
     : 输入图像的路径，用户可以把自己的图像上传到 AdvBox/examples/image_cls/input 文件夹，我们也提供了一些来自mini-imagenet数据集的图像：
@@ -106,13 +108,15 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
       + input/crate.png
       + input/malamute.png
     - `--norm`
-    : 选择在 L2 或 LInf 范数下展开攻击
+    : 选择在 L2 或 LInf 范数下展开攻击。
     - `--target`
-    : 目标类别, 默认为-1
+    : 目标类别，如果无目标攻击为-1。
     - `--eps`
-    : 最大扰动
+    : 最大扰动。
     - `--max_steps`
-    : 最大迭代次数
+    : 最大迭代次数。
+    - `--window_size`
+    : 噪声窗口的初始大小。
 
 #### Square Attack (L2)示例
 **Untargeted Attack**
@@ -153,13 +157,13 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 
 ## 白盒攻击示例
 
-以FGSM为例，其他攻击方法使用方式类似。采用imagenet数据集，vgg16的预训练模型作为攻击对象。
+以FGSM为例，其他攻击方法使用方式类似。采用imagenet数据集，resnet50的预训练模型作为攻击对象。
 
 ### FGSM
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_fgsm.py)** 运用FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击 
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_fgsm.py)** 运用FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击。 
   - **参数**
     - `--target`
-    : 目标类别, 默认为-1
+    : 目标类别, 默认为-1。
 
 #### FGSM非定向攻击示例
 
@@ -179,7 +183,7 @@ fgsm attack done
 </p>
 
 #### FGSM定向攻击示例
-定向攻击类别为266   
+定向攻击类别为266：    
 
     python imagenet_tutorial_fgsm.py --target=266   
 
@@ -197,7 +201,7 @@ fgsm attack done
 </p>
 
 ### PGD
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_pgd.py)** 运用PGD对通过ImageNet数据集训练的ResNet50模型进行攻击
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_pgd.py)** 运用PGD对通过ImageNet数据集训练的ResNet50模型进行攻击。
   - **参数**
     - `--target`
     : 目标类别, 默认为-1
@@ -219,10 +223,10 @@ fgsm attack done
 </p>
 
 ### CW
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 运用CW对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击 
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 运用CW对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击。 
   - **参数**
     - `--target`
-    : 目标类别, 默认为126
+    : 目标类别, 默认为126。
     - `--class_dim`
     : 类别数。默认值:1000。
     - `--image_shape`
@@ -237,7 +241,7 @@ fgsm attack done
 </p>
 
 ### BIM
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_bim.py)** 运用BIM对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持非定向攻击 
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_bim.py)** 运用BIM对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持非定向攻击。 
 
 #### BIM非定向攻击示例
 
@@ -248,10 +252,10 @@ fgsm attack done
 </p>
 
 ### ILCM
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_ilcm.py)** 运用ILCM对通过ImageNet数据集训练的ResNet50模型进行攻击 
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_ilcm.py)** 运用ILCM对通过ImageNet数据集训练的ResNet50模型进行攻击。 
   - **参数**
     - `--target`
-    : 目标类别, 默认为-1
+    : 目标类别, 默认为-1.
 
 #### ILCM非定向攻击示例
 
@@ -270,10 +274,10 @@ fgsm attack done
 </p>
 
 ### LBFGS
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_lbfgs.py)** 运用LBFGS对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击 
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_lbfgs.py)** 运用LBFGS对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击。 
   - **参数**
     - `--target`
-    : 目标类别, 默认为290
+    : 目标类别, 默认为290。
 
 #### LBFGS定向攻击示例
 
@@ -284,7 +288,7 @@ fgsm attack done
 </p>
 
 ### MI-FGSM
-- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_mifgsm.py)** 运用MI-FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_mifgsm.py)** 运用MI-FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击。
   - **参数**
     - `--target`
     : 目标类别, 默认为-1
@@ -363,18 +367,18 @@ else:
 # 对抗训练
 
 ## AdvBox对抗训练(advtraining)提供:
-- 基于主流攻击算法 **[FGSM/PGD/BIM/ILCM/MI-FGSM](#AdvBox/attacks)** 的数据增强工具，用于对抗训练
+- 基于主流攻击算法 **[FGSM/PGD/BIM/ILCM/MI-FGSM](#AdvBox/attacks)** 的数据增强工具，用于对抗训练。
 - 紧凑便捷的对抗训练工具API：
-    + 支持将训练数据按照比例进行对抗扰动，便于接入已有的paddle分类模型训练流程
-    + 支持事先按照设定权重，进行模型融合的对抗样本生成
-    + 支持多对抗攻击方法的对抗样本生成
-- Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** 演示脚本，基于Cifar10和Mini-ImageNet数据集
+    + 支持将训练数据按照比例进行对抗扰动，便于接入已有的paddle分类模型训练流程。
+    + 支持事先按照设定权重，进行模型融合的对抗样本生成。
+    + 支持多对抗攻击方法的对抗样本生成。
+- Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** 演示脚本，基于Cifar10和Mini-ImageNet数据集。
 
 ## 如何运行对抗训练演示
 对抗训练演示包含以下实验：
-- 基于Preactresnet在Cifar10和Mini-ImageNet的对抗训练Benchmark
-- 基于Towernet在Mini-ImageNet数据集上使用PGD数据增强的微调实验
-- 附加的未完成的实验
+- 基于Preactresnet在Cifar10和Mini-ImageNet的对抗训练Benchmark。
+- 基于Towernet在Mini-ImageNet数据集上使用PGD数据增强的微调实验。
+- 附加的未完成的实验。
 
 运行以下命令来运行演示
 1. `cd AdvBox/examples/image_adversarial_training`
@@ -394,7 +398,7 @@ else:
 
 如表所示，对抗训练可以在牺牲很少精度的情况下，增加模型的鲁棒性。
 
-## 对抗训练的helloword
+## 对抗性训练的简单应用
 ```python
 import sys
 sys.path.append("..")

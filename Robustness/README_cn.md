@@ -35,7 +35,7 @@ Robustnesss是一款基于Python开源的AI模型安全鲁棒性评估工具，�
 
 ```shell
 # 进入目录
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # 创建conda虚拟环境并激活（非必须）
 conda create -n perce python=3.7
@@ -115,7 +115,7 @@ pip install --upgrade paddlehub -i https://mirror.baidu.com/pypi/simple
 # 用paddle框架，使用图片Robustness/perceptron/utils/images/example.jpg 高斯平滑攻击预训练模型 restnet18
 
 # 进入目录
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # paddle：执行命令，所得对比图可在Robustness/examples/images下找到
 python perceptron/launcher.py  --framework paddle --model resnet18 --criteria misclassification --metric gaussian_blur --image example.jpg
@@ -171,13 +171,13 @@ PytorcHub-YOLOv5s
 
 ### 2.2 脚本文件调用
 
-在目录 paddleshield/Robustness/examples 下给出了paddle与pytorch的调用脚本文件示例。
+在目录 PaddleSleeve/Robustness/examples 下给出了paddle与pytorch的调用脚本文件示例。
 
 - **调用举例**
 
 ```shell
 # 进入目录
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # 执行脚本文件即可，所得对比图可在Robustness/examples/images下找到
 python examples/paddle_sp_example.py
@@ -284,7 +284,7 @@ class PaModelUpload(PaddleModel):
 
 ```shell
 # 进入目录
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # 执行脚本
 python examples/paddle_userupload_br.py

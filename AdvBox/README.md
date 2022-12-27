@@ -623,7 +623,7 @@ Adversarial perturbation for object detection, usually grouped into digital and
 physical classes, is used for adversarial training and evaluating the robustness 
 of object detectors. Here we provide a demonstration to generate adversarial 
 perturbation for PP-YOLO in the digital world. The demonstration is based on 
-**[PaddleDetection](#https://github.com/PaddlePaddle/PaddleDetection)** . 
+**[PaddleDetection](https://github.com/PaddlePaddle/PaddleDetection)** . 
 
 In `PaddleSleeve/AdvBox/examples/objectdetector`, we demonstrate the Target Ghosting 
 attack, a method using PGD to produce perturbation to minimize Kullback-Leibler Divergence 

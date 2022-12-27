@@ -398,7 +398,7 @@ else:
 
 如表所示，对抗训练可以在牺牲很少精度的情况下，增加模型的鲁棒性。
 
-## 对抗性训练的简单应用
+## 对抗训练的简单应用
 ```python
 import sys
 sys.path.append("..")
@@ -622,7 +622,7 @@ for batch_id, data in enumerate(train_loader()):
 
 # 目标检测器的对抗扰动
 目标检测器的对抗扰动主要用于目标检测器的对抗训练和鲁棒性测评，主要分为电子世界下和物理世界下的对抗扰动。
-这里我们提供一种电子世界下对PP-YOLO目标检测器扰动的演示。该演示基于 **[PaddleDetection](#https://github.com/PaddlePaddle/PaddleDetection)** 项目。
+这里我们提供一种电子世界下对PP-YOLO目标检测器扰动的演示。该演示基于 **[PaddleDetection](https://github.com/PaddlePaddle/PaddleDetection)** 项目。
 
 **用于Feed & Sniff的图像**
 

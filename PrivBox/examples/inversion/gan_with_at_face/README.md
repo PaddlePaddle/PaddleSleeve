@@ -12,7 +12,7 @@ As shown below, this example simulates how malicious participants recover traini
 
 Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/inversion/gan_with_at_face
 python3 gan_inversion_with_at_face.py
 
 ```
@@ -38,6 +38,11 @@ Input Parameters：
 
 ```shell
 attack_epoch=100, batch_size=32, learning_rate_fake=0.0002, learning_rate_gen=0.0002, learning_rate_real=0.0002, num_pic_save=4, result_dir='./att_results', target_label=1
+```
+
+Command Line：
+```shell
+python gan_inversion_with_at_face.py --attack_epoch=100 --batch_size=32 --learning_rate_fake=0.0002 --learning_rate_gen=0.0002 --learning_rate_real=0.0002 --num_pic_save=4 --result_dir='./att_results' --target_label=1
 ```
 
 Attack Result：

@@ -15,7 +15,7 @@
 
 首先需要按照说明安装privbox（[安装教程](../../../README_cn.md###安装)），安装成功后，运行：
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/extraction/knockoff_with_mnist/
 python3 knockoff_extraction_with_mnist.py
 
 ```
@@ -41,7 +41,12 @@ Knockoff model's evaluate result:  [xxx]
 
 输入参数：
 ```shell
-batch_size=128, epochs=2, knockoff_net='linear', knockoff_dataset='fmnist', learning_rate=0.01, num_queries=40000, policy='random', reward='all'
+python3 knockoff_extraction_with_mnist.py batch_size=128, epochs=2, knockoff_net='linear', knockoff_dataset='fmnist', learning_rate=0.01, num_queries=40000, policy='random', reward='all'
+```
+
+命令行
+```shell
+python3 knockoff_extraction_with_mnist.py --batch_size=128 --epochs=2 --knockoff_net='linear' --knockoff_dataset='fmnist' --learning_rate=0.01 --num_queries=40000 --policy='random' --reward='all'
 ```
 
 评估结果：
@@ -54,6 +59,11 @@ Knockoff model's evaluate result:  [0.862]
 输入参数：
 ```shell
 batch_size=128, epochs=2, knockoff_dataset='mnist', knockoff_net='linear', learning_rate=0.01, num_queries=6000, policy='adaptive', reward='all'
+```
+
+命令行
+```shell
+python3 knockoff_extraction_with_mnist.py --batch_size=128 --epochs=2 --knockoff_net='linear' --knockoff_dataset='mnist' --learning_rate=0.01 --num_queries=6000 --policy='adaptive' --reward='all'
 ```
 
 评估结果：

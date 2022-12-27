@@ -16,7 +16,7 @@ As shown below, this example simulates how to use Knockoff Model Extraction modu
 Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/extraction/knockoff_with_mnist/
 python3 knockoff_extraction_with_mnist.py
 
 ```
@@ -46,6 +46,11 @@ Input Parameters:
 batch_size=128, epochs=2, knockoff_net='linear', knockoff_dataset='fmnist', learning_rate=0.01, num_queries=40000, policy='random', reward='all'
 ```
 
+Command Line
+```shell
+python3 knockoff_extraction_with_mnist.py --batch_size=128 --epochs=2 --knockoff_net='linear' --knockoff_dataset='fmnist' --learning_rate=0.01 --num_queries=40000 --policy='random' --reward='all'
+```
+
 Evaluation Result
 ```
 Victim model's evaluate result:  [0.906]
@@ -56,7 +61,12 @@ Knockoff model's evaluate result:  [0.862]
 
 Input Parameters：
 ```shell
-batch_size=128, epochs=2, knockoff_dataset='mnist', knockoff_net='linear', learning_rate=0.01, num_queries=6000, policy='adaptive', reward='all'
+batch_size=128, epochs=2, knockoff_net='linear', knockoff_dataset='mnist', learning_rate=0.01, num_queries=6000, policy='adaptive', reward='all'
+```
+
+Command Line
+```shell
+python3 knockoff_extraction_with_mnist.py --batch_size=128 --epochs=2 --knockoff_net='linear' --knockoff_dataset='mnist' --learning_rate=0.01 --num_queries=6000 --policy='adaptive' --reward='all'
 ```
 
 Evaluation Result：

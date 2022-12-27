@@ -7,7 +7,7 @@ The example is based on a simple rule that an instance is considered as a member
 
 Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/membership_inference/rule_base_with_cifar10
 python3 baseline_with_cifar10.py
 
 ```
@@ -25,6 +25,11 @@ Input Parameters：
 
 ```shell
 batch_size=128, train_epoch=10, train_lr=0.0002
+```
+
+Command Line
+```shell
+python baseline_with_cifar10.py --batch_size=128 --train_epoch=10 --train_lr=0.0002
 ```
 
 Evaluation Result：

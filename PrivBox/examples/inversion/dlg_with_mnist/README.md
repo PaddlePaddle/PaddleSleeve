@@ -11,7 +11,7 @@ As shown below, this example simulates how malicious participants recover traini
 
 Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/inversion/dlg_with_mnist
 python3 dlg_inversion_with_mnist.py
 
 ```
@@ -35,6 +35,11 @@ Input Parameters：
 
 ```shell
 attack_epoch=2000, batch_size=1, learning_rate=0.2, result_dir='./att_results', return_epoch=100, window_size=200
+```
+
+Command Line
+```shell
+python3 dlg_inversion_with_mnist.py --attack_epoch=2000 --batch_size=1 --learning_rate=0.2 --result_dir='./att_results' --return_epoch=100 --window_size=200
 ```
 
 Evaluation Result：

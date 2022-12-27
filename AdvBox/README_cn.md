@@ -624,20 +624,6 @@ for batch_id, data in enumerate(train_loader()):
 目标检测器的对抗扰动主要用于目标检测器的对抗训练和鲁棒性测评，主要分为电子世界下和物理世界下的对抗扰动。
 这里我们提供一种电子世界下对PP-YOLO目标检测器扰动的演示。该演示基于 **[PaddleDetection](https://github.com/PaddlePaddle/PaddleDetection)** 项目。
 
-**用于Feed & Sniff的图像**
-
-<table>
-<tr>
-    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
-    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
-</tr>
-
-<tr>
-    <td align="center">Original Image</td>
-    <td align="center">Masked Image</td>
-</tr>
-</table>
-
 在`PaddleSleeve/AdvBox/examples/objectdetector`，我们展示了一种称之为目标消失攻击的目标检测器
 对抗方法。该演示是在可以获取模型权重信息的情况下，用受害图和制作的目标图获得关键张量，用PGD方法迭代更新扰动图
 像，使受害图和目标图对应的分类置信度张量的KL散度最小。该演示中，我们成功的使被扰动后的图片`000000014439.jpg`，
@@ -654,8 +640,24 @@ for batch_id, data in enumerate(train_loader()):
 
 ## 运行目标消失演示
 在把所有`sync-bn`组件置换为`bn`组件后，运行以下命令：
-1. `cd PaddleSleeve/AdvBox/examples/objectdetector`
-2. `python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png`
+```python
+cd PaddleSleeve/AdvBox/examples/objectdetector
+python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png
+```
+
+**用于Feed & Sniff的图像**
+
+<table>
+<tr>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/000000014439.jpg" width=300></td>
+    <td align="center"><img src="./examples/objectdetector/dataloader/demo_pics/masked_0014439.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">Original Image</td>
+    <td align="center">Masked Image</td>
+</tr>
+</table>
 
 成功的运行`target_ghosting_demo.py`可以产生以下图片：
 

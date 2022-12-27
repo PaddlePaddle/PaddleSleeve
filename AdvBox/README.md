@@ -10,8 +10,17 @@ The project also contains plenty of useful tutorials for different AI applicatio
 
 (A command-line tool is given to generate adversarial examples with Zero-Coding which is inspired and based on FoolBox v1.)
 
-## Attack Methods
+---
 
+## Noun Explanation
+
+* White-box attack: The attacker can know the internal structure of the model, training parameters, training and defense methods, etc.
+* Black-box attack: The attacker knows nothing about the internal structure of the attacked model, training parameters, etc., and can only communicate with the model through the output.
+* Untargeted attack: All the attacker has to do is cause the target model to misclassify an example, but not to which class.
+* Targeted attack: The attacker specifies a class in such a way that the target model not only misclassifies samples but also needs to misclassify the specified class No.
+
+---
+## Attack Methods
 
 | Adversarial Attack Methods                                    | White-Box | Black-Box | Ensemble  |  AdvTrain   |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--:|:--:|:--:|:--:|

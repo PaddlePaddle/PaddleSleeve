@@ -32,11 +32,12 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 | [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
 ---
-### 黑盒攻击示例
-进入图片分类黑盒攻击示例目录
+# 攻击示例
+进入攻击示例目录
 
     cd PaddleSleeve/Advbox/examples/image_cls
 
+## 黑盒攻击示例
 ### Single Pixel Attack
 在mnist数据集，针对自己训练的CNN模型生成对抗样本。首先生成需要攻击的模型：    
 
@@ -145,7 +146,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 </p>
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 
-### 白盒攻击示例
+## 白盒攻击示例
 
 以FGSM为例，其他攻击方法使用方式类似。采用imagenet数据集，vgg16的预训练模型作为攻击对象。
 

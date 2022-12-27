@@ -12,6 +12,8 @@ DGC (Deep Gradient Compress) is one of the famous gradient compress algorithm. D
 We implement DGC as a Paddle optimizer (DGCMomentum) just as other Paddle optimizer like SGD. We also give an example for DGCMomentum optimizer. Meanwhile, DLG attack is append for evaluating the defense of gradient compress.
 
 ## Run example
+PaddleSleeve/PrivBox needs to be installed, [`Installation Tutorial`](../../PrivBox/README.md#installation)
+
 
 ```shell
 cd PaddleSleeve/PrivacyGuard/gradient_compress

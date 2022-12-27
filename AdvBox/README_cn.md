@@ -32,18 +32,14 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 | [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
 ---
-# 攻击示例
+# 攻击
 进入攻击示例目录
 
     cd PaddleSleeve/Advbox/examples/image_cls
 
 ## 黑盒攻击示例
 ### Single Pixel Attack
-- **[tutorial python script](/AdvBox/examples/image_cls/mnist_tutorial_singlepixelattack.py)** 运用Single Pixel Attack对通过mnist数据集训练的CNN模型进行攻击，生成对抗样本。
-
-  - **参数**
-    - `--target`
-    : 目标类别标签，-1为无目标攻击，默认-1
+- **[tutorial python script](/AdvBox/examples/image_cls/mnist_tutorial_singlepixelattack.py)** 运用Single Pixel Attack对通过mnist数据集训练的CNN模型进行攻击，生成对抗样本。只支持非定向攻击。
 
 #### Single Pixel Attack示例
 首先生成需要攻击的模型：    
@@ -51,7 +47,7 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
     python mnist_cnn_bapi.py
 
 
-如果已有paddle2训练好的模型，不指定参数为非定向攻击可直接运行:
+如果已有paddle2训练好的模型，可直接运行:
 
     python mnist_tutorial_singlepixelattack.py    
 

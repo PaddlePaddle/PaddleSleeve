@@ -36,6 +36,16 @@ The project also contains plenty of useful tutorials for different AI applicatio
 | [GeneticPixelAttack](attacks/genetic_pixel_attack.py)                            |    | ✓ |   |   |
 | [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
+---
+# Attack
+Go to the attack example directory
+
+    cd PaddleSleeve/Advbox/examples/image_cls
+
+## Example of a black-box attack
+### Single Pixel Attack
+- **[tutorial python script](/AdvBox/examples/image_cls/mnist_tutorial_singlepixelattack.py)** Single Pixel Attack was used to attack the CNN model trained through the mnist dataset to generate adversarial samples.
+
 <p align="center">
 <img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
 PGD targeted attack

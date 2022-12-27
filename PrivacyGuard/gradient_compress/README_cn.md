@@ -12,7 +12,7 @@
 同时，`dgc_demo.py`还加入了DLG攻击选项（攻击详见文件`PrivBox/inversion/dlg.py`），方便从攻击的角度来衡量梯度压缩的隐私保护效果。例子具体使用方法如下：
 
 ## 运行例子
-运行之前需要先安装PaddleSleeve/PrivBox，[`安装教程`](../../PrivBox/README_cn.md#installation) 
+运行之前需要先安装PaddleSleeve/PrivBox，[`安装教程`](../../PrivBox/README_cn.md#%E5%AE%89%E8%A3%85) 
 
 
 ```shell

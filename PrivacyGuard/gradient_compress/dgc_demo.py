@@ -19,7 +19,7 @@ from __future__ import print_function
 
 import sys
 import os
-sys.path.append('../../PrivBox/')
+#sys.path.append('../../PrivBox/')
 
 import argparse
 import numpy
@@ -30,8 +30,8 @@ from PIL import Image
 from paddle.vision.transforms import Compose, Normalize
 import paddle.nn.functional as F
 
-from inversion import DLGInversionAttack
-from metrics import MSE, Accuracy, PSNR, SSIM
+from privbox.inversion import DLGInversionAttack
+from privbox.metrics import MSE, Accuracy, PSNR, SSIM
 from dgc_momentum_optimizer import DGCMomentum
 from paddle.optimizer.momentum import Momentum
 

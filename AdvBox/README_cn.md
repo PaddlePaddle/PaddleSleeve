@@ -72,7 +72,7 @@ SinglePixelAttack attack done
 Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack也是在L0范数下的攻击，和Single Pixel Attack不同，它不再局限于改变原图像中的一个像素，而是同时改变原图中的若干个像素点，并运用遗传算法生成对抗样本。
 
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_gp.py)** 运用Genetic Pixels Attack对通过ImageNet数据集训练的ResNet50模型进行攻击。  
-  - **参数**
+  - **命令行参数介绍**
     - `--max_gen`
     : 此攻击执行的最大迭代步数。
     - `--image_path`
@@ -98,7 +98,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 在随机位置选择局部的方形更新，使得每次迭代时扰动近似位于可行集的边界。 
 
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** 运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击。
-  - **参数**
+  - **命令行参数介绍**
     - `--image_path`
     : 输入图像的路径，用户可以把自己的图像上传到 AdvBox/examples/image_cls/input 文件夹，我们也提供了一些来自mini-imagenet数据集的图像：
       + input/schoolbus.png
@@ -161,7 +161,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 
 ### FGSM
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_fgsm.py)** 运用FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击。 
-  - **参数**
+  - **命令行参数介绍**
     - `--target`
     : 目标类别, 默认为-1。
 
@@ -202,7 +202,7 @@ fgsm attack done
 
 ### PGD
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_pgd.py)** 运用PGD对通过ImageNet数据集训练的ResNet50模型进行攻击。
-  - **参数**
+  - **命令行参数介绍**
     - `--target`
     : 目标类别, 默认为-1
 
@@ -224,7 +224,7 @@ fgsm attack done
 
 ### CW
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_cw.py)** 运用CW对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击。 
-  - **参数**
+  - **命令行参数介绍**
     - `--target`
     : 目标类别, 默认为126。
     - `--class_dim`
@@ -253,7 +253,7 @@ fgsm attack done
 
 ### ILCM
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_ilcm.py)** 运用ILCM对通过ImageNet数据集训练的ResNet50模型进行攻击。 
-  - **参数**
+  - **命令行参数介绍**
     - `--target`
     : 目标类别, 默认为-1.
 
@@ -275,7 +275,7 @@ fgsm attack done
 
 ### LBFGS
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_lbfgs.py)** 运用LBFGS对通过ImageNet数据集训练的ResNet50模型进行攻击,只支持定向攻击。 
-  - **参数**
+  - **命令行参数介绍**
     - `--target`
     : 目标类别, 默认为290。
 
@@ -289,7 +289,7 @@ fgsm attack done
 
 ### MI-FGSM
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_mifgsm.py)** 运用MI-FGSM对通过ImageNet数据集训练的ResNet50模型进行攻击。
-  - **参数**
+  - **命令行参数介绍**
     - `--target`
     : 目标类别, 默认为-1
 
@@ -372,13 +372,13 @@ else:
     + 支持将训练数据按照比例进行对抗扰动，便于接入已有的paddle分类模型训练流程。
     + 支持事先按照设定权重，进行模型融合的对抗样本生成。
     + 支持多对抗攻击方法的对抗样本生成。
-- Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** 演示脚本，基于Cifar10和Mini-ImageNet数据集。
 
 ## 如何运行对抗训练演示
 对抗训练演示包含以下实验：
 - 基于Preactresnet在Cifar10和Mini-ImageNet的对抗训练Benchmark。
 - 基于Towernet在Mini-ImageNet数据集上使用PGD数据增强的微调实验。
-- 附加的未完成的实验。
+
+- **[tutorial python script](/AdvBox/examples/image_adversarial_training/run_advtrain_main.py)** 对抗训练演示脚本，基于Preactresnet和Towernet模型，Cifar10和Mini-ImageNet数据集，PGD、FGSM、LD攻击算法。
 
 运行以下命令来运行演示
 1. `cd AdvBox/examples/image_adversarial_training`
@@ -481,7 +481,7 @@ for batch_id, data in enumerate(train_loader()):
     
  - **重新划分数据集**
     
-    需要注意，原论文中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`examples/dataset/split.py`中提供了相关工具。若要重新划分，则需首先下载完整的mini-imagenet数据集，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing)** 下载。下载完成后修改`split.py`脚本里的对应路径并直接运行即可。脚本会自动生成`.pkl`格式的数据集文件并保存到指定路径。
+    需要注意，原论文中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`examples/dataset/split.py`中提供了相关工具。若要重新划分，则需首先下载完整的mini-imagenet数据集，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/blob/master/pytorch_classification/mini_imagenet/README.md)** 下载。下载完成后修改`split.py`脚本里的对应路径并直接运行即可。脚本会自动生成`.pkl`格式的数据集文件并保存到指定路径。
   
     ```python
     
@@ -680,8 +680,6 @@ python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o w
 
 # 对抗样本去噪算法列表
 
-基本去噪算法
-
 ## 对抗样本去噪示例
 
 - [基本去噪方法](/AdvBox/denoisers)
@@ -691,46 +689,23 @@ python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o w
     + 方框滤波（Box Filter）
     + 双边滤波（Bilateral Filter）
     + 像素偏移（Pixel Deflection）
-    + JPEG压缩
-    + DCT压缩
-    + PCA降维
-    + 高斯噪声 （GaussianNoise）
-    + 椒盐噪声 （SaltPepperNoise）
-    + 随机缩放填充
-- 在一幅图像上使用FGSM攻击并去噪 **[tutorial python script](/AdvBox/examples/mini_imagenet_evaluation_tool.py)**.
-- **命令行参数介绍**
-  - `--image_path`  
-  : 要处理的图像路径，用户可以上传图像到文件夹：AdvBox/examples/image_cls/input。我们提供了一些采集自mini-imagenet数据集的图像样本：
-    + input/schoolbus.png
-    + input/vase.png
-    + input/lion.png
-    + input/hourglass.png
-    + input/crate.png
-    + input/malamute.png
-  - `--method`  
-  : 去噪方法的名称，如下：
-    + GaussianBlur
-    + MedianBlur
-    + MeanFilter
-    + BoxFilter
-    + BilateralFilter
-    + PixelDeflection
-    + JPEGCompression
-    + DCTCompress
-    + PCACompress
-    + GaussianNoise
-    + SaltPepperNoise
-    + ResizePadding
-
-  - 在Mini-ImageNet数据集上使用FGSM攻击图像并去噪 **[tutorial python script](#AdvBox/examples/imagenet_tutorial_fgsm_denoise.py)**.
+    + JPEG压缩（JPEG Compression）
+    + DCT压缩（DCT Compression）
+    + PCA降维（PCA Compression）
+    + 高斯噪声（Gaussian Noise）
+    + 椒盐噪声（Salt and Pepper Noise）
+    + 随机缩放填充（Random Resize and Padding）
+    + 特征压缩（Feature Squeezing）
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_fgsm_denoise.py)** 在一幅图像上使用FGSM攻击并去噪。
   - **命令行参数介绍**
-    - `--dataset_path`  
-    : 要处理的mini-imagenet数据集（.pkl）路径，可以将数据集下载至：AdvBox/examples/image_cls/input中。
-    - `--label_path`  
-    : 要处理的数据集对应的类别标签，可以将文件放在：AdvBox/examples/image_cls/input。我们提供了测试集的标签：
-      + input/mini_imagenet_test_labels.txt
-    - `--mode`
-    : 数据集类型, 'train'，'test'，或者 'val'。默认是 Default 'test'.
+    - `--image_path`  
+    : 要处理的图像路径，用户可以上传图像到文件夹：AdvBox/examples/image_cls/input。我们提供了一些采集自mini-imagenet数据集的图像样本：
+      + input/schoolbus.png
+      + input/vase.png
+      + input/lion.png
+      + input/hourglass.png
+      + input/crate.png
+      + input/malamute.png
     - `--method`  
     : 去噪方法的名称，如下：
       + GaussianBlur
@@ -740,11 +715,40 @@ python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o w
       + BilateralFilter
       + PixelDeflection
       + JPEGCompression
-      + DCTCompress
-      + PCACompress
+      + DCTCompression
+      + PCACompression
       + GaussianNoise
       + SaltPepperNoise
       + ResizePadding
+      + FeatureSqueezing
+    - `--target`
+    : 目标类别, 默认为-1。
+
+- **[tutorial python script](/AdvBox/examples/image_cls/mini_imagenet_evaluation_tool.py)** 在Mini-ImageNet数据集上使用FGSM攻击图像并去噪。
+  - **命令行参数介绍**
+    - `--dataset_path`  
+    : 要处理的mini-imagenet数据集（.pkl）路径，可以将数据集下载至：AdvBox/examples/image_cls/input中。
+    - `--label_path`  
+    : 要处理的数据集对应的类别标签，可以将文件放在：AdvBox/examples/image_cls/input。
+    - `--mode`
+    : 数据集类型, 'train'，'test'，或者 'val'。默认是 Default 'test'。
+    - `--method`  
+    : 去噪方法的名称，如下：
+      + GaussianBlur
+      + MedianBlur
+      + MeanFilter
+      + BoxFilter
+      + BilateralFilter
+      + PixelDeflection
+      + JPEGCompression
+      + DCTCompression
+      + PCACompression
+      + GaussianNoise
+      + SaltPepperNoise
+      + ResizePadding
+      + FeatureSqueezing
+    - `--target`
+    : 目标类别, 默认为-1。
 
 ## 去噪算法使用示例
 在单幅图像或者mini-imagenet数据集上对清晰图像或者对抗样本使用去噪算法。
@@ -775,86 +779,93 @@ GaussianBlur denoise doesn't change the label of the input image
 ```
 
 #### 可视化结果
-<div align=center>
-<img src="./examples/image_cls/output/GaussianBlur_Denoising_Comparison.png" style="zoom:40%;"/>
-</div>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/GaussianBlur_Denoising_Comparison.png", width=500><br>
+</p>
 
 #### 其他去噪方法示例
 **中值滤波**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='MedianBlur' --image_path='input/vase.png'
 ```
-<div align=center>
-<img src="./examples/image_cls/output/MedianBlur_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/MedianBlur_Denoising_Comparison.png", width=500><br>
+</p>
 
 **均值滤波**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='MeanFilter' --image_path='input/lion.png'
 ```
-
-<div align=center>
-<img src="./examples/image_cls/output/MeanFilter_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/MeanFilter_Denoising_Comparison.png", width=500><br>
+</p>
 
 **方框滤波**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='BoxFilter' --image_path='input/hourglass.png'
 ```
-<div align=center>
-<img src="./examples/image_cls/output/BoxFilter_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/BoxFilter_Denoising_Comparison.png", width=500><br>
+</p>
 
 **双边滤波**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='BilateralFilter' --image_path='input/vase.png'
 ```
-<div align=center>
-<img src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png", width=500><br>
+</p> 
 
 **像素偏移**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='PixelDeflection' --image_path='input/malamute.png'
 ```
-<div align=center>
-<img src="./examples/image_cls/output/PixelDeflection_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/PixelDeflection_Denoising_Comparison.png", width=500><br>
+</p> 
 
 **JPEG压缩**
 ```shell
 python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path='input/vase.png'
 ```
-<div align=center>
-<img src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png" style="zoom:40%;" />
-</div><br/>
+<p align="center">
+<img align="center" src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png", width=500><br>
+</p> 
 
 ### Mini-ImageNet数据集去噪示例
 给定mini-imagenet数据集，依次对数据集中的每幅图像：先使用FGSM方法产生对抗样本（AE），在使用去噪算法对AE进行去噪，同时对比对输入的清晰图像的去噪结果。
 
+#### 数据准备
+    Advbox 中提供的MINIIMAGENET类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中。该类别的输入是`.pkl`文件，提前制作好的数据集pickle文件可以从 **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)** 官网。下载`mini-imagenet-cache-test.pkl`到`AdvBox/examples/image_cls/input`中。另外需要mini-imagenet类别对应标签的文件，我们提供了`mini_imagenet_test_labels.txt`在`AdvBox/examples/image_cls/input`中。
+    
 #### 执行代码:
 ```shell
 cd PaddleSleeve/Advbox/examples/image_cls
-python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='input/mini-imagenet-cache-test.pkl' --label_path='mini_imagenet_test_labels.txt'
+python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='input/mini-imagenet-cache-test.pkl' --label_path='input/mini_imagenet_test_labels.txt'
 ```
 
 #### 输出结果:
 ```
-100%|█████| 12000/12000 [2:45:59<00:00,  1.20it/s, ORI_ACC=0.439, AE_ACC=0.000, DE_AE_ACC=0.063, DE_ORI_ACC=0.010]
+100%|█████| 12000/12000 [2:45:59<00:00,  1.20it/s, ORI_ACC=0.413, AE_ACC=0.081, DE_AE_ACC=0.186, DE_ORI_ACC=0.410]
 ```
 
 #### 定量结果 (分类准确率):
 | 去噪方法 | 清晰图像 | 对抗样本 | 对抗样本去噪 | 清晰图像去噪 |
 |:-|:-:|:-:|:-:|:-:|
-| 高斯滤波    | 43.9%  | 0.0%  | 6.3% | 10.0% |
-| 中值滤波    | 43.9%  | 0.0%  | 7.2% | 10.4% |
-| 均值滤波    | 43.9%  | 0.0%  | 5.8% | 9.0% |
-| 方框滤波    | 43.9%  | 0.0%  | 7.4% | 14.4% |
-| 双边滤波    | 43.9%  | 0.0%  | 5.8% | 9.0% |
-| 像素偏移    | 43.9%  | 0.0%  | 11.7% | 18.3% |
-| JPEG压缩    | 43.9%  | 0.0%  | 12.6% | 19.5% |
-| DCT压缩     | 43.9%  | 0.0%  | 10.9% | 16.5% |
-| PCA降维     | 43.9%  | 0.0%  | 11.7% | 20.6% |
-| 高斯噪声    | 43.9%  | 0.0%  | 8.0% | 10.0% |
-| 椒盐噪声    | 43.9%  | 0.0%  | 7.3% | 11.0% |
-| 随机缩放填充 | 43.9%  | 0.0%  | 18.9% | 22.5% |
+| 高斯滤波    | 41.3%  | 8.1%  | 18.6% | 41.0% |
+| 中值滤波    | 41.3%  | 8.1%  | 20.5% | 27.8% |
+| 均值滤波    | 41.3%  | 8.1%  | 20.7% | 26.3% |
+| 方框滤波    | 41.3%  | 8.1%  | 20.7% | 26.3% |
+| 双边滤波    | 41.3%  | 8.1%  | 5.8% | 9.0% |
+| 像素偏移    | 41.3%  | 8.1%  | 16.1% | 38.0% |
+| JPEG压缩    | 41.3%  | 8.1%  | 25.9% | 39.9% |
+| DCT压缩     | 41.3%  | 8.1%  | 28.5% | 39.3% |
+| PCA降维     | 41.3%  | 8.1%  | 19.2% | 41.2% |
+| 高斯噪声    | 41.3%  | 8.1%  | 18.8% | 41.1% |
+| 椒盐噪声    | 41.3%  | 8.1%  | 18.5% | 41.0% |
+| 随机缩放填充 | 41.3%  | 8.1%  | 31.0% | 40.2% |
+| 特征压缩 (3 bits)| 41.3%  | 8.1%  | 11.6% | 32.5% |
+
+# 贡献
+我们感谢您的贡献!
+

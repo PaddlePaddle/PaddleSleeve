@@ -372,13 +372,31 @@ else:
     + 支持将训练数据按照比例进行对抗扰动，便于接入已有的paddle分类模型训练流程。
     + 支持事先按照设定权重，进行模型融合的对抗样本生成。
     + 支持多对抗攻击方法的对抗样本生成。
+- **[tutorial python script](/AdvBox/examples/image_adversarial_training/run_advtrain_main.py)** 对抗训练演示脚本，基于Preactresnet和Towernet模型，Cifar10和Mini-ImageNet数据集，PGD、FGSM、LD攻击算法。
+  - **命令行参数介绍**
+    - `--model`
+    : 选择对抗训练的模型，默认为preactresnet。
+      + preactresnet
+      + towernet
+    - `--training_method`
+    : 选择对抗训练的方法，默认为base（无对抗训练）。
+      + base
+      + advtraining_natural_PGD
+      + advtraining_natural_FGSM
+      + advtraining_TRADES_PGD
+      + advtraining_TRADES_LD
+      + advtraining_TRADES_FGSM
+    - `--dataset`
+    : 选择数据集，默认为cifar10。
+      + cifar10
+      + mini-imagenet
+    - `--use_pretrain`
+    : 是否使用预训练模型，默认为no。base训练方法只支持no，如果yes，会使用base训练好的最佳模型，所以必须要先使用base模式训练。 
 
 ## 如何运行对抗训练演示
 对抗训练演示包含以下实验：
 - 基于Preactresnet在Cifar10和Mini-ImageNet的对抗训练Benchmark。
 - 基于Towernet在Mini-ImageNet数据集上使用PGD数据增强的微调实验。
-
-- **[tutorial python script](/AdvBox/examples/image_adversarial_training/run_advtrain_main.py)** 对抗训练演示脚本，基于Preactresnet和Towernet模型，Cifar10和Mini-ImageNet数据集，PGD、FGSM、LD攻击算法。
 
 运行以下命令来运行演示
 1. `cd AdvBox/examples/image_adversarial_training`

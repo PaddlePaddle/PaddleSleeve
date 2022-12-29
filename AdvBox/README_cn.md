@@ -176,10 +176,10 @@ attack success, adversarial_label=803
 diff shape:  (224, 224, 3)
 fgsm attack done
 ```
-攻击成功，模型对于此图片的识别，label为717识别成label 803。
+攻击成功，模型对于此图片的识别，label为717识别成label 654。
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/fgsm_untarget_803.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/fgsm_untarget.png", width=500><br>
 </p>
 
 #### FGSM定向攻击示例
@@ -190,14 +190,14 @@ fgsm attack done
 ``` shell
 label=717
 input img shape:  [3, 224, 224]
-attack success, adversarial_label=999
+attack success, adversarial_label=734
 diff shape:  (224, 224, 3)
 fgsm attack done
 ```
-攻击成功，模型对于此图片的识别，虽然不是目标标签266，但是将原label为717识别成label 999。
+攻击成功，模型对于此图片的识别，虽然不是目标标签266，但是将原label为717识别成label 734。
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/fgsm_target_999.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/fgsm_target.png", width=500><br>
 </p>
 
 ### PGD
@@ -578,11 +578,11 @@ for batch_id, data in enumerate(train_loader()):
                                   save_path=save_path,
                                   **training_config)
     ```
-    在`examples/image_adversarial_training/`目录下提供了一个`mini_imagenet_demo_parallel_advtrain_natural.py`的展示脚本。无需添加另外的参数或命令即可直接启动。用户只需运行下列指令即可初步感受natural advtrain对抗训练。 
+    在`PaddleSleeve/AdvBox/examples/image_adversarial_training/`目录下提供了一个`mini_imagenet_demo_parallel_advtrain_natural.py`的展示脚本。无需添加另外的参数或命令即可直接启动。用户只需运行下列指令即可初步感受natural advtrain对抗训练。 
     ```
-    cd Advbox
     export CUDA_VISIBLE_DEVICES=0,1,2,3
-    python -m paddle.distributed.launch examples/image_adversarial_training/mini_imagenet_tutorial_parallel_advtrain_natural.py
+    cd PaddleSleeve/AdvBox/examples/image_adversarial_training/
+    python -m paddle.distributed.launch mini_imagenet_demo_parallel_advtrain_natural.py
     ```
     
     - **FreeAT**
@@ -605,7 +605,7 @@ for batch_id, data in enumerate(train_loader()):
                       save_path=save_path,
                       **training_config)
     ```
-    对应的展示脚本为 `examples/image_adversarial_training/mini_imagenet_demo_parallel_freeat.py`。
+    对应的展示脚本为 `PaddleSleeve/AdvBox/examples/image_adversarial_training/mini_imagenet_demo_parallel_freeat.py`。
     
     - **AWP**
     ```python
@@ -629,7 +629,7 @@ for batch_id, data in enumerate(train_loader()):
                               save_path=save_path,
                               **training_config)
     ```
-    对应的展示脚本为 `examples/image_adversarial_training/mini_imagenet_tutorial_parallel_awp.py`。
+    对应的展示脚本为 `PaddleSleeve/AdvBox/examples/image_adversarial_training/mini_imagenet_demo_parallel_awp.py`
     
     
 - ### 不同对抗训练效果对比

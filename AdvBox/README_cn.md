@@ -419,21 +419,23 @@ else:
     : 待评估模型是否是使用base模式的预训练模型训练的。
 
 ## 如何运行对抗训练演示
-对抗训练演示包含以下实验：
+### 对抗训练演示包含实验
 - 基于Preactresnet在Cifar10和Mini-ImageNet的对抗训练Benchmark。
 - 基于Towernet在Mini-ImageNet数据集上使用PGD数据增强的微调实验。
 
-数据准备：  
+### 数据准备  
 实验使用Cifar10数据集和Mini-ImageNet数据集。 
 - Cifar10数据集，使用`paddle.vision.datasets.Cifar10`自动下载。
-- Mini-ImageNet数据集，Advbox 中提供的`MINIIMAGENET`类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中，该类别的输入是`.pkl`文件。需要注意，原论文>中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`examples/dataset/re_split.py`中提供了相关工具。首先下载完整的mini-imagenet数据集到`AdvBox/examples/dataset/mini-imagenet`，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/blob/master/pytorch_classification/mini_imagenet/README.md)** 下载。下载完成后运行如下命令，在`AdvBox/examples/dataset/mini-imagenet`中生成`re_split_mini-imagenet-cache-train.pkl`，`re_split_mini-imagenet-cache-test.pkl`，`re_split_mini-imagenet_label.txt`三个文件。
+- Mini-ImageNet数据集，Advbox 中提供的`MINIIMAGENET`类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中，该类别的输入是`.pkl`文件。需要注意，原论文中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`examples/dataset/re_split.py`中提供了相关工具。首先下载完整的mini-imagenet数据集到`AdvBox/examples/dataset/mini-imagenet`，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/blob/master/pytorch_classification/mini_imagenet/README.md)** 下载。下载完成后运行如下命令：
 
 ```shell
 cd PaddleSleeve/Advbox/examples/dataset/
 python re_split.py
 ```
 
-运行以下命令来运行演示
+脚本在`AdvBox/examples/dataset/mini-imagenet`中生成`re_split_mini-imagenet-cache-train.pkl`，`re_split_mini-imagenet-cache-test.pkl`，`re_split_mini-imagenet_label.txt`三个文件。
+
+### 运行演示
 1. `cd AdvBox/examples/image_adversarial_training`
 2. `python run_advtrain_main.py`
 3. `python model_evaluation_tutorial.py`

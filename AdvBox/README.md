@@ -42,11 +42,11 @@ Go to the attack example directory:
 
     cd PaddleSleeve/Advbox/examples/image_cls
 
-## Example of a black-box attack
+## Usage of a black-box attack
 ### Single Pixel Attack
 - **[tutorial python script](/AdvBox/examples/image_cls/mnist_tutorial_singlepixelattack.py)** Single Pixel Attack was used to attack the CNN model trained through the mnist dataset to generate adversarial samples. Only non-targeted attacks are supported.
 
-#### Example of Single Pixel Attack
+#### Usage of Single Pixel Attack
 First, generate the model to attack:
 
     python mnist_cnn_bapi.py
@@ -81,7 +81,13 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
     - `--max_gen`
     : maximum iterative steps this attack will perform.
     - `--image_path`
-    : path of the input image, e.g. example/image_cls/input/cat_example.png.
+    : path of the input image, default: input/cat_example.png. Users can upload their own images to the AdvBox/examples/image_cls/input folder, and we have also provided some images from the mini-imagenet dataset:
+      + input/schoolbus.png
+      + input/vase.png
+      + input/lion.png
+      + input/hourglass.png
+      + input/crate.png
+      + input/malamute.png
     - `--target`
     : target class label, -1 if untargeted attack.
     - `--max_pixels`
@@ -89,7 +95,7 @@ Genetic Pixels Attack is an attacking method in L0 norm. It inherits Single Pixe
     - `--temp`
     : initial temp. Controls how likely an unfavored candidate will be selected as parent.
 
-#### Example of Genetic Pixels Attack
+#### Usage of Genetic Pixels Attack
 
     python imagenet_tutorial_gp.py
 
@@ -103,13 +109,7 @@ Square attack is a black-box attack algorithm based on score. The model does not
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** The Square Attack is applied to the ResNet50 model trained on the ImageNet dataset.
   - **Command-line parameters**
     - `--image_path`
-    : the path of the input image, Users can upload their own images to the AdvBox/examples/image_cls/input folder, and we have also provided some images from the mini-imagenet dataset:
-      + input/schoolbus.png
-      + input/vase.png
-      + input/lion.png
-      + input/hourglass.png
-      + input/crate.png
-      + input/malamute.png
+    : the path of the input image, default: input/cat_example.png.
     - `--norm`
     : Choose to launch the attack in the L2 or LInf norm.
     - `--target`
@@ -122,7 +122,7 @@ Square attack is a black-box attack algorithm based on score. The model does not
     : the initial size of the noise window
 
 
-#### Example of Square Attack (L2)
+#### Usage of Square Attack (L2)
 **Untargeted Attack**
 
     python imagenet_tutorial_sq.py --norm L2
@@ -140,7 +140,7 @@ Square attack is a black-box attack algorithm based on score. The model does not
 </p>
 
 
-#### Example of Square Attack (LInf)
+#### Usage of Square Attack (LInf)
 **Untargeted Attack**
 
     python imagenet_tutorial_sq.py --norm LInf
@@ -158,7 +158,7 @@ Square attack is a black-box attack algorithm based on score. The model does not
 </p>
 The tiger cat, of class 282, was misidentified as class 390 eel after the black-box attack.
 
-## Example of white-box attack
+## Usage of white-box attack
 In the case of FGSM, other attack methods are used in a similar way. The resnet50 pre-trained model trained on imagenet dataset is used as the attack object.
 
 ### FGSM
@@ -167,24 +167,24 @@ In the case of FGSM, other attack methods are used in a similar way. The resnet5
     - `--target`
     : target class. Default: -1.
 
-#### Example of untargeted FGSM
+#### Usage of untargeted FGSM
 
     python imagenet_tutorial_fgsm.py
 
 ``` shell
 label=717
 input img shape:  [3, 224, 224]
-attack success, adversarial_label=803
+attack success, adversarial_label=654
 diff shape:  (224, 224, 3)
 fgsm attack done
 ```
-The attack was successful, and the model recognized label 717 as label 803 for this image.
+The attack was successful, and the model recognized label 717 as label 654 for this image.
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/fgsm_untarget_803.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/fgsm_untarget.png", width=500><br>
 </p>
 
-#### Example of targeted FGSM
+#### Usage of targeted FGSM
 The targeted attack category is 266:
 
     python imagenet_tutorial_fgsm.py --target=266
@@ -192,14 +192,14 @@ The targeted attack category is 266:
 ``` shell
 label=717
 input img shape:  [3, 224, 224]
-attack success, adversarial_label=999
+attack success, adversarial_label=734
 diff shape:  (224, 224, 3)
 fgsm attack done
 ```
-The attack was successful. Although the target label 266 was not identified by the model, the original label 717 was identified as label 999.
+The attack was successful. Although the target label 266 was not identified by the model, the original label 717 was identified as label 734.
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/fgsm_target_999.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/fgsm_target.png", width=500><br>
 </p>
 
 ### PGD
@@ -208,20 +208,20 @@ The attack was successful. Although the target label 266 was not identified by t
     - `--target`
     : target class. Default: -1.
 
-#### Example of untargeted PGD
+#### Usage of untargeted PGD
 
     python imagenet_tutorial_pgd.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/pgd_adv_untarget.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/pgd_untarget.png", width=500><br>
 </p>
 
-#### Example of targeted PGD
+#### Usage of targeted PGD
 
     python imagenet_tutorial_pgd.py --target=266
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/pgd_target.png", width=500><br>
 </p>
 
 ### CW
@@ -234,23 +234,23 @@ The attack was successful. Although the target label 266 was not identified by t
     - `--image_shape`
     : Input image size Default: 3,224,224.
 
-#### Example of targeted CW
+#### Usage of targeted CW
 
     python imagenet_tutorial_cw.py --target=126
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/cw_adv_new.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/cw_target.png", width=500><br>
 </p>
 
 ### BIM
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_bim.py)** BIM is used to attack the ResNet50 model trained through the ImageNet dataset, and only untargeted attacks are supported
 
-#### Example of untargeted BIM
+#### Usage of untargeted BIM
 
     python imagenet_tutorial_bim.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/bim_untarget_new.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/bim_untarget.png", width=500><br>
 </p>
 
 ### ILCM
@@ -259,20 +259,20 @@ The attack was successful. Although the target label 266 was not identified by t
     - `--target`
     : target class. Default: -1.
 
-#### Example of untargeted ILCM
+#### Usage of untargeted ILCM
 
     python imagenet_tutorial_ilcm.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/ilcm_untarget_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/ilcm_untarget.png", width=500><br>
 </p>
 
-#### Example of targeted ILCM
+#### Usage of targeted ILCM
 
     python imagenet_tutorial_ilcm.py --target=266
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/ilcm_target_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/ilcm_target.png", width=500><br>
 </p>
 
 ### LBFGS
@@ -281,12 +281,12 @@ The attack was successful. Although the target label 266 was not identified by t
     - `--target`
     : target class. Default: 290.
 
-#### Example of targeted LBFGS
+#### Usage of targeted LBFGS
 
     python imagenet_tutorial_lbfgs.py --target=290
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/lbfgs_target_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/lbfgs_target.png", width=500><br>
 </p>
 
 ### MI-FGSM
@@ -295,20 +295,20 @@ The attack was successful. Although the target label 266 was not identified by t
     - `--target`
     : target class. Default: -1.
 
-#### Example of untargeted MI-FGSM
+#### Usage of untargeted MI-FGSM
 
     python imagenet_tutorial_mifgsm.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/mifgsm_untarget_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/mifgsm_untarget.png", width=500><br>
 </p>
 
-#### Example of targeted MI-FGSM
+#### Usage of targeted MI-FGSM
 
     python imagenet_tutorial_mifgsm.py --target=290
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/mifgsm_target_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/mifgsm_target.png", width=500><br>
 </p>
 
 ## To generate an AE in AdvBox
@@ -372,22 +372,82 @@ else:
 ## AdvBox Adversarial Training(advtraining) provides:
 - Mainstream attack methods **[FGSM/PGD/BIM/ILCM/MI-FGSM](#AdvBox/attacks)** for model adversarial training.
 - A unified yet generic adversarial training API: 
-    + AEs generation/transformation in data-flow style, which can be easily incorporated into existing training process.
-    + Supports weighted model ensembling for AEs generation/transformation.
-    + Supports multi-methods adversarial training.
-    + Allows users to specify settings for each adversarial attack method, including their probabilities to take effect.
-- Advtraining **[tutorial scripts](#AdvBox/examples/image_adversarial_training)** for classification task on Cifar10 & Mini-ImageNet dataset.
+    + It supports the training data to be antagonized and perturbed in proportion, which is easy to use the existing training process of paddle classification model.
+    + It supports the generation of adversarial samples for model fusion according to the set weights in advance.
+    + Adversarial example generation supporting multiple adversarial attack methods.
+- **[tutorial python script](/AdvBox/examples/image_adversarial_training/run_advtrain_main.py)** Adversarial training demonstration script, based on Preactresnet and Towernet models, Cifar10 and Mini-ImageNet datasets, PGD, FGSM, LD attack algorithms.
+  - **Command-Line Parameters**
+    - `--model`
+    : Choose a model for adversarial training, default: preactresnet.
+      + preactresnet
+      + towernet
+    - `--training_method`
+    : Choose the adversarial training method, default: base(not adversarial training).
+      + base
+      + advtraining_natural
+      + advtraining_TRADES
+    - `--attack_method`
+    : Choose the attack method, default: FGSM. Only use when training_method is not base.
+      + FGSM
+      + LD
+      + PGD
+    - `--dataset`
+    : Choose dataset, default: cifar10.
+      + cifar10
+      + mini-imagenet
+    - `--use_base_pretrain`
+    : Whether to use the base pre-trained model, the default is no. The base training method only supports no. If yes, the best model trained by base will be used, so base mode training must be used first, default: no.
+      + yes
+      + no
+
+- **[tutorial python script](/AdvBox/examples/image_adversarial_training/model_evaluation_tutorial.py)** Adversarial training model evaluation demonstration script, based on Preactresnet and Towernet models, Cifar10 and Mini-ImageNet data sets, PGD, FGSM, LD attack algorithms.
+  - **Command-Line Parameters**
+    - `--model`
+    : Model to be evaluated, default: preactresnet.
+      + preactresnet
+      + towernet
+    - `--training_method`
+    : Adversarial training method used by the model to be evaluated, default: base.
+      + base
+      + advtraining_natural
+      + advtraining_TRADES
+    - `--attack_method`
+    : The adversarial training attack method used by the model to be evaluated, default: FGSM. Only valid if the training method is not base.
+      + FGSM
+      + LD
+      + PGD
+    - `--dataset`
+    : The dataset used by the model to be evaluated, default: cifar10.
+      + cifar10
+      + mini-imagenet
+    - `--use_base_pretrain`
+    : Whether the model is trained using a pre-trained model in base mode is to be evaluated, default: no
+      + yes
+      + no
 
 ## Run Adversarial Training Demonstration
 The adversarial training demonstration contains the following experiments:
 - PreactResnet adversarial training benchmark on Cifar10 & Mini-ImageNet.
 - Towernet finetuning with PGD advtraining mode on Mini-ImageNet.
-- Peripheral experiemnts to be finished.
 
-Run the following commandlines to launch the demonstration.
-1. `cd AdvBox/examples/image_adversarial_training`
-2. `python run_advtrain_main.py`
-3. `python model_evaluation_tutorial.py`
+### Data Preparation
+The experiments use the Cifar10 dataset and the Mini-ImageNet dataset.
+- Cifar10 dataset, Using `paddle.Vision.Datasets.Cifar10` automatically download.
+- Mini-ImageNet dataset, The `MINIIMAGENET` class provided in Advbox inherits the `paddle.io.DataSet` abstract class, It can be directly applied to training, the input for this class is the `.pkl` file. It should be noted that there is no crossover between the training set, test set and validation set of the mini-imagenet data set proposed in the original paper, so the dataset needs to be re-split before starting the training. Advbox provides the tools in `PaddleSleeve/AdvBox/examples/dataset/re_split.py`. First to download the complete set of mini-imagenet dataset to `PaddleSleeve/AdvBox/examples/dataset/mini-imagenet`, the complete dataset should contain a folder with input samples, and three label files in `.csv` format. The complete dataset can be downloaded from **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/blob/master/pytorch_classification/mini_imagenet/README.md)**. Run the following command when the download is complete:
+
+```shell
+cd PaddleSleeve/Advbox/examples/dataset/
+python re_split.py
+```
+
+The script generates `re_split_mini-imagenet-cache-train.pkl`, `re_split_mini-imagenet-cache-test.pkl`, `re_split_mini-imagenet_labels.txt` in `PaddleSleeve/AdvBox/examples/dataset/mini-imagenet`.
+
+### Run Demonstration
+```shell
+cd PaddleSleeve/AdvBox/examples/image_adversarial_training
+python run_advtrain_main.py --model preactresnet --training_method advtraining_natural --attack_method FGSM --dataset cifar10 --use_base_pretrain no
+python model_evaluation_tutorial.py --model preactresnet --training_method advtraining_natural --attack_method FGSM --dataset cifar10 --use_base_pretrain no
+```
 
 **PreactResnet Robustness Under Various Adversarial Training Settings**
 
@@ -465,44 +525,12 @@ Advbox also supports adversarial training on multi-card devices. The following t
 
 ### **Multi-card Training Usage**
 
-- ### Data Preparation
-   The MINIIMAGENET class in Advbox inherits `paddle.io.Dataset` and can be directly incorporated into adversarial training. Instance of MINIIMAGENET reads `.pkl` file. A cached mini-imagenet pickle file can be downloaded from **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)**. Users need to change the following lines in the demo scripts to the path to their own dataset. 
-   ```python
-    ... 
-   
-    # Load dataset
-    transform = T.Compose([T.Normalize(MEAN, STD, data_format='CHW')])
-    
-    # Change to your dataset 
-    train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                      'dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
-    val_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                    'dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
-                                
-    ...
-    ```
-    
- - **Re-split Dataset**
-    
-    Note that the train, val, and test sets in the original paper contain completely seperate classes , so users may want to re-split the dataset before use. Advbox provides a tool in `examples/dataset/split.py` that splits the dataset and generates corresponding `.pkl` file. To use it, users need to download the entire mini-imagenet dataset, including all images and three annotation files in `.csv` format. These could be downloaded from **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing)**. Once finished downloading the dataset, modify the following line in the code and run the script. 
-    ```python
-    
-    # Change to the path on your own device
-    dataset_dir = '/Path to Your Dataset/'
-    image_dir = '/Path to Your Images/'
-    train_save_path = '/Place to Save Cached TrainSet/'
-    test_save_path = '/Place to Save Cached TestSet/'
-    ```
-    
-    Run the split tool.
-    ```
-    python examples/dataset/split.py
-    ```
-
 - ### Quick Start from Command-Line
+
    Parallel adversarial training tasks can be easily launched from command-line. The following command launches natural adversarial train on Resnet50 model using cifar10 dataset.
    
    ```
+   cd PaddleSleeve/AdvBox/defences
    python -m paddle.distributed.launch defences/advtrain_natural.py
    ```
    
@@ -526,7 +554,9 @@ Advbox also supports adversarial training on multi-card devices. The following t
     The Following commands launches adversarial weights perturbation training on 4 cards. This task trains resnet50 model on mini-imagenet dataset, with Adam optimizer used.
     ```
     export CUDA_VISIBLE_DEVICES=0,1,2,3
-    python -m paddle.distributed.launch defences/advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
+    cd PaddleSleeve/AdvBox/defences
+    python -m paddle.distributed.launch advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
+    ```
     
 - ### Incorporate into Existing Training Process
 
@@ -555,11 +585,11 @@ Advbox also supports adversarial training on multi-card devices. The following t
                                   save_path=save_path,
                                   **training_config)
     ```
-    A ready-to-use demo script is available in `examples/image_adversarial_training/mini_imagenet_tutorial_advtrain_natural.py`. No additional arguments or parameters need to be specified. Simply launch it by the following command to get first experience with adversarial training. 
+    A ready-to-use demo script is available in `PaddleSleeve/AdvBox/examples/image_adversarial_training/mini_imagenet_demo_parallel_advtrain_natural.py`. No additional arguments or parameters need to be specified. Simply launch it by the following command to get first experience with adversarial training. 
     ```
-    cd Advbox
     export CUDA_VISIBLE_DEVICES=0,1,2,3
-    python -m paddle.distributed.launch examples/image_adversarial_training/mini_imagenet_tutorial_parallel_advtrain_natural.py
+    cd PaddleSleeve/AdvBox/examples/image_adversarial_training/
+    python -m paddle.distributed.launch mini_imagenet_demo_parallel_advtrain_natural.py
     ```
     
     - **FreeAT**
@@ -582,7 +612,7 @@ Advbox also supports adversarial training on multi-card devices. The following t
                       save_path=save_path,
                       **training_config)
     ```
-    A demo script is available here. `examples/image_adversarial_training/mini_imagenet_tutorial_parallel_freeat.py`
+    A demo script is available here. `PaddleSleeve/AdvBox/examples/image_adversarial_training/mini_imagenet_demo_parallel_freeat.py`
     
     - **AWP**
     ```python
@@ -606,7 +636,7 @@ Advbox also supports adversarial training on multi-card devices. The following t
                               save_path=save_path,
                               **training_config)
     ```
-    A demo script is available here. `examples/image_adversarial_training/mini_imagenet_tutorial_parallel_awp.py`
+    A demo script is available here. `PaddleSleeve/AdvBox/examples/image_adversarial_training/mini_imagenet_demo_parallel_awp.py`
     
 - ### Resnet Robustness Under Various Adversarial Training Settings
     | Evaluation-Method | Mini-ImageNet-PGD-10 (L2 Norm) | Mini-ImageNet-PGD-10 (Linf Norm) |
@@ -645,7 +675,7 @@ the intermediate output `pcls`, the tensor stands for classification confidence 
 
 ## Run Target Ghosting Demonstration
 After changing all `sync-bn` components into `bn`, run the following commandlines.
-```python
+```shell
 cd PaddleSleeve/AdvBox/examples/objectdetector
 python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png
 ```
@@ -686,7 +716,7 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
 
 ## AdvBox denoising provides:
 
-- [Basic denoising methods](#AdvBox/denoisers)
+- [Basic denoising methods](AdvBox/denoisers)
     + Gaussian Filter
     + Median Filter
     + Mean Filter
@@ -700,7 +730,7 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
     + Salt and Pepper Noise
     + Random Resize and Padding
     + Feature Squeezing
-- A **[tutorial python script](#AdvBox/examples/imagenet_tutorial_fgsm_denoise.py)** uses the FGSM attack for denoising demonstration.
+- **[tutorial python script](AdvBox/examples/image_cls/imagenet_tutorial_fgsm_denoise.py)** Using FGSM to attack a single image and then denoised using a denoising method.
   - **Command-line parameters**
     - `--image_path`  
     : the path of the input image, one can upload images to the folder: AdvBox/examples/image_cls/input. We provide some images sampled from the mini-imagenet dataset:
@@ -719,20 +749,21 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
       + BilateralFilter
       + PixelDeflection
       + JPEGCompression
-      + DCTCompress
-      + PCACompress
+      + DCTCompression
+      + PCACompression
       + GaussianNoise
       + SaltPepperNoise
       + ResizePadding
       + FeatureSqueezing
+    - `--target`
+    : target class. Default: -1.
 
-- A **[evaluation python script](#AdvBox/examples/imagenet_tutorial_fgsm_denoise.py)** uses the FGSM attack and the denoising method on the Mini-ImageNet dataset.
+-  **[tutorial python script](/AdvBox/examples/image_cls/mini_imagenet_evaluation_tool.py)** The FGSM attack is used on the Mini-ImageNet dataset and then denoised using the denoising method.
   - **Command-line parameters**
     - `--dataset_path`  
-    : the path of the mini-imagenet dataset (.pkl), one can download the .pkl mini-imagenet dataset to the folder: AdvBox/examples/image_cls/input.
+    : the path of the mini-imagenet dataset (.pkl), one can download the .pkl mini-imagenet dataset to the folder: PaddleSleeve/AdvBox/examples/image_cls/input.
     - `--label_path`  
-    : the path of the mini-imagenet label (.txt), one can download the put the label file to the folder: AdvBox/examples/image_cls/input. We provide the labels of the testing set:
-      + input/mini_imagenet_test_labels.txt
+    : the path of the mini-imagenet label (.txt), one can download the put the label file to the folder: PaddleSleeve/AdvBox/examples/image_cls/input.
     - `--mode`
     : dataset type, the 'train', 'test', or 'val' mode. Default 'test'.
     - `--method`  
@@ -744,13 +775,14 @@ The successful execution of the `target_ghosting_demo.py`, will produce the foll
       + BilateralFilter
       + PixelDeflection
       + JPEGCompression
-      + DCTCompress
-      + PCACompress
+      + DCTCompression
+      + PCACompression
       + GaussianNoise
       + SaltPepperNoise
       + ResizePadding
       + FeatureSqueezing
-    - `--method`  
+    - `--target`
+    : target class. Default: -1.
 
 ## Usage of Denoising methods
 Examples of using the denoising methods on an image sample or on the mini-imagenet dataset.
@@ -760,103 +792,115 @@ Given an input image, the FGSM is first used for generating the adversarial exam
 
 #### Run:
 ```shell
-cd PaddleShield/Advbox/examples/image_cls
-python imagenet_tutorial_fgsm_denoise.py --method='GaussianBlur' --image_path='input/schoolbus.png'
+cd PaddleSleeve/Advbox/examples/image_cls
+python imagenet_tutorial_fgsm_denoise.py --method='GaussianBlur' --image_path='input/vase.png'
 ```
 
 #### Output:
 ```
-input image label: school bus
 input image shape:  [3, 84, 84]
-FGSM attack succeeded, adversarial_label: rubber eraser, rubber, pencil eraser
-FGSM attack done
+input image label: vase
+FGSM attack succeeded, adversarial_label: pitcher, ewer
 GaussianBlur denoise succeeded
 GaussianBlur denoise doesn't change the label of the input image
-GaussianBlur denoise done
 ```
 
 #### Illustration:
 ```
-1. The original model recognizes the input image as: school bus;  
-2. Using FGSM to obtain an adversarial example (AE), the label of the AE is: rubber eraser, rubber, pencil eraser;  
-3. Using GaussianBlur to denoise, the label of the denoising result is school bus.
+1. The original model recognizes the input image as: vase;  
+2. Using FGSM to obtain an adversarial example (AE), the label of the AE is: pitcher, ewer;  
+3. Using GaussianBlur to denoise, the label of the denoising result is vase.
 ```
 
-#### Usage of the other denoising methods
+#### Visualizing the results
+<p align="center">
+<img align="center" src="./examples/image_cls/output/GaussianBlur_Denoising_Comparison.png"
+, width=500><br>
+</p>
 
+#### Usage of the other denoising methods
+**Median Filter**
 ```shell
-python imagenet_tutorial_fgsm_denoise.py --method='FeatureSqueezing' --image_path='input/hourglass.png'
+python imagenet_tutorial_fgsm_denoise.py --method='MedianBlur' --image_path='input/vase.png'
 ```
 <p align="center">
 <img align="center" src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png", width=500><br>
 </p>
 
+**Mean Filter**
+```shell
+python imagenet_tutorial_fgsm_denoise.py --method='MeanFilter' --image_path='input/lion.png'
+```
 <p align="center">
-<img align="center" src="./examples/image_cls/output/FeatureSqueezing_effect_Comparison.png", width=500><br>
-Comparing the effect of FeatureSqueezing choosing different bit-length
+<img align="center" src="./examples/image_cls/output/MeanFilter_Denoising_Comparison.png", width=500><br>
 </p>
 
-##### Denoised results:
-                                                                  
-                                      
-<div align=center>
-<img src="./examples/image_cls/output/MedianBlur_Denoising_Comparison.png" width=550;" />
-</div><br/>    
-               
-<div align=center>
-<img src="./examples/image_cls/output/GaussianBlur_Denoising_Comparison.png" width=550;"/>
-</div>                                                                                                                                                                 
-<div align=center>
-<img src="./examples/image_cls/output/MeanFilter_Denoising_Comparison.png" width=550;" />
-</div><br/>
+**Box Filter**
+```shell
+python imagenet_tutorial_fgsm_denoise.py --method='BoxFilter' --image_path='input/hourglass.png'
+```
+<p align="center">
+<img align="center" src="./examples/image_cls/output/BoxFilter_Denoising_Comparison.png", width=500><br>
+</p>
 
-<div align=center>
-<img src="./examples/image_cls/output/BoxFilter_Denoising_Comparison.png" width=550;" />
-</div><br/>
+**Bilateral Filter**
+```shell
+python imagenet_tutorial_fgsm_denoise.py --method='BilateralFilter' --image_path='input/vase.png'
+```
+<p align="center">
+<img align="center" src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png", width=500><br>
+</p>
 
-<div align=center>
-<img src="./examples/image_cls/output/BilateralFilter_Denoising_Comparison.png" width=550;" />
-</div><br/>
+**Pixel Deflection**
+```shell
+python imagenet_tutorial_fgsm_denoise.py --method='PixelDeflection' --image_path='input/malamute.png'
+```
+<p align="center">
+<img align="center" src="./examples/image_cls/output/PixelDeflection_Denoising_Comparison.png", width=500><br>
+</p>
 
-<div align=center>
-<img src="./examples/image_cls/output/PixelDeflection_Denoising_Comparison.png" width=550;" />
-</div><br/>
-
-<div align=center>
-<img src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png" width=550;" />
-</div><br/>
-
+**JPEG Compression**
+```shell
+python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path='input/vase.png'
+```
+<p align="center">
+<img align="center" src="./examples/image_cls/output/JPEGCompression_Denoising_Comparison.png", width=500><br>
+</p>
 
 ### On the mini-imagenet dataset
 Given the mini-imagenet dataset, the FGSM is first used for generating the adversarial example (AE), and then the denoising method is applied to the input image and the AE.
 
+#### Data Preparation
+The MINIIMAGENET class in Advbox inherits `paddle.io.Dataset` and can be directly incorporated into adversarial training. Instance of MINIIMAGENET reads `.pkl` file. A cached mini-imagenet pickle file can be downloaded from **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)**. Download `mini-imagenet-cache-test.pkl` to `PaddleSleeve/AdvBox/examples/image_cls/input`. We also need a file with labels for the mini-imagenet categories, we provide `mini_imagenet_test_labels.txt` in `PaddleSleeve/AdvBox/examples/image_cls/input`.
+
+
 #### Run:
 ```shell
-cd PaddleShield/Advbox/examples/image_cls
-python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='input/mini-imagenet-cache-test.pkl' --label_path='mini_imagenet_test_labels.txt'
+cd PaddleSleeve/Advbox/examples/image_cls
+python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='input/mini-imagenet-cache-test.pkl' --label_path='input/mini_imagenet_test_labels.txt'
 ```
 
 #### Output:
 ```
-100%|█████| 12000/12000 [2:45:59<00:00,  1.20it/s, ORI_ACC=0.439, AE_ACC=0.000, DE_AE_ACC=0.063, DE_ORI_ACC=0.010]
+100%|█████| 12000/12000 [2:45:59<00:00,  1.20it/s, ORI_ACC=0.413, AE_ACC=0.081, DE_AE_ACC=0.186, DE_ORI_ACC=0.410]
 ```
 
 #### Quantitative results (Acc.):
 | Denoising method | Clean Image | AE | Denoised AE | Denoised Clear Image |
 |:-|:-:|:-:|:-:|:-:|
-| GaussianBlur    | 43.9%  | 7.3%  | 19.6% | 43.6% |
-| MedianBlur      | 43.9%  | 7.3%  | 20.4% | 29.0% |
-| MeanFilter      | 43.9%  | 7.3%  | 22.0% | 28.2% |
-| BoxFilter       | 43.9%  | 7.3%  | 22.0% | 28.2% |
-| BilateralFilter | 43.9%  | 7.3%  | 20.7% | 43.7% |
-| PixelDeflection | 43.9%  | 7.3%  | 17.1% | 40.8% |
-| JPEGCompression | 43.9%  | 7.3%  | 27.4% | 43.6% |
-| DCTCompress     | 43.9%  | 7.3%  | 29.1% | 41.6% |
-| PCACompress     | 43.9%  | 7.3%  | 19.5% | 43.7% |
-| GaussianNoise   | 43.9%  | 7.3%  | 20.0% | 43.7% |
-| SaltPepperNoise | 43.9%  | 7.3%  | 19.5% | 43.6% | 
-| ResizePadding   | 43.9%  | 7.3%  | 33.0% | 42.8% |
-| FeatureSqueezing (3 bits)| 43.9%  | 7.3%  | 11.6% | 35.1% |
+| GaussianBlur    | 41.3%  | 8.1%  | 18.6% | 41.0% |
+| MedianBlur      | 41.3%  | 8.1%  | 20.5% | 27.8% |
+| MeanFilter      | 41.3%  | 8.1%  | 20.7% | 26.3% |
+| BoxFilter       | 41.3%  | 8.1%  | 20.7% | 26.3% |
+| BilateralFilter | 41.3%  | 8.1%  | 5.8% | 9.0% |
+| PixelDeflection | 41.3%  | 8.1%  | 16.1% | 38.0% |
+| JPEGCompression | 41.3%  | 8.1%  | 25.9% | 39.9% |
+| DCTCompression  | 41.3%  | 8.1%  | 28.5% | 39.3% |
+| PCACompression  | 41.3%  | 8.1%  | 19.2% | 41.2% |
+| GaussianNoise   | 41.3%  | 8.1%  | 18.8% | 41.1% |
+| SaltPepperNoise | 41.3%  | 8.1%  | 18.5% | 41.0% | 
+| ResizePadding   | 41.3%  | 8.1%  | 31.0% | 40.2% |
+| FeatureSqueezing (3 bits)| 41.3%  | 8.1%  | 11.6% | 32.5% |
 
 # Contributing
 We appreciate your contributions!

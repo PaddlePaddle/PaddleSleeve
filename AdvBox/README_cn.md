@@ -76,7 +76,13 @@ Genetic Pixels Attack是Single Pixel Attack的增强版。Genetic Pixels Attack�
     - `--max_gen`
     : 此攻击执行的最大迭代步数。
     - `--image_path`
-    : 输入图像的路径，例如input/cat_example.png。
+    : 输入图像的路径，默认为input/cat_example.png。用户可以把自己的图像上传到 AdvBox/examples/image_cls/input 文件夹，我们也提供了一些来自mini-imagenet数据集的图像：
+      + input/schoolbus.png
+      + input/vase.png
+      + input/lion.png
+      + input/hourglass.png
+      + input/crate.png
+      + input/malamute.png
     - `--target`
     : 目标类别标签，如果无目标攻击为-1。
     - `--max_pixels`
@@ -100,13 +106,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 - **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_sq.py)** 运用Square Attack对通过ImageNet数据集训练的ResNet50模型进行攻击。
   - **命令行参数介绍**
     - `--image_path`
-    : 输入图像的路径，用户可以把自己的图像上传到 AdvBox/examples/image_cls/input 文件夹，我们也提供了一些来自mini-imagenet数据集的图像：
-      + input/schoolbus.png
-      + input/vase.png
-      + input/lion.png
-      + input/hourglass.png
-      + input/crate.png
-      + input/malamute.png
+    : 输入图像的路径，输入图像的路径，默认为input/cat_example.png。
     - `--norm`
     : 选择在 L2 或 LInf 范数下展开攻击。
     - `--target`
@@ -172,7 +172,7 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 ``` shell
 label=717
 input img shape:  [3, 224, 224]
-attack success, adversarial_label=803
+attack success, adversarial_label=654
 diff shape:  (224, 224, 3)
 fgsm attack done
 ```
@@ -393,7 +393,9 @@ else:
       + cifar10
       + mini-imagenet
     - `--use_base_pretrain`
-    : 是否使用base预训练的模型，默认为no。base训练方法只支持no，如果yes，会使用base训练好的最佳模型，所以必须要先使用base模式训练。 
+    : 是否使用base预训练的模型，默认为no。base训练方法只支持no，如果yes，会使用base训练好的最佳模型，所以必须要先使用base模式训练，默认为no。
+      + yes
+      + no
 
 - **[tutorial python script](/AdvBox/examples/image_adversarial_training/model_evaluation_tutorial.py)** 对抗训练模型评估演示脚本，基于Preactresnet和Towernet模型，Cifar10和Mini-ImageNet数据集，PGD、FGSM、LD攻击算法。
   - **命令行参数介绍**
@@ -416,7 +418,9 @@ else:
       + cifar10
       + mini-imagenet
     - `--use_base_pretrain`
-    : 待评估模型是否是使用base模式的预训练模型训练的。
+    : 待评估模型是否是使用base模式的预训练模型训练的，默认为no。
+      + yes
+      + no
 
 ## 如何运行对抗训练演示
 ### 对抗训练演示包含实验
@@ -426,14 +430,14 @@ else:
 ### 数据准备  
 实验使用Cifar10数据集和Mini-ImageNet数据集。 
 - Cifar10数据集，使用`paddle.vision.datasets.Cifar10`自动下载。
-- Mini-ImageNet数据集，Advbox 中提供的`MINIIMAGENET`类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中，该类别的输入是`.pkl`文件。需要注意，原论文中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`examples/dataset/re_split.py`中提供了相关工具。首先下载完整的mini-imagenet数据集到`AdvBox/examples/dataset/mini-imagenet`，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/blob/master/pytorch_classification/mini_imagenet/README.md)** 下载。下载完成后运行如下命令：
+- Mini-ImageNet数据集，Advbox 中提供的`MINIIMAGENET`类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中，该类别的输入是`.pkl`文件。需要注意，原论文中提出的mini-imagenet数据集的训练集，测试集，和验证集之间的类别并无交叉，所以在开始训练之前需要重新划分数据集。Advbox在`PaddleSleeve/AdvBox/examples/dataset/re_split.py`中提供了相关工具。首先下载完整的mini-imagenet数据集到`PaddleSleeve/AdvBox/examples/dataset/mini-imagenet`，完整的数据集应包含一个装有输入样本的文件夹，以及三个`.csv`格式的标签文件。完整的数据集可以从 **[deep-learning-for-image-processing](https://github.com/WZMIAOMIAO/deep-learning-for-image-processing/blob/master/pytorch_classification/mini_imagenet/README.md)** 下载。下载完成后运行如下命令：
 
 ```shell
 cd PaddleSleeve/Advbox/examples/dataset/
 python re_split.py
 ```
 
-脚本在`AdvBox/examples/dataset/mini-imagenet`中生成`re_split_mini-imagenet-cache-train.pkl`，`re_split_mini-imagenet-cache-test.pkl`，`re_split_mini-imagenet_labels.txt`三个文件。
+脚本在`PaddleSleeve/AdvBox/examples/dataset/mini-imagenet`中生成`re_split_mini-imagenet-cache-train.pkl`，`re_split_mini-imagenet-cache-test.pkl`，`re_split_mini-imagenet_labels.txt`三个文件。
 
 ### 运行演示
 ```shell
@@ -550,6 +554,7 @@ for batch_id, data in enumerate(train_loader()):
     export CUDA_VISIBLE_DEVICES=0,1,2,3
     cd PaddleSleeve/AdvBox/defences
     python -m paddle.distributed.launch advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
+    ```
     
 - ### 在代码中调用训练方法
 
@@ -663,7 +668,7 @@ for batch_id, data in enumerate(train_loader()):
 
 ## 运行目标消失演示
 在把所有`sync-bn`组件置换为`bn`组件后，运行以下命令：
-```python
+```shell
 cd PaddleSleeve/AdvBox/examples/objectdetector
 python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/demo_pics/000000014439.jpg --target_img=dataloader/demo_pics/masked_0014439.png
 ```
@@ -750,9 +755,9 @@ python target_ghosting_demo.py -c configs/ppyolo/ppyolo_mbv3_large_coco.yml -o w
 - **[tutorial python script](/AdvBox/examples/image_cls/mini_imagenet_evaluation_tool.py)** 在Mini-ImageNet数据集上使用FGSM攻击图像并去噪。
   - **命令行参数介绍**
     - `--dataset_path`  
-    : 要处理的mini-imagenet数据集（.pkl）路径，可以将数据集下载至：AdvBox/examples/image_cls/input中。
+    : 要处理的mini-imagenet数据集（.pkl）路径，可以将数据集下载至：PaddleSleeve/AdvBox/examples/image_cls/input中。
     - `--label_path`  
-    : 要处理的数据集对应的类别标签，可以将文件放在：AdvBox/examples/image_cls/input。
+    : 要处理的数据集对应的类别标签，可以将文件放在：PaddleSleeve/AdvBox/examples/image_cls/input。
     - `--mode`
     : 数据集类型, 'train'，'test'，或者 'val'。默认是 Default 'test'。
     - `--method`  
@@ -859,7 +864,7 @@ python imagenet_tutorial_fgsm_denoise.py --method='JPEGCompression' --image_path
 给定mini-imagenet数据集，依次对数据集中的每幅图像：先使用FGSM方法产生对抗样本（AE），在使用去噪算法对AE进行去噪，同时对比对输入的清晰图像的去噪结果。
 
 #### 数据准备
-    Advbox 中提供的MINIIMAGENET类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中。该类别的输入是`.pkl`文件，提前制作好的数据集pickle文件可以从 **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)** 官网。下载`mini-imagenet-cache-test.pkl`到`AdvBox/examples/image_cls/input`中。另外需要mini-imagenet类别对应标签的文件，我们提供了`mini_imagenet_test_labels.txt`在`AdvBox/examples/image_cls/input`中。
+    Advbox 中提供的MINIIMAGENET类继承了`paddle.io.DataSet`抽象类，可以直接应用到训练当中。该类别的输入是`.pkl`文件，提前制作好的数据集pickle文件可以从 **[Kaggle](https://www.kaggle.com/datasets/whitemoon/miniimagenet)** 官网。下载`mini-imagenet-cache-test.pkl`到`PaddleSleeve/AdvBox/examples/image_cls/input`中。另外需要mini-imagenet类别对应标签的文件，我们提供了`mini_imagenet_test_labels.txt`在`PaddleSleeve/AdvBox/examples/image_cls/input`中。
     
 #### 执行代码:
 ```shell

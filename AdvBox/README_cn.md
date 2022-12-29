@@ -425,7 +425,7 @@ else:
 
 数据准备：  
     实验使用Cifar10数据集和Mini-ImageNet数据集。 
-    - Cifar10数据集，使用`paddle.vision.datasets.Cifar10`自动下载。
+- Cifar10数据集，使用`paddle.vision.datasets.Cifar10`自动下载。
 
 运行以下命令来运行演示
 1. `cd AdvBox/examples/image_adversarial_training`

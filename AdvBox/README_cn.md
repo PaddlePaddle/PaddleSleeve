@@ -433,12 +433,14 @@ cd PaddleSleeve/Advbox/examples/dataset/
 python re_split.py
 ```
 
-脚本在`AdvBox/examples/dataset/mini-imagenet`中生成`re_split_mini-imagenet-cache-train.pkl`，`re_split_mini-imagenet-cache-test.pkl`，`re_split_mini-imagenet_label.txt`三个文件。
+脚本在`AdvBox/examples/dataset/mini-imagenet`中生成`re_split_mini-imagenet-cache-train.pkl`，`re_split_mini-imagenet-cache-test.pkl`，`re_split_mini-imagenet_labels.txt`三个文件。
 
 ### 运行演示
-1. `cd AdvBox/examples/image_adversarial_training`
-2. `python run_advtrain_main.py`
-3. `python model_evaluation_tutorial.py`
+```shell
+cd PaddleSleeve/AdvBox/examples/image_adversarial_training
+python run_advtrain_main.py --model preactresnet --training_method advtraining_natural --attack_method FGSM --dataset cifar10 --use_base_pretrain no
+python model_evaluation_tutorial.py --model preactresnet --training_method advtraining_natural --attack_method FGSM --dataset cifar10 --use_base_pretrain no
+```
 
 **PreactResnet在不同对抗训练设定下的鲁棒性表现**
 
@@ -453,7 +455,7 @@ python re_split.py
 
 如表所示，对抗训练可以在牺牲很少精度的情况下，增加模型的鲁棒性。
 
-## 对抗训练的简单应用
+## 对抗训练的简单示例
 ```python
 import sys
 sys.path.append("..")
@@ -521,6 +523,7 @@ for batch_id, data in enumerate(train_loader()):
    Advbox中提供的多卡对抗训练方法支持命令行启动。下列指令会启动natrual advtrain训练，默认使用当前可见的全部GPU。
    
    ```
+   cd PaddleSleeve/AdvBox/defences
    python -m paddle.distributed.launch defences/advtrain_natural.py
    ```
    
@@ -545,7 +548,8 @@ for batch_id, data in enumerate(train_loader()):
     下列指令将会在4张卡上启动awp训练。训练中使用resnet50模型和mini-imagenet数据集。
     ```
     export CUDA_VISIBLE_DEVICES=0,1,2,3
-    python -m paddle.distributed.launch defences/advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
+    cd PaddleSleeve/AdvBox/defences
+    python -m paddle.distributed.launch advtrain_awp.py --model resnet50 --dataset mini-imagenet --epoch 80 --batch_size 256 --opt adam
     
 - ### 在代码中调用训练方法
 

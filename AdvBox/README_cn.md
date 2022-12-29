@@ -381,17 +381,42 @@ else:
     - `--training_method`
     : 选择对抗训练的方法，默认为base（无对抗训练）。
       + base
-      + advtraining_natural_PGD
-      + advtraining_natural_FGSM
-      + advtraining_TRADES_PGD
-      + advtraining_TRADES_LD
-      + advtraining_TRADES_FGSM
+      + advtraining_natural
+      + advtraining_TRADES
+    - `--attack_method`
+    : 选择攻击方法，默认为FGSM。仅当training_method不是base时有效。
+      + FGSM
+      + LD
+      + PGD
     - `--dataset`
     : 选择数据集，默认为cifar10。
       + cifar10
       + mini-imagenet
-    - `--use_pretrain`
-    : 是否使用预训练模型，默认为no。base训练方法只支持no，如果yes，会使用base训练好的最佳模型，所以必须要先使用base模式训练。 
+    - `--use_base_pretrain`
+    : 是否使用base预训练的模型，默认为no。base训练方法只支持no，如果yes，会使用base训练好的最佳模型，所以必须要先使用base模式训练。 
+
+- **[tutorial python script](/AdvBox/examples/image_adversarial_training/model_evaluation_tutorial.py)** 对抗训练模型评估演示脚本，基于Preactresnet和Towernet模型，Cifar10和Mini-ImageNet数据集，PGD、FGSM、LD攻击算法。
+  - **命令行参数介绍**
+    - `--model`
+    : 待评估模型，默认为preactresnet。
+      + preactresnet
+      + towernet
+    - `--training_method`
+    : 待评估模型使用的对抗训练方法，默认为base。
+      + base
+      + advtraining_natural
+      + advtraining_TRADES
+    - `--attack_method`
+    : 待评估模型使用的对抗训练攻击方法，默认为FGSM。仅当training_method不是base时有效。
+      + FGSM
+      + LD
+      + PGD
+    - `--dataset`
+    : 待评估模型使用的数据集，默认为cifar10。
+      + cifar10
+      + mini-imagenet
+    - `--use_base_pretrain`
+    : 待评估模型是否是使用base模式的预训练模型训练的。
 
 ## 如何运行对抗训练演示
 对抗训练演示包含以下实验：

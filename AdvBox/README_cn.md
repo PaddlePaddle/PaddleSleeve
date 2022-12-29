@@ -211,7 +211,7 @@ fgsm attack done
     python imagenet_tutorial_pgd.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/pgd_adv_untarget.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/pgd_untarget.png", width=500><br>
 </p>
 
 #### PGD定向攻击示例
@@ -219,7 +219,7 @@ fgsm attack done
     python imagenet_tutorial_pgd.py --target=266
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/pgd_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/pgd_target.png", width=500><br>
 </p>
 
 ### CW
@@ -237,7 +237,7 @@ fgsm attack done
     python imagenet_tutorial_cw.py --target=126
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/cw_adv_new.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/cw_target.png", width=500><br>
 </p>
 
 ### BIM
@@ -248,7 +248,7 @@ fgsm attack done
     python imagenet_tutorial_bim.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/bim_untarget_new.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/bim_untarget.png", width=500><br>
 </p>
 
 ### ILCM
@@ -262,7 +262,7 @@ fgsm attack done
     python imagenet_tutorial_ilcm.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/ilcm_untarget_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/ilcm_untarget.png", width=500><br>
 </p>
 
 #### ILCM定向攻击示例
@@ -270,7 +270,7 @@ fgsm attack done
     python imagenet_tutorial_ilcm.py --target=266
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/ilcm_target_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/ilcm_target.png", width=500><br>
 </p>
 
 ### LBFGS
@@ -284,7 +284,7 @@ fgsm attack done
     python imagenet_tutorial_lbfgs.py --target=290
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/lbfgs_target_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/lbfgs_target.png", width=500><br>
 </p>
 
 ### MI-FGSM
@@ -298,7 +298,7 @@ fgsm attack done
     python imagenet_tutorial_mifgsm.py
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/mifgsm_untarget_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/mifgsm_untarget.png", width=500><br>
 </p>
 
 #### MI-FGSM定向攻击示例
@@ -306,7 +306,7 @@ fgsm attack done
     python imagenet_tutorial_mifgsm.py --target=290
 
 <p align="center">
-<img align="center" src="./examples/image_cls/output/show/mifgsm_target_adv.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/show/mifgsm_target.png", width=500><br>
 </p>
 
 ### 利用AdvBox生成一个对抗样本

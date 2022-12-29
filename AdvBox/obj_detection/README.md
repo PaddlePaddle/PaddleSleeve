@@ -195,6 +195,102 @@ Adversarial examples are particularly useful because of its transferability (i.e
   
      *e.g.* Declear your model list as `[faster_rcnn_resnet50, faster_rcnn_resnet50_fpn]` instead of `[faster_rcnn_resnet50_fpn, faster_rcnn_resnet50]`
 
+
+### Attack with black-box methods
+
+In `PaddleSleeve/AdvBox/obj_detection/attack/black_attack`, we achieve the black attack algorithm HopSkipJumpAttack(HSJA) with the decision-based adversarial attacks, a method  generating 
+the adversarial examples based solely on observing output labels returned by the targeted model. The HSJA algorithm estimate the gradient direction using binary 
+information at the decision boundary. The method includes both untargeted and targeted attacks optimized for l2 and l∞ similarity metrics respectively. 
+
+
+#### Dependencies
+
+The code for HopSkipJumpAttack runs with Python and one deep learning framework. Here we use the paddlepaddle as an example. Please pip install the following packages:
+- `numpy`
+- `PaddlePadddle2.*`
+- `scipy`
+
+    If use Tensoflow or Pytorch framework, just only modify the method from numpy array to tensor, and the input image prcoessing methods for sepcific object detection methods, as follows:
+    ```python 
+    1. perturbed = paddle.to_tensor(perturbed, dtype='float32', place=paddle.CUDAPlace(0))
+    2. data0, datainfo0  = _image2outs(FLAGS.infer_dir, FLAGS.infer_img, cfg)
+    ```
+       
+#### Run HSJA Attack Adversarial Training
+The black attack HSJA algorithm should support different object detection models, thus we test four different types of detection methods, yolov3 and ppyolo, ssd, faster-rcnn, deter.
+    
+```shell 
+cd PaddleSleeve/AdvBox/obj_detection/attack/black_attack
+# respectively use ppyolo, yolov3, ssd, faster-rcnn, detr detection models:
+python hsja.py -c ../../configs/ppyolo/ppyolo_mbv3_large_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/ppyolo_mbv3_large_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
+python hsja.py -c ../../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
+python hsja.py -c ../../configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml -o weights=https://paddledet.bj.bcebos.com/models/ssd_mobilenet_v1_300_120e_voc.pdparams --infer_img=dataloader/car_test3.jpg --sim_label 6 5
+python hsja.py -c ../../configs/faster_rcnn/faster_rcnn_r50_1x_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/faster_rcnn_r50_1x_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
+python hsja.py -c ../../configs/detr/detr_r50_1x_coco.yml -o weights=https://paddledet.bj.bcebos.com/models/detr_r50_1x_coco.pdparams --infer_img=dataloader/car_05.jpeg --sim_label 3 8 6
+```
+Note: The "sim_label 3 8 6" is the labels to hide, and the first "3" is the groundtruth label of the object. The sim_label shoudld be set manually.
+
+See hsja.py for details.
+
+
+**Image Compares for untargeted attack**
+
+<table align="center">
+<tr>
+    <td align="center">Model</td>
+    <td align="center">Original Image</td>
+    <td align="center">Original Detection Results</td>
+    <td align="center">Acquired Adversarial Image </td>
+    <td align="center">Adversarial Detection Results </td>
+    <td align="center">Diff*100</td>
+    
+</tr>
+
+<tr>
+    <td align="center">detr</td>
+    <td align="center"><img src="./attack/black_attack/dataloader/car_test3.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outcar_test3_detr.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_untarget_detr.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outadv_untarget_detr.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/diff_detr.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">ppyolo</td>
+    <td align="center"><img src="./attack/black_attack/dataloader/car_test3.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outcar_test3_ppyolo.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_untarget_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outadv_untarget_ppyolo.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/diff_ppyolo.png" width=300></td>
+</tr>
+
+<tr>
+    <td align="center">faster-rcnn</td>
+    <td align="center"><img src="./attack/black_attack/dataloader/car_test3.jpg" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/outcar_test3_faster.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/adv_untarget_faster.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/out_adv_untarget_faster.png" width=300></td>
+    <td align="center"><img src="./attack/black_attack/output/diff_faster.png" width=300></td>
+</tr>
+
+</table>
+
+
+## Citation
+If you use this code for your research, please cite our [paper](https://arxiv.org/abs/1904.02144):
+```
+@article{chen2019boundary,
+  title={HopSkipJumpAttack: A Query-Efficient Decision-Based Adversarial Attack},
+  author={Chen, Jianbo and Jordan, Michael I. and Wainwright, Martin J.},
+  journal={arXiv preprint arXiv:1904.02144},
+  year={2019}
+}
+```
+
+
+
+
+
 ### Defense
 As malice adversaries increasingly threat AI security, people have proposed numerous methods to defense the deep learning netweork against the attack. Advbox also provides such defensive tools. The codes for defensive adversarial training are in `obj_detection/attack/defense` directory, and a script `advtrain_launcher.py` that allows user to launch an adversarial training from command-line arguments can also be found there. 
 

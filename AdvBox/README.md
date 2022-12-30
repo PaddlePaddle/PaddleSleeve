@@ -845,7 +845,7 @@ GaussianBlur denoise doesn't change the label of the input image
 python imagenet_tutorial_fgsm_denoise.py --method='MedianBlur' --image_path='input/vase.png'
 ```
 <p align="center">
-<img align="center" src="./examples/image_cls/output/FeatureSqueezing_Denoising_Comparison.png", width=500><br>
+<img align="center" src="./examples/image_cls/output/MedianBlur_Denoising_Comparison.png", width=500><br>
 </p>
 
 **Mean Filter**

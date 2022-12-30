@@ -216,7 +216,7 @@ As malice adversaries increasingly threat AI security, people have proposed nume
 - **Usage**
   - **Data**
 
-    Need to download coco2017 to PaddleSleeve/obj_detection/dataset/coco in advance. If coco2017 is not available, the script will be downloaded automatically.
+    Need to download coco2017 to `PaddleSleeve/obj_detection/dataset/coco` in advance. If coco2017 is not available, the script will be downloaded automatically.
 
   - **Config file**
   

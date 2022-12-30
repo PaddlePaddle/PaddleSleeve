@@ -57,6 +57,9 @@ The project also contains plenty of useful tutorials for different AI applicatio
 - pyclipper
 - lmdb
 - pandas
+- filelock
+- Polygon3
+- lanms-neo
 
 # Attack
 Go to the attack example directory:

@@ -52,6 +52,9 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 - pyclipper
 - lmdb
 - pandas
+- filelock
+- Polygon3
+- lanms-neo
 
 # 攻击
 进入攻击示例目录：

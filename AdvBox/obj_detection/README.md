@@ -45,16 +45,16 @@ In Advbox-ObjectDetection, two well-known whitebox attacking methods, CW and PGD
 
  If you want to customize your own demo script, you should try the following methods:
 
-- For object detector like `PaddleSleeve/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
  add `norm_type: bn` on the third line.
-- For object detector like `PaddleSleeve/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn`
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn`
  on the 9 th line.
 
 - **Examples**
   - The following example attacks `yolov3_darknet53` models using cw attack, and l2 distance is used. 
   ```shell
   # Navigate to the correct directory 
-  cd PaddleSleeve/obj_detection/attack/single_attack
+  cd PaddleSleeve/AdvBox/obj_detection/attack/single_attack
 
   # paddle：The results can be found under obj_detection/attacks/examples/images.
   python launcher.py  --model paddledet_yolov3_darknet53 --criteria target_class_miss --target_class 3 --metric carlini_wagner --image motor.jpg --distance l2 
@@ -76,7 +76,7 @@ Adversarial examples are particularly useful because of its transferability (i.e
   
     This evaluation script can be executed by the following command
     ```shell
-    cd PaddleSleeve/obj_detection/attack/ensemble_attack
+    cd PaddleSleeve/AdvBox/obj_detection/attack/ensemble_attack
     python serial_attack_eval.py
     ```
     Note that this script does not take command-line arguments. Users should modify the model list<sup>*</sup> and attack settings specification in the code in order to fit their own task. `dataset_dir`is the path to the input images. The default folder contains about 30 images. Users can add/remove images from the folder, or switch to their own test dataset if desired. 
@@ -138,7 +138,7 @@ Adversarial examples are particularly useful because of its transferability (i.e
 
     Use the following command to run the PGD ensemble attack
     ```shell
-    cd PaddleSleeve/obj_detection/attack/ensemble_attack
+    cd PaddleSleeve/AdvBox/obj_detection/attack/ensemble_attack
     python weighted_ensemble_attack_pgd.py
     ```
     Similar as in serial ensemble attack, users are welcome to change the list of models to be attacked<sup>*</sup> as well as other configs directly in the code. 
@@ -216,7 +216,7 @@ As malice adversaries increasingly threat AI security, people have proposed nume
 - **Usage**
   - **Data**
 
-    Need to download coco2017 to `PaddleSleeve/obj_detection/dataset/coco` in advance. If coco2017 is not available, the script will be downloaded automatically.
+    Need to download coco2017 to `PaddleSleeve/AdvBox/obj_detection/dataset/coco` in advance. If coco2017 is not available, the script will be downloaded automatically.
 
   - **Config file**
   
@@ -251,14 +251,14 @@ As malice adversaries increasingly threat AI security, people have proposed nume
         !COCODataSet
           image_dir: train2017
           anno_path: annotations/instances_train2017.json
-          dataset_dir: dataset/coco
+          dataset_dir: ../../dataset/coco
           data_fields: ['image', 'gt_bbox', 'gt_class', 'gt_score', 'is_crowd']
 
       EvalDataset:
         !COCODataSet
           image_dir: val2017
           anno_path: annotations/instances_val2017.json
-          dataset_dir: dataset/coco
+          dataset_dir: ../../dataset/coco
 
       ``` 
 
@@ -272,11 +272,11 @@ As malice adversaries increasingly threat AI security, people have proposed nume
   
     Users can initiate an adversarial training by the following command:
     ```shell
-    cd PaddleSleeve/obj_detection/attack/defense
+    cd PaddleSleeve/AdvBox/obj_detection/attack/defense
     python advtrain_launcher.py --model yolov3_darknet53_advtrain --defense natural_advtrain --pretrained True
     ```
 
-    The script will save the model after each epoch. Both the model and optimizer are saved in `PaddleSleeve/obj_detection/attack/outputs/models/`.
+    The script will save the model after each epoch. Both the model and optimizer are saved in `PaddleSleeve/AdvBox/obj_detection/attack/outputs/models/`.
 
 
 
@@ -295,9 +295,9 @@ thus, the attack is able to succeed.
  
  If you want to customize your own demo script, you should try the following methods:
  
-- For object detector like `PaddleSleeve/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
  add `norm_type: bn` on the third line.
-- For object detector like `PaddleSleeve/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
  on the 9 th line.
 
 ### Run Target Patch Adversarial Train

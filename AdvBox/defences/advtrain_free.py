@@ -18,7 +18,7 @@ paddle2 model for adversarial training based on Free-Advtrain.
 import os
 import sys
 
-sys.path.append("../..")
+sys.path.append("../")
 
 import paddle
 import numpy as np
@@ -162,10 +162,11 @@ def free_advtrain(model, train_dataset, test_dataset=None, save_path=None, **kwa
 def run(args):
     # Load dataset
     if args.dataset == 'cifar10':
+        MEAN = [0.491, 0.482, 0.447]
+        STD = [0.247, 0.243, 0.262]
         transforms = T.Compose([T.Resize([224, 224]),
-                                T.Transpose(),
-                                T.Normalize(mean=[0, 0, 0], std=[255, 255, 255]),
-                                T.Normalize(mean=[0.491, 0.482, 0.447], std=[0.247, 0.243, 0.262])])
+                                T.ToTensor(),
+                                T.Normalize(mean=MEAN, std=STD)])
         train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=transforms)
         test_dataset = paddle.vision.datasets.Cifar10(mode='test', transform=transforms)
 
@@ -173,15 +174,20 @@ def run(args):
         init_para_env()
         m = load_model(args.model, num_classes=10)
     else:
-        from examples.image_cls.miniimagenet import MINIIMAGENET
+        from examples.dataset.mini_imagenet import MINIIMAGENET
 
-        transform = T.Compose([T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
-        train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                          'examples/dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
-        test_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                         'examples/dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
-        label_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                  'examples/dataset/mini-imagenet/mini_imagenet_labels.txt')
+        MEAN = [0.485, 0.456, 0.406]
+        STD = [0.229, 0.224, 0.225]
+        transform = T.Compose([
+            T.ToTensor(),
+            T.Normalize(MEAN, STD, data_format='CHW')
+        ])
+        train_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                          'examples/dataset/mini-imagenet/re_split_mini-imagenet-cache-train.pkl')
+        test_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                         'examples/dataset/mini-imagenet/re_split_mini-imagenet-cache-test.pkl')
+        label_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                  'examples/dataset/mini-imagenet/re_split_mini-imagenet_labels.txt')
 
         train_dataset = MINIIMAGENET(dataset_path=train_dataset_path,
                                      label_path=label_path,

@@ -11,25 +11,23 @@ import numpy as np
 __all__ = ['preactresnet18']
 
 
-class ToArray(object):
-    def __call__(self, img):
-        img = np.array(img)
-        img = np.transpose(img, [2, 0, 1])
-        img = img / 255.
-        img = img.astype('float32')
-        return img
-
-
-MEAN = None
-STD = None
-transform_train = T.Compose([T.Resize((32, 32)),
-                             T.RandomHorizontalFlip(0.5),
-                             T.RandomVerticalFlip(0.5),
-                             T.RandomCrop(size=32, padding=4),
-                             T.RandomHorizontalFlip(0.5),
-                             ToArray()])
-transform_eval = T.Compose([T.Resize((32, 32)),
-                            ToArray()])
+def get_transform(mean, std, mode):
+    if mode == 'train':
+        transform = T.Compose([
+            T.Resize((32, 32)),
+            T.RandomHorizontalFlip(0.5),
+            T.RandomVerticalFlip(0.5),
+            T.RandomCrop(size=32, padding=4),
+            T.ToTensor(),
+            T.Normalize(mean=mean, std=std)
+        ])
+    else:
+        transform = T.Compose([
+            T.Resize((32, 32)),
+            T.ToTensor(),
+            T.Normalize(mean=mean, std=std)
+        ])
+    return transform
 
 
 class PreActBlock(nn.Layer):

@@ -19,7 +19,7 @@ import copy
 import sys
 import os
 
-sys.path.append("../..")
+sys.path.append("../")
 
 import paddle
 import paddle.nn.functional as F
@@ -57,7 +57,7 @@ def adversarial_train_awp(model, train_set, test_set, save_path=None, **kwargs):
     batch_size = kwargs["batch_size"]
     adversarial_trans = kwargs["adversarial_trans"]
     opt = kwargs["optimizer"]
-    lr = kwargs['lr']
+    lr = kwargs.get('lr', None) # lr = kwargs['lr']
     gamma = kwargs.get('gamma', 0.005)
     validate = test_set is not None
     metrics = kwargs.get('metrics', paddle.metric.Accuracy())
@@ -88,7 +88,6 @@ def adversarial_train_awp(model, train_set, test_set, save_path=None, **kwargs):
 
         epoch_time = time.time()
         for batch_id, data in enumerate(train_loader()):
-            break
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
 
@@ -96,7 +95,7 @@ def adversarial_train_awp(model, train_set, test_set, save_path=None, **kwargs):
                 # adversarial training late start
                 model.eval()
                 if epoch >= advtrain_start_num and adversarial_trans is not None:
-                    x_data_augmented = adversarial_trans(x_data, y_data)
+                    x_data_augmented = paddle.Tensor(adversarial_trans(x_data, y_data)[0])
                     model.clear_gradients()
                 else:
                     x_data_augmented = x_data
@@ -147,9 +146,11 @@ def adversarial_train_awp(model, train_set, test_set, save_path=None, **kwargs):
             model.eval()
             with paddle.no_grad():
                 for data in test_loader:
-                    x, y = data
-                    preds = model(x)
-                    correct = metrics.compute(preds, y)
+                    x_data = data[0]
+                    y_data = paddle.unsqueeze(data[1], 1)
+
+                    preds = model(x_data)
+                    correct = metrics.compute(preds, y_data)
                     metrics.update(correct)
                 res = metrics.accumulate()
                 logger.info('[Validation] Epoch {}, Acc: {}'.format(epoch, res))
@@ -207,25 +208,27 @@ def run(args):
         MEAN = [0.491, 0.482, 0.447]
         STD = [0.247, 0.243, 0.262]
         transforms = T.Compose([T.Resize([224, 224]),
-                                T.Transpose(),
-                                T.Normalize(mean=[0, 0, 0], std=[255, 255, 255]),
+                                T.ToTensor(),
                                 T.Normalize(mean=MEAN, std=STD)])
         train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=transforms)
         test_dataset = paddle.vision.datasets.Cifar10(mode='test', transform=transforms)
     else:
-        from examples.image_cls.miniimagenet import MINIIMAGENET
+        from examples.dataset.mini_imagenet import MINIIMAGENET
         num_classes = 100
         MEAN = [0.485, 0.456, 0.406]
         STD = [0.229, 0.224, 0.225]
-        transform = T.Compose([T.Normalize(MEAN, STD, data_format='CHW')])
+        transform = T.Compose([
+            T.ToTensor(),
+            T.Normalize(MEAN, STD, data_format='CHW')
+        ])
 
         # Change to your own dataset
-        train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                          'examples/dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
-        test_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                         'examples/dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
-        label_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                  'examples/dataset/mini-imagenet/mini_imagenet_labels.txt')
+        train_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                          'examples/dataset/mini-imagenet/re_split_mini-imagenet-cache-train.pkl')
+        test_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                         'examples/dataset/mini-imagenet/re_split_mini-imagenet-cache-test.pkl')
+        label_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                  'examples/dataset/mini-imagenet/re_split_mini-imagenet_labels.txt')
 
         test_dataset = MINIIMAGENET(dataset_path=test_dataset_path,
                                     label_path=label_path,
@@ -240,7 +243,6 @@ def run(args):
     init_para_env()
     # Load model
     m = load_model(args.model, num_classes=num_classes)
-    m.eval()
     m = paddle.DataParallel(m)
 
     batch_size = args.batch_size

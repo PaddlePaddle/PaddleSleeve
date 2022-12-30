@@ -23,29 +23,22 @@ __all__ = [
     "MyNet", "TowerNet"
 ]
 
-MEAN = [0.5095, 0.5463, 0.5741]
-STD = [0.2606, 0.2604, 0.2922]
-transform_train = T.Compose([T.Resize((256, 256)),
-                             T.RandomHorizontalFlip(0.5),
-                             T.RandomVerticalFlip(0.5),
-                             T.Transpose(),
-                             T.Normalize(
-                                 mean=[0, 0, 0],
-                                 std=[255, 255, 255]),
-                             # output[channel] = (input[channel] - mean[channel]) / std[channel]
-                             T.Normalize(mean=MEAN,
-                                         std=STD)
-                             ])
-
-transform_eval = T.Compose([T.Resize((256, 256)),
-                            T.Transpose(),
-                            T.Normalize(
-                                mean=[0, 0, 0],
-                                std=[255, 255, 255]),
-                            # output[channel] = (input[channel] - mean[channel]) / std[channel]
-                            T.Normalize(mean=MEAN,
-                                        std=STD)
-                            ])
+def get_transform(mean, std, mode):
+    if mode == 'train':
+        transform = T.Compose([
+            T.Resize((256, 256)),
+            T.RandomHorizontalFlip(0.5),
+            T.RandomVerticalFlip(0.5),
+            T.ToTensor(),
+            T.Normalize(mean=mean, std=std)
+        ])
+    else:
+        transform = T.Compose([
+            T.Resize((256, 256)),
+            T.ToTensor(),
+            T.Normalize(mean=mean, std=std)
+        ])
+    return transform
 
 
 class Inception(paddle.nn.Layer):

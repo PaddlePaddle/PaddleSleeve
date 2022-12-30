@@ -12,163 +12,139 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Load mini-imagenet-dataset from hard drive.
+Load mini-imagenet-dataset from the downloaded .pkl files
 """
+
+from __future__ import print_function
+
 import paddle
 from paddle.io import Dataset
-import cv2
-import os
 import numpy as np
-import collections
+from six.moves import cPickle as pickle
 
-import sys
-sys.path.append("../..")
-from paddle.vision import transforms as T
+__all__ = []
 
 
-class MiniImageNet(Dataset):
+# TODO: place the file in dataset folder...
+class MINIIMAGENET(Dataset):
     """
-    Implementation of Mini-ImageNet dataset.
+    Implementation of `MINI-IMAGENET <https://github.com/yaoyao-liu/mini-imagenet-tools>`_ dataset
 
     Args:
+        dataset_path(str): path to .pkl image file, can be set None if, default data path: input/mini-imagenet-cache-test.pkl
+        label_path(str): path to .txt label file, can be set None if, default label path: input/mini_imagenet_test_labels.txt
         mode(str): 'train', 'test', or 'val' mode. Default 'test'.
-        transform: function to call to preprocess images.
 
     Returns:
-        Dataset: Mini-Imagenet Dataset.
+        Dataset: MINIIMAGENET Dataset.
 
     Examples:
+
         .. code-block:: python
 
             from miniimagenet import MINIIMAGENET
+
             test_dataset = MINIIMAGENET(mode='test')
             test_loader = paddle.io.DataLoader(test_dataset, batch_size=1, shuffle=False)
             for id, data in enumerate(test_loader):
                 image = data[0]
                 label = data[1]
+
     """
+    NAME = 'mini_imagenet'
+    TRAIN_DATA_PATH = 'input/mini-imagenet-cache-train.pkl'
+    TEST_DATA_PATH = 'input/mini-imagenet-cache-test.pkl'
+    VAL_DATA_PATH = 'input/mini-imagenet-cache-val.pkl'
+    TRAIN_LABEL_PATH = 'input/mini_imagenet_train_labels.txt'
+    TEST_LABEL_PATH = 'input/mini_imagenet_test_labels.txt'
+    VAL_LABEL_PATH = 'input/mini_imagenet_val_labels.txt'
+
     def __init__(self,
+                 dataset_path=None,
+                 label_path=None,
                  mode='test',
-                 transform=None):
+                 transform=None,
+                 backend=None):
+        assert mode.lower() in ['train', 'test', 'val'], \
+            "mode should be 'train', 'test', or 'val', but got {}".format(mode)
+
+        self.mode = mode.lower()
+
+        if dataset_path is None:
+            if self.mode == 'train':
+                dataset_path = self.TRAIN_DATA_PATH
+            elif self.mode == 'test':
+                dataset_path = self.TEST_DATA_PATH
+            else:
+                dataset_path = self.VAL_DATA_PATH
+
+        if label_path is None:
+            if self.mode == 'train':
+                label_path = self.TRAIN_LABEL_PATH
+            elif self.mode == 'test':
+                label_path = self.TEST_LABEL_PATH
+            else:
+                label_path = self.VAL_LABEL_PATH
+        self.dataset_path = dataset_path
+        self.label_path = label_path
         self.transform = transform
-        parent_folder = './mini-imagenet/'
-        train_data_path = 'images'
-        test_data_path = 'images'
-        val_data_path = 'images'
-        train_label_path = 'train.csv'
-        test_label_path = 'test.csv'
-        val_label_path = 'val.csv'
-        supported_mode = ('train', 'val', 'test')
 
-        assert mode in supported_mode
-        if mode == 'train':
-            image_path = os.path.join(parent_folder, train_data_path)
-            label_path = os.path.join(parent_folder, train_label_path)
-        elif mode == 'val':
-            image_path = os.path.join(parent_folder, val_data_path)
-            label_path = os.path.join(parent_folder, val_label_path)
-        elif mode == 'test':
-            image_path = os.path.join(parent_folder, test_data_path)
-            label_path = os.path.join(parent_folder, test_label_path)
-        else:
-            exit(0)
+        # Read dataset into memory
+        self._load_data()
 
-        self.labelinfo = self._load_labelinfo(image_path, label_path)
+        self.dtype = paddle.get_default_dtype()
 
-    def _load_labelinfo(self, image_path, label_path):
-        image_filepaths = os.listdir(image_path)
-        with open(label_path, 'r') as file:
-            label_info_list = file.readlines()
+    def _load_data(self):
+        '''
+        Open .pkl file and store it to self.data
+        :return: None.
+        '''
+        self.data = []
+        # Process .pkl file
+        with open(self.dataset_path, mode='rb') as f:
+            dict = pickle.load(f)
+            image_data = dict['image_data']
+            label_dict = dict['class_dict']
+        # find the corresponding labels
+        with open(self.label_path) as info:
+             mini_imagenet_labels = eval(info.read())
 
-        labelinfo = []
-        for inedx, info in enumerate(label_info_list):
-            if inedx == 0:
-                continue
-            splited = info.split(',')
-            image_filename = splited[0]
-            image_label = splited[1].strip()
-
-            if image_filename in image_filepaths:
-                image_filepath = os.path.join(image_path, image_filename)
-                labelinfo.append((image_filepath, image_label))
-
-        return labelinfo
+        new_label_dict = {}
+        for k, v in label_dict.items():
+            for i in v:
+                new_label_dict[i] = mini_imagenet_labels[k]
+                self.data.append((image_data[i], new_label_dict[i]))
 
     def __getitem__(self, idx):
-        image_filepath, label = self.labelinfo[idx]
-        image = cv2.imread(image_filepath)
-        if self.transform is not None:
-            transformed_image = self.transform(image)
-        else:
-            transformed_image = image
-        return transformed_image, label
+        image, label = self.data[idx]
+
+        # Normalise image
+        image = self.transform(image)
+        return image.astype(self.dtype), np.array(label).astype('int64')
 
     def __len__(self):
-        return len(self.labelinfo)
+        return len(self.data)
 
-
-def main():
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
-    # Set the testing set
-    transform_train = T.Compose([T.Resize((224, 224)),
-                                 T.RandomHorizontalFlip(0.5),
-                                 T.RandomVerticalFlip(0.5),
-                                 T.Transpose(),
-                                 T.Normalize(
-                                     mean=[0, 0, 0],
-                                     std=[255, 255, 255]),
-                                 T.Normalize(mean, std, data_format='CHW')
-                                 ])
-    transform_eval = T.Compose([T.Resize((224, 224)),
-                                 T.Transpose(),
-                                 T.Normalize(
-                                     mean=[0, 0, 0],
-                                     std=[255, 255, 255]),
-                                 T.Normalize(mean, std, data_format='CHW')
-                                ])
-
-    # Set the classification network
-    model1 = paddle.vision.models.resnet50(pretrained=True)
-    model2 = paddle.vision.models.vgg16(pretrained=True)
-    model7 = paddle.vision.models.mobilenet_v1(pretrained=True)
-
-    train_set = MiniImageNet(mode='train', transform=transform_train)
-    test_set = MiniImageNet(mode='test', transform=transform_eval)
-    train_loader = paddle.io.DataLoader(train_set, batch_size=16, shuffle=True)
-    test_loader = paddle.io.DataLoader(test_set, batch_size=16, shuffle=True)
-
-    train_label_dict = collections.defaultdict(int)
-    test_label_dict = collections.defaultdict(int)
-    for index, data in enumerate(train_loader):
-        images = data[0]
-        labels = data[1]
-        for label in labels:
-            train_label_dict[label] += 1
-        # predict1 = model1(images)
-        # predict2 = model2(images)
-        # predict7 = model7(images)
-        # label1 = np.argmax(predict1, axis=1)
-        # label2 = np.argmax(predict2, axis=1)
-        # label7 = np.argmax(predict7, axis=1)
-        # print(label1)
-        # print(label2)
-        # print(label7)
-        #
-
-        # cv2.imshow('tmp', (images.numpy() * 255).astype(int))
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-
-    for index, data in enumerate(test_loader):
-        images = data[0]
-        labels = data[1]
-        for label in labels:
-            test_label_dict[label] += 1
-
-    import pdb
-    pdb.set_trace()
-
-
-if __name__ == '__main__':
-    main()
+'''
+content of mini_imagenet_test_labels.txt
+{'n03544143': 604,
+'n03127925': 519,
+'n03146219': 524,
+'n04418357': 854,
+'n02110063': 249,
+'n07613480': 927,
+'n02116738': 275,
+'n03775546': 659,
+'n02443484': 359,
+'n01930112': 111,
+'n02099601': 207,
+'n02129165': 291,
+'n02871525': 454,
+'n03272010': 546,
+'n04149813': 781,
+'n02219486': 310,
+'n04522168': 883,
+'n02110341': 251,
+'n04146614': 779,
+'n01981276': 121}
+'''

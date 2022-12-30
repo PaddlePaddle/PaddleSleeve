@@ -892,7 +892,7 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | MedianBlur      | 41.3%  | 8.1%  | 20.5% | 27.8% |
 | MeanFilter      | 41.3%  | 8.1%  | 20.7% | 26.3% |
 | BoxFilter       | 41.3%  | 8.1%  | 20.7% | 26.3% |
-| BilateralFilter | 41.3%  | 8.1%  | 5.8% | 9.0% |
+| BilateralFilter | 41.3%  | 8.1%  | 19.7% | 41.1% |
 | PixelDeflection | 41.3%  | 8.1%  | 16.1% | 38.0% |
 | JPEGCompression | 41.3%  | 8.1%  | 25.9% | 39.9% |
 | DCTCompression  | 41.3%  | 8.1%  | 28.5% | 39.3% |

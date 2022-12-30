@@ -39,7 +39,6 @@ class ClassificationAdversarialTransform(AdvTransform):
                                                                  attacks,
                                                                  init_config_list,
                                                                  attack_config_list)
-
     def _generate_adv_example(self, x, y, attack_method, attack_config):
         """
         A logic for generate adversarial perturbation for x, y.

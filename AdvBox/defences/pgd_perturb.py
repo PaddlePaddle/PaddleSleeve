@@ -67,8 +67,8 @@ def pgd(model, img, label, norm='l2', epsilons=16/255, eps_step=2/255, steps=10,
     _min, _max = (0, 1)
     C, H, W = img.shape
 
-    ori_img_tensor = denormalize_image(copy.deepcopy(img), mean=model_mean, std=model_std)
-    adv_img_tensor = denormalize_image(copy.deepcopy(img), mean=model_mean, std=model_std)
+    ori_img_tensor = denormalize_image(img.clone(), mean=model_mean, std=model_std)
+    adv_img_tensor = denormalize_image(img.clone(), mean=model_mean, std=model_std)
 
     model.eval()
 
@@ -103,7 +103,7 @@ def pgd(model, img, label, norm='l2', epsilons=16/255, eps_step=2/255, steps=10,
             eta = paddle.clip(adv_img_tensor - ori_img_tensor, -epsilons, epsilons)
             adv_img_tensor = paddle.clip(ori_img_tensor + eta, _min, _max)
 
-    return norm_fn(adv_img_tensor)
+    return norm_fn(adv_img_tensor).numpy()
 
 
 class PGDTransform(object):
@@ -133,13 +133,17 @@ class PGDTransform(object):
         Returns:
             Transformed adversarial examples
         """
-        x_batch = paddle.unstack(x_batch)
+        #x_batch = paddle.unstack(x_batch)
         adv_x_batch = []
+        adv_y_batch = []
         for x, y in zip(x_batch, y_batch):
             if np.random.random(1) > self._attack_probability:
                 adv_x_batch.append(np.squeeze(x))
-                continue
-            adv_x = pgd(self._model, x, y, **self._config_list)
-            adv_x_batch.append(np.squeeze(adv_x))
-        adv_x_batch = paddle.stack(adv_x_batch)
-        return adv_x_batch
+                adv_y_batch.append(y)
+            else:
+                adv_x = pgd(self._model, x, y, **self._config_list)
+                adv_x_batch.append(np.squeeze(adv_x))
+                adv_y_batch.append(y)
+        adv_x_batch = np.stack(adv_x_batch)
+        adv_y_batch = np.stack(adv_y_batch)
+        return adv_x_batch, adv_y_batch

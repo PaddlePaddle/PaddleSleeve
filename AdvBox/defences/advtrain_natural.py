@@ -16,6 +16,7 @@ paddle2 model natural adversarial training demo.
 * implemented random sampling adversarial augmentation.
 """
 import sys
+sys.path.append("../")
 import os
 import paddle
 import paddle.nn.functional as F
@@ -25,9 +26,6 @@ import numpy as np
 from defences.pgd_perturb import PGDTransform
 from defences.utils import *
 import time
-
-sys.path.append("../..")
-
 
 def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwargs):
     """
@@ -49,12 +47,17 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
     adversarial_trans = kwargs["adversarial_trans"]
     opt = kwargs["optimizer"]
     lr = kwargs.get('lr', None) # lr = kwargs['lr']
+    model_para_name = kwargs["model_para_name"]
+    model_opt_para_name = kwargs["model_opt_para_name"]
     validate = test_set is not None
     metrics = kwargs.get('metrics', paddle.metric.Accuracy())
     eval_freq = 5
     main_proc = dist.get_world_size() < 2 or dist.get_rank() == 0
     start_time = time.time()
     logger = setup_logger('advtrain')
+
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
 
     # resume training
     resume_epoch = -1
@@ -78,20 +81,20 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
             param.stop_gradient = False
 
         epoch_time = time.time()
+        # turn model into training mode
         for batch_id, data in enumerate(train_loader()):
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
 
             # adversarial training late start
             if epoch >= advtrain_start_num and adversarial_trans is not None:
+                model.eval()
                 x_data_augmented = paddle.Tensor(adversarial_trans(x_data, y_data)[0])
                 model.clear_gradients()
             else:
                 x_data_augmented = x_data
 
-            # turn model into training mode
             model.train()
-
             logits = model(x_data_augmented)
             loss = F.cross_entropy(logits, y_data)
             loss.backward()
@@ -105,8 +108,8 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
             accuracies += acc
         epoch_cost = time.time() - epoch_time
         if main_proc:
-            logger.info("Epoch {}, Loss {}, Acc {}, Cost {}m {}s".format(epoch, losses / len(train_loader),
-                                                                         accuracies / len(train_loader),
+            logger.info("Epoch {}, Loss {}, Acc {}, Cost {}m {}s".format(epoch, float(losses) / len(train_loader),
+                                                                         float(accuracies) / len(train_loader),
                                                                          epoch_cost // 60,
                                                                          np.mod(epoch_cost, 60)))
 
@@ -128,9 +131,9 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
             logger.info('[Validation] Epoch {}, Acc {}, Loss {}'.format(epoch, acc, losses / len(test_loader)))
 
         if main_proc and np.mod(epoch + 1, 10) == 0:
-            save_model(model, opt, save_path, 'epoch{}'.format(epoch), epoch)
-
-        model.train()
+            #save_model(model, opt, save_path, 'epoch{}'.format(epoch), epoch)
+            paddle.save(model.state_dict(), save_path + model_para_name + 'epoch{}'.format(epoch) + str(float(acc)) + '.pdparams')
+            paddle.save(opt.state_dict(), save_path + model_opt_para_name + 'epoch{}'.format(epoch) + str(float(acc)) + '.pdopt')
 
     total_time = time.time() - train_time
     logger.info('Training Finished, Exiting ... ')
@@ -138,7 +141,8 @@ def adversarial_train_natural(model, train_set, test_set, save_path=None, **kwar
                                                          np.mod(total_time, 3600) // 60,
                                                          np.mod(np.mod(total_time, 3600), 60)))
     if main_proc:
-        save_model(model, opt, save_path, 'last_model', epoch)
+        paddle.save(model.state_dict(), save_path + model_para_name + 'lastepoch' + str(float(acc)) + '.pdparams')
+        paddle.save(opt.state_dict(), save_path + model_opt_para_name + 'lastepoch' + str(float(acc)) + '.pdopt')
     if dist.get_world_size() > 1:
         paddle.distributed.barrier()
 
@@ -149,23 +153,25 @@ def run(args):
         MEAN = [0.491, 0.482, 0.447]
         STD = [0.247, 0.243, 0.262]
         transforms = T.Compose([T.Resize([224, 224]),
-                                T.Transpose(),
-                                T.Normalize(mean=[0, 0, 0], std=[255, 255, 255]),
+                                T.ToTensor(),
                                 T.Normalize(mean=MEAN, std=STD)])
         train_dataset = paddle.vision.datasets.Cifar10(mode='train', transform=transforms)
         test_dataset = paddle.vision.datasets.Cifar10(mode='test', transform=transforms)
     else:
-        from examples.image_cls.miniimagenet import MINIIMAGENET
+        from examples.dataset.mini_imagenet import MINIIMAGENET
         num_classes = 100
         MEAN = [0.485, 0.456, 0.406]
         STD = [0.229, 0.224, 0.225]
-        transform = T.Compose([T.Normalize(MEAN, STD, data_format='CHW')])
-        train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                          'examples/dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
-        test_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                         'examples/dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
-        label_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                  'examples/dataset/mini-imagenet/mini_imagenet_labels.txt')
+        transform = T.Compose([
+            T.ToTensor(),
+            T.Normalize(MEAN, STD, data_format='CHW')
+        ])
+        train_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                          'examples/dataset/mini-imagenet/re_split_mini-imagenet-cache-train.pkl')
+        test_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                         'examples/dataset/mini-imagenet/re_split_mini-imagenet-cache-test.pkl')
+        label_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                  'examples/dataset/mini-imagenet/re_split_mini-imagenet_labels.txt')
 
         test_dataset = MINIIMAGENET(dataset_path=test_dataset_path,
                                     label_path=label_path,
@@ -180,7 +186,6 @@ def run(args):
     init_para_env()
     # Load model
     m = load_model(args.model, num_classes=num_classes)
-    m.eval()
     m = paddle.DataParallel(m)
 
     batch_size = args.batch_size
@@ -235,6 +240,8 @@ def run(args):
               'optimizer': opt,
               'weights': args.weights,
               'lr': scheduler,
+              'model_para_name': 'advtrain_natural',
+              'model_opt_para_name': 'model_opt_para_name',
               'opt_weights': args.opt_weights}
 
     save_path = os.path.join(os.path.dirname(__file__), args.save_path)

@@ -108,11 +108,12 @@ def py_cpu_nms_poly_fast(dets, thresh):
             # ovr.append(iou)
             # ovr_index.append(tmp_order[j])
 
-        try:
-            if math.isnan(ovr[0]):
-                pdb.set_trace()
-        except:
-            pass
+        #try:
+        #    if math.isnan(ovr[0]):
+        #        import pdb
+        #        pdb.set_trace()
+        #except:
+        #    pass
         inds = np.where(hbb_ovr <= thresh)[0]
 
         order = order[inds + 1]

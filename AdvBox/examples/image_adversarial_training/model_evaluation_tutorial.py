@@ -16,6 +16,7 @@ A tutorial for model evaluation on dataset.
 """
 from __future__ import print_function
 from __future__ import absolute_import
+
 import paddle
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -24,10 +25,23 @@ import numpy as np
 import math
 import sys
 sys.path.append("../..")
+import argparse
+import functools
+
 from adversary import Adversary
 from models.whitebox import PaddleWhiteBoxModel
 from skimage.metrics import structural_similarity
-from examples.utils import get_best_weigthts_from_folder
+from examples.utils import add_arguments, print_arguments, get_best_weigthts_from_folder
+from main_setting import model_zoo, training_zoo, dataset_zoo, attack_zoo, get_model_setting, get_save_path, get_train_method_setting, get_dataset, get_attack_setting, assert_input, get_model_para_name
+
+parser = argparse.ArgumentParser(description=__doc__)
+add_arg = functools.partial(add_arguments, argparser=parser)
+add_arg('model', str, 'preactresnet', 'The model to evaluate, choose {model_zoo}.'.format(model_zoo=model_zoo))
+add_arg('training_method', str, 'base', 'The training method of the model to be evaluated, choose in {training_zoo}.'.format(training_zoo=training_zoo))
+add_arg('attack_method', str, 'FGSM', 'The attack method of the model to be evaluated, choose in {attack_zoo}. Only works if the "training_method" is not "base"'.format(attack_zoo=attack_zoo))
+add_arg('dataset', str, 'cifar10', 'The training dataset for the model to be evaluated, choose in {dataset_zoo}.'.format(dataset_zoo=dataset_zoo))
+add_arg('use_base_pretrain', str, 'no', 'Whether the model to be evaluated uses a pre-trained model trained in base mode, choose in ("yes", "no").')
+
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):
@@ -37,57 +51,69 @@ else:
 paddle.seed(2021)
 
 
-# Initialize model structure and load trained parameters
-from main_setting import MODEL, MODEL_PATH, MODEL_PARA_NAME
-MODEL = MODEL
-path = get_best_weigthts_from_folder(MODEL_PATH, MODEL_PARA_NAME)
-model_state_dict = paddle.load(path)
-MODEL.set_state_dict(model_state_dict)
-
-from main_setting import test_set, MEAN, STD, CLASS_NUM
-MEAN = MEAN
-STD = STD
-CIFAR10_TEST = test_set
-CLASS_NUM = CLASS_NUM
-
-attack_zoo = ("FGSM", "LD", "PGD")
-attack_choice = input(f"choose {attack_zoo}:")
-assert attack_choice in attack_zoo
-
-if attack_choice == attack_zoo[0]:
-    from attacks.gradient_method import FGSM
-    ATTACK_METHOD = FGSM
-    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255, "epsilon_stepsize": 2/255}
-    ATTACK_CONFIG = {}
-elif attack_choice == attack_zoo[1]:
-    from attacks.logits_dispersion import LD
-    ATTACK_METHOD = LD
-    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8/255}
-    ATTACK_CONFIG = {"steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
-elif attack_choice == attack_zoo[2]:
-    from attacks.gradient_method import PGD
-    ATTACK_METHOD = PGD
-    INIT_CONFIG = {"norm": "Linf", "epsilon_ball": 8 / 255, "epsilon_stepsize": 2 / 255}
-    ATTACK_CONFIG = {}
-else:
-    exit(1)
-
-TOTAL_TEST_NUM = 500
-# for now, attacks only support batch == 1, thus we fixed batch size.
-BATCH_SIZE = 1
+# TOTAL_TEST_NUM = 500
 IS_TARGET_ATTACK = False
 
 
-def main(model, advbox_model, test_loader, attack, attack_config=None):
+def main():
     """
     Demonstrates how to use attacks.
     """
+    
+    args = parser.parse_args()
+    print_arguments(args)
+
+    model_choice = args.model
+    training_choice = args.training_method
+    dataset_choice = args.dataset
+    attack_choice = args.attack_method
+    use_base_pretrain = args.use_base_pretrain
+
+    assert_input(model_choice, training_choice, dataset_choice, attack_choice, use_base_pretrain)
+
+    model, MEAN, STD, _, test_transform = get_model_setting(model_choice, dataset_choice)
+
+    # Initialize model structure and load trained parameters
+    model_dir = get_save_path(model_choice, training_choice, dataset_choice, attack_choice, use_base_pretrain)
+    model_para_name = get_model_para_name(training_choice)
+    model_path = get_best_weigthts_from_folder(model_dir, model_para_name)
+    model_state_dict = paddle.load(model_path)
+    model.set_state_dict(model_state_dict)
+
+    attack_method, init_config, attack_config = get_attack_setting(attack_choice)
+
+    adverarial_train, enhance_config, advtrain_settings = get_train_method_setting(model, training_choice)
+    
+    test_set, class_num = get_dataset(dataset_choice, 'test', test_transform)
+
+    # for now, attacks only support batch == 1, thus we fixed batch size.
+    batch_size = 1
+    test_loader = paddle.io.DataLoader(test_set, batch_size=batch_size, shuffle=False)
+    data = test_loader().next()
+    
+
+    # init a paddle model
+    advbox_model = PaddleWhiteBoxModel(
+        [model],
+        [1],
+        (0, 1),
+        mean=MEAN,
+        std=STD,
+        input_channel_axis=0,
+        input_shape=tuple(data[0].shape[1:]),
+        loss=paddle.nn.CrossEntropyLoss(),
+        nb_classes=class_num)
+
+    attack = attack_method(advbox_model, **init_config)
+
+
     # use test data to generate adversarial examples
     total_count = 0
     fooling_count = 0
     correct_num = 0
     pbar = tqdm(total=len(test_loader()))
 
+    model.eval()
     for data in test_loader():
         total_count += 1
         img = data[0][0]
@@ -107,8 +133,6 @@ def main(model, advbox_model, test_loader, attack, attack_config=None):
             # run call to attack, change adversary's status
             adversary = attack(adversary, **attack_config)
 
-        # it is a must or BN will change during forwarding
-        model.eval()
         logits = model(data[0])
         acc = paddle.metric.accuracy(logits, data[1].unsqueeze(0))
         if int(acc) == 1:
@@ -132,10 +156,11 @@ def main(model, advbox_model, test_loader, attack, attack_config=None):
             pbar.set_description('failed, original_label=%d, count=%d'
                                  % (data[1], total_count))
 
-        if total_count >= TOTAL_TEST_NUM:
-            print("[TEST_DATASET]: fooling_count=%d, total_count=%d, fooling_rate=%f, model_acc=%f"
-                  % (fooling_count, total_count, float(fooling_count) / total_count, correct_num / total_count))
-            break
+        # if total_count >= TOTAL_TEST_NUM:
+        #     print("[TEST_DATASET]: fooling_count=%d, total_count=%d, fooling_rate=%f, model_acc=%f"
+        #           % (fooling_count, total_count, float(fooling_count) / total_count, correct_num / total_count))
+        #     break
+    print("[TEST_DATASET]: fooling_count=%d, total_count=%d, fooling_rate=%f, model_acc=%f" % (fooling_count, total_count, float(fooling_count) / total_count, correct_num / total_count))
 
     print("Attack done")
 
@@ -216,21 +241,5 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
 
 
 if __name__ == '__main__':
-    test_loader = paddle.io.DataLoader(test_set, batch_size=BATCH_SIZE, shuffle=True)
-    data = test_loader().next()
 
-    # init a paddle model
-    advbox_model = PaddleWhiteBoxModel(
-        [MODEL],
-        [1],
-        (0, 1),
-        mean=MEAN,
-        std=STD,
-        input_channel_axis=0,
-        input_shape=tuple(data[0].shape[1:]),
-        loss=paddle.nn.CrossEntropyLoss(),
-        nb_classes=CLASS_NUM)
-
-    attack = ATTACK_METHOD(advbox_model, **INIT_CONFIG)
-
-    main(MODEL, advbox_model, test_loader, attack, ATTACK_CONFIG)
+    main()

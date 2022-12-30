@@ -60,7 +60,7 @@ else:
     paddle.set_device("cpu")
 paddle.seed(2021)
 
-def main(image_path):
+def main():
     """
 
     Args:
@@ -72,7 +72,7 @@ def main(image_path):
     # parse args
     args = parser.parse_args()
     print_arguments(args)
-
+    image_path = args.image_path
     # Define what device we are using
     logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
@@ -144,4 +144,4 @@ def main(image_path):
         print('attack failed')
 
 if __name__ == '__main__':
-    main('input/cat_example.png')
+    main()

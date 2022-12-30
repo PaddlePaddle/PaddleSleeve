@@ -923,5 +923,15 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | ResizePadding   | 41.3%  | 8.1%  | 31.0% | 40.2% |
 | FeatureSqueezing (3 bits)| 41.3%  | 8.1%  | 11.6% | 32.5% |
 
+# Other Modules
+## Object Detection Attack
+Module of object detection attack in **[obj_detection](/AdvBox/obj_detection)** .
+
+## Image Segmentation Attack
+Module of image segmentation attack in **[img_segmentation](/AdvBox/img_segmentation)** .
+
+## OCR Attack
+Module of OCR attack in **[text_recognition](/AdvBox/text_recognition)** .
+
 # Contributing
 We appreciate your contributions!

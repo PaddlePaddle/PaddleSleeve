@@ -214,6 +214,9 @@ Adversarial examples are particularly useful because of its transferability (i.e
 As malice adversaries increasingly threat AI security, people have proposed numerous methods to defense the deep learning netweork against the attack. Advbox also provides such defensive tools. The codes for defensive adversarial training are in `obj_detection/attack/defense` directory, and a script `advtrain_launcher.py` that allows user to launch an adversarial training from command-line arguments can also be found there. 
 
 - **Usage**
+  - **Data**
+
+    Need to download coco2017 to PaddleSleeve/obj_detection/dataset/coco in advance. If coco2017 is not available, the script will be downloaded automatically.
 
   - **Config file**
   
@@ -247,7 +250,7 @@ As malice adversaries increasingly threat AI security, people have proposed nume
       TrainDataset:
         !COCODataSet
           image_dir: train2017
-          anno_path: annotations/instances_val2017.json
+          anno_path: annotations/instances_train2017.json
           dataset_dir: dataset/coco
           data_fields: ['image', 'gt_bbox', 'gt_class', 'gt_score', 'is_crowd']
 
@@ -272,7 +275,6 @@ As malice adversaries increasingly threat AI security, people have proposed nume
     cd PaddleSleeve/obj_detection/attack/defense
     python advtrain_launcher.py --model yolov3_darknet53_advtrain --defense natural_advtrain --pretrained True
     ```
-    <sup>*</sup>*Note:* This script needs to download coco2017 to PaddleSleeve/obj_detection/dataset/coco in advance. If coco2017 is not available, the script will be downloaded automatically.
 
     The script will save the model after each epoch. Both the model and optimizer are saved in `PaddleSleeve/obj_detection/attack/outputs/models/`.
 

@@ -917,13 +917,13 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 
 # 其他模块
 ## 目标检测攻击
-目标检测攻击模块在**[obj_detection](/AdvBox/obj_detection)**中。
+目标检测攻击模块在 **[obj_detection](/AdvBox/obj_detection)** 中。
 
 ## 目标分割攻击
-目标分割攻击模块在**[img_segmentation](/AdvBox/img_segmentation)**中。
+目标分割攻击模块在 **[img_segmentation](/AdvBox/img_segmentation)** 中。
 
 ## OCR攻击
-OCR攻击模块在**[text_recognition](/AdvBox/text_recognition)**中。
+OCR攻击模块在 **[text_recognition](/AdvBox/text_recognition)** 中。
 
 # 贡献
 我们感谢您的贡献!

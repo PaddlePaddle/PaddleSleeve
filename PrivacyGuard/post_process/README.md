@@ -22,7 +22,7 @@ Notice: Post-processing models cannot be used directly for training, and if trai
 ## Run Example
 
 ```shell
-
+cd PaddleSleeve/PrivacyGuard/post_process
 python3 post_processing_demo.py
 
 ```

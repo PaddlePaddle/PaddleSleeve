@@ -22,7 +22,6 @@ import os
 import argparse
 import numpy
 import numpy as np
-import pdb
 
 import paddle
 from PIL import Image

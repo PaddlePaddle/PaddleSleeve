@@ -39,7 +39,6 @@ class ClassificationAdversarialTransform(AdvTransform):
                                                                  attacks,
                                                                  init_config_list,
                                                                  attack_config_list)
-
     def _generate_adv_example(self, x, y, attack_method, attack_config):
         """
         A logic for generate adversarial perturbation for x, y.
@@ -56,7 +55,7 @@ class ClassificationAdversarialTransform(AdvTransform):
         if attack_method is None:
             return x, y
         else:
-            adversary = Adversary(x, y)
+            adversary = Adversary(x.numpy(), y)
             # support the CW attack.
             # TODO: more generalizable.
             if isinstance(attack_method, attacks.cw.CWL2Attack):

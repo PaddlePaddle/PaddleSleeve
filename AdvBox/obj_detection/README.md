@@ -1,7 +1,7 @@
 # Advbox - Object Detection 
 Advbox-ObjectDetection is a sub-module of Advbox, which carries out adversarial attacks & defenses on object detection models. It provides users numerous attacking methods, both blackbox and whitebox, that can be deployed to attack object detection models as well as popular defense methods against intended adversaries to protect these models. Additionally, the models repository in this sub-module includes pretrained version of most of the mainstream object detection models that can be used for users' own attacking or defensing test.
 
-This sub-module is designed primarily for object detection models on PaddleDection platform. It depends on the configs directory from PaddleDetection for model configurations and ppdet module from paddledet package for model structure definitions and some auxiliary utility tools. Note that paddledet-2.3.0 is hard-copied into this project, so users need not to install paddledet themselves. Future developers are also welcomed to add their own models on other platforms if desired. 
+This sub-module is designed primarily for object detection models on PaddleDection platform. It depends on the configs directory from PaddleDetection for model configurations and ppdet module from paddledet package for model structure definitions and some auxiliary utility tools. Note that paddledet-2.5.0 is hard-copied into this project, so users need not to install paddledet themselves. Future developers are also welcomed to add their own models on other platforms if desired. 
 
 For object detection tasks, adversarial attackes roughly falls into two categroies: perturbation on the entire image and patch attack. Perturbation on the entire iamge tries to generate adversarial examples by adding a small perturbation to the entire image. Adversaries are allowed to change every pixels in the image, but each pixes can only vaires by a small size. The overall difference between original images and adversarial examples should be small enough to be negligible to human. On the other hand, patch attack aims at fooling the detection model by adding a patch to the input image. The patch can be add to any places inside the image, and can have arbitrary pattern, but its size is restricted. Unless specified otherwise, the term 'attack' refers to entire-image perturbation attack in this document. More details about attacks and patch attacks, including corresponding demos could be found below. 
 
@@ -38,14 +38,26 @@ In Advbox-ObjectDetection, two well-known whitebox attacking methods, CW and PGD
   - `--metric`：Provides different attackingm method. Currently support `carlini_wagner` and `pgd`.
   - `--distance`: The distance metric to be used, choose from `l2` or `linf`
 
+- A kindly Reminder: since paddlepaddle <= 2.1 does not support gradient backward for
+ `paddle.nn.SyncBatchNorm` in eval() mode, to run the demonstration, we need to modify
+ all `sync-bn` components in detector model into `bn` (because `paddle.nn.BatchNorm`
+ supports gradient backward in eval() mode).
+
+ If you want to customize your own demo script, you should try the following methods:
+
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
+ add `norm_type: bn` on the third line.
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn`
+ on the 9 th line.
+
 - **Examples**
   - The following example attacks `yolov3_darknet53` models using cw attack, and l2 distance is used. 
   ```shell
   # Navigate to the correct directory 
-  cd obj_detection/attack/single_attack
+  cd PaddleSleeve/AdvBox/obj_detection/attack/single_attack
 
   # paddle：The results can be found under obj_detection/attacks/examples/images.
-  python attack/single_attack/launcher.py  --model paddledet_yolov3_darknet53 --criteria target_class_miss --target_class 3 --metric carlini_wagner --image motor.jpg --distance l2 
+  python launcher.py  --model paddledet_yolov3_darknet53 --criteria target_class_miss --target_class 3 --metric carlini_wagner --image motor.jpg --distance l2 
   ```
   The above attack outputs the following summary, and a comparasion between original image and the adversarial example is plotted for better visulization effect.
   
@@ -64,7 +76,7 @@ Adversarial examples are particularly useful because of its transferability (i.e
   
     This evaluation script can be executed by the following command
     ```shell
-    cd obj_detection/attack/ensemble_attack
+    cd PaddleSleeve/AdvBox/obj_detection/attack/ensemble_attack
     python serial_attack_eval.py
     ```
     Note that this script does not take command-line arguments. Users should modify the model list<sup>*</sup> and attack settings specification in the code in order to fit their own task. `dataset_dir`is the path to the input images. The default folder contains about 30 images. Users can add/remove images from the folder, or switch to their own test dataset if desired. 
@@ -119,11 +131,14 @@ Adversarial examples are particularly useful because of its transferability (i.e
 - **Weighted Ensemble Attack PGD**
 
   Another method of ensemble attack is to attack all models at the same time. The prediction results from all models are take into account when stepping the adversarial example. It is also possible to assign different weight to to models to be attacked. Models with larger weight may affect the adversarial example more greatly. 
+
+  <sup>*</sup>*Note:* Use PaddlePaddle>=2.2.2 solving dropout eval mode does not support backward computation of gradients. 
   
   - **Usage**
 
     Use the following command to run the PGD ensemble attack
     ```shell
+    cd PaddleSleeve/AdvBox/obj_detection/attack/ensemble_attack
     python weighted_ensemble_attack_pgd.py
     ```
     Similar as in serial ensemble attack, users are welcome to change the list of models to be attacked<sup>*</sup> as well as other configs directly in the code. 
@@ -295,16 +310,20 @@ If you use this code for your research, please cite our [paper](https://arxiv.or
 As malice adversaries increasingly threat AI security, people have proposed numerous methods to defense the deep learning netweork against the attack. Advbox also provides such defensive tools. The codes for defensive adversarial training are in `obj_detection/attack/defense` directory, and a script `advtrain_launcher.py` that allows user to launch an adversarial training from command-line arguments can also be found there. 
 
 - **Usage**
+  - **Data**
+
+    Need to download coco2017 to `PaddleSleeve/AdvBox/obj_detection/dataset/coco` in advance. If coco2017 is not available, the script will be downloaded automatically.
 
   - **Config file**
   
-    The launcher uses yaml files for model declaration and training configurations. These files can be found in `obj_detection/configs` directory, and users can add their own model there. If users want to construct their models on the base of other models, simply declear the base config file at the beginning of their own file and redefine the parameters they would like to overwrite. 
+    The launcher uses yaml files for model declaration and training configurations. These files can be found in `obj_detection/configs` directory, and users can add their own model there. If users want to construct their models on the base of other models, simply declear the base config file at the beginning of their own file and redefine the parameters they would like to overwrite. We also need to add `base_model_name`, which represents the name of the base model to automatically download the weight. 
     
     A sample config file `yolov3_darknet53_advtrain`
       ```yaml
       _BASE_: [
       './yolov3_darknet53_270e_coco.yml',
       ]
+      base_model_name: yolov3_darknet53_270e_coco
 
       epoch: 540
 
@@ -327,15 +346,15 @@ As malice adversaries increasingly threat AI security, people have proposed nume
       TrainDataset:
         !COCODataSet
           image_dir: train2017
-          anno_path: annotations/instances_val2017.json
-          dataset_dir: dataset/coco
+          anno_path: annotations/instances_train2017.json
+          dataset_dir: ../../dataset/coco
           data_fields: ['image', 'gt_bbox', 'gt_class', 'gt_score', 'is_crowd']
 
       EvalDataset:
         !COCODataSet
           image_dir: val2017
           anno_path: annotations/instances_val2017.json
-          dataset_dir: dataset/coco
+          dataset_dir: ../../dataset/coco
 
       ``` 
 
@@ -349,10 +368,11 @@ As malice adversaries increasingly threat AI security, people have proposed nume
   
     Users can initiate an adversarial training by the following command:
     ```shell
-    cd obj_detection/attack/defense
+    cd PaddleSleeve/AdvBox/obj_detection/attack/defense
     python advtrain_launcher.py --model yolov3_darknet53_advtrain --defense natural_advtrain --pretrained True
     ```
-    The script will save the model after each epoch. Both the model and optimizer are saved in `obj_detection/attack/outputs/models/`.
+
+    The script will save the model after each epoch. Both the model and optimizer are saved in `PaddleSleeve/AdvBox/obj_detection/attack/outputs/models/`.
 
 
 
@@ -371,9 +391,9 @@ thus, the attack is able to succeed.
  
  If you want to customize your own demo script, you should try the following methods:
  
-- For object detector like `configs/yolov3/_base_/yolov3_darknet53.yml`,
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/yolov3/_base_/yolov3_darknet53.yml`,
  add `norm_type: bn` on the third line.
-- For object detector like `configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
+- For object detector like `PaddleSleeve/AdvBox/obj_detection/configs/ppyolo/ppyolo_mbv3_large_coco.yml`, add `norm_type: bn` 
  on the 9 th line.
 
 ### Run Target Patch Adversarial Train

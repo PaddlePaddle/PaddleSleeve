@@ -10,7 +10,7 @@
 
 首先需要按照说明安装privbox（[安装教程](../../../README_cn.md###安装)），安装成功后，运行：
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/membership_inference/ml_leaks_with_cifar10_cifar100
 python3 ml_leaks_with_cifar10_cifar100.py
 
 ```
@@ -35,6 +35,11 @@ python3 ml_leaks_with_cifar10_cifar100.py
 输入参数：
 ```shell
 batch_size=128, classifier_epoch=10, classifier_lr=0.0002, shadow_dataset='cifar10', shadow_epoch=10, shadow_lr=0.0002, shadow_model='resnet18', target_dataset='cifar10', target_epoch=10, target_lr=0.0002, topk=10
+```
+
+命令行：
+```shell
+python ml_leaks_with_cifar10_cifar100.py --batch_size=128 --classifier_epoch=10 --classifier_lr=0.0002 --shadow_dataset='cifar10' --shadow_epoch=10 --shadow_lr=0.0002 --shadow_model='resnet18' --target_dataset='cifar10' --target_epoch=10 --target_lr=0.0002 --topk=10
 ```
 
 评估结果：

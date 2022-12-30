@@ -12,9 +12,11 @@
 同时，`dgc_demo.py`还加入了DLG攻击选项（攻击详见文件`PrivBox/inversion/dlg.py`），方便从攻击的角度来衡量梯度压缩的隐私保护效果。例子具体使用方法如下：
 
 ## 运行例子
+运行之前需要先安装PaddleSleeve/PrivBox，[`安装教程`](../../PrivBox/README_cn.md#%E5%AE%89%E8%A3%85) 
+
 
 ```shell
-
+cd PaddleSleeve/PrivacyGuard/gradient_compress
 python3 dgc_demo.py
 
 ```
@@ -48,6 +50,11 @@ python3 dgc_demo.py
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=True, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.001, use_dgc=True, window_size=200
 ```
 
+命令行：
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=True --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.001 --use_dgc=True --window_size=200
+```
+
 输出结果：
 
 ```shell
@@ -63,6 +70,11 @@ Attack Iteration 1900: data_mse_loss = 0.024529650807380676, data_psnr = 16.1030
 输入参数：
 ```shell
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=True, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.01, use_dgc=False, window_size=200
+```
+
+命令行：
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=True --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.01 --use_dgc=False --window_size=200
 ```
 
 输出结果：
@@ -85,6 +97,11 @@ Attack Iteration 1900: data_mse_loss = 0.00013265199959278107, data_psnr = 38.77
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=False, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.01, use_dgc=False, window_size=200
 ```
 
+命令行：
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=False --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.01 --use_dgc=False --window_size=200
+```
+
 输出结果：
 
 ```shell
@@ -101,6 +118,11 @@ epoch 1, batch id 900, training loss 0.2521766424179077, acc 0.9057991120976693.
 输入参数：
 ```shell
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=False, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.001, use_dgc=True, window_size=200
+```
+
+命令行：
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=False --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.001 --use_dgc=True --window_size=200
 ```
 
 输出结果：

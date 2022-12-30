@@ -21,7 +21,7 @@ TopK方法只让模型输出最高的k项，不输出其他项，一定程度上
 ## 运行例子
 
 ```shell
-
+cd PaddleSleeve/PrivacyGuard/post_process
 python3 post_processing_demo.py
 
 ```

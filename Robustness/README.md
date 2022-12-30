@@ -33,7 +33,7 @@ It inherits the design from foolbox, and is designed to be agnostic to the deep 
 ## 1. Installation
 
 ```shell
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # Create and activate conda virtual environment (not required)
 conda create -n perce python=3.7
@@ -114,7 +114,7 @@ This project supports two calling methods, which can be called through command l
 ```shell
 # Use the paddle framework, use the picture Robustness/perceptron/utils/images/example.jpg Gaussian smooth attack pre-trained model restnet18
 
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # paddle：The results can be found under Robustness/examples/images.
 python perceptron/launcher.py  --framework paddle --model resnet18 --criteria misclassification --metric gaussian_blur --image example.jpg
@@ -167,12 +167,12 @@ PytorcHub-YOLOv5s
 
 ### 2.2 Script file call
 
-Examples of script files for paddle and pytorch are given in the directory paddleshield/Robustness/examples.
+Examples of script files for paddle and pytorch are given in the directory PaddleSleeve/Robustness/examples.
 
 - **Examples**
 
 ```shell
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 # The results can be found under Robustness/examples/images.
 python examples/paddle_sp_example.py
@@ -276,7 +276,7 @@ We take Brightness as an example of attack and provide evaluation code for user-
 - **Examples**
 
 ```shell
-cd paddleshield/Robustness
+cd PaddleSleeve/Robustness
 
 python examples/paddle_userupload_br.py
 ```

@@ -26,7 +26,7 @@ import paddle.distributed as dist
 from defences.utils import *
 from defences.pgd_perturb import PGDTransform
 from defences.advtrain_natural import adversarial_train_natural
-from examples.image_cls.miniimagenet import MINIIMAGENET
+from examples.dataset.mini_imagenet import MINIIMAGENET
 
 # Mini-Imagenet
 MEAN = [0.485, 0.456, 0.406]
@@ -35,15 +35,18 @@ STD = [0.229, 0.224, 0.225]
 
 def main():
     # Load dataset
-    transform = T.Compose([T.Normalize(MEAN, STD, data_format='CHW')])
+    transform = T.Compose([
+        T.ToTensor(),
+        T.Normalize(MEAN, STD, data_format='CHW')
+    ])
 
     # Change to your dataset
-    train_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                      'dataset/mini-imagenet/mini-imagenet-cache-train.pkl')
-    val_dataset_path = os.path.join(os.path.realpath(__file__ + "../" * 3),
-                                    'dataset/mini-imagenet/mini-imagenet-cache-test.pkl')
+    train_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                      'dataset/mini-imagenet/re_split_mini-imagenet-cache-train.pkl')
+    val_dataset_path = os.path.join(os.path.realpath(__file__ + "/../.."),
+                                    'dataset/mini-imagenet/re_split_mini-imagenet-cache-test.pkl')
 
-    label_path = os.path.join(os.path.realpath(__file__ + "../" * 3), 'dataset/mini-imagenet/mini_imagenet_labels.txt')
+    label_path = os.path.join(os.path.realpath(__file__ + "/../.."), 'dataset/mini-imagenet/re_split_mini-imagenet_labels.txt')
 
     train_dataset = MINIIMAGENET(dataset_path=train_dataset_path,
                                  label_path=label_path,
@@ -81,6 +84,8 @@ def main():
               'adversarial_trans': advtrans,
               'optimizer': opt,
               'lr': scheduler,
+              'model_para_name': 'advtrain_natural',
+              'model_opt_para_name': 'model_opt_para_name',
               'weights': None,
               'opt_weights': None}
 

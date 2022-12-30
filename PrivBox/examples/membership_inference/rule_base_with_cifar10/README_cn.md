@@ -7,7 +7,7 @@
 
 首先需要按照说明安装privbox（[安装教程](../../../README_cn.md###安装)），安装成功后，运行：
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/membership_inference/rule_base_with_cifar10
 python3 baseline_with_cifar10.py
 
 ```
@@ -23,6 +23,11 @@ python3 baseline_with_cifar10.py
 输入参数：
 ```shell
 batch_size=128, train_epoch=10, train_lr=0.0002
+```
+
+命令行：
+```shell
+python baseline_with_cifar10.py --batch_size=128 --train_epoch=10 --train_lr=0.0002
 ```
 
 评估结果：

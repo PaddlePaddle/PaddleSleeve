@@ -7,7 +7,6 @@ import EOT_simulation.eulerangles as eu
 
 import cv2
 import xmltodict
-import pdb
 import numpy
 HALF_SZ = 224
 # HALF_SZ = 1512

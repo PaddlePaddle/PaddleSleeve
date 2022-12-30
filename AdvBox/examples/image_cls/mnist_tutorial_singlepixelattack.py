@@ -36,7 +36,7 @@ from examples.utils import add_arguments, print_arguments
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
-add_arg('target', int, -1, "target class.")
+#add_arg('target', int, -1, "target class.")
 
 USE_GPU = paddle.get_device()
 if USE_GPU.startswith('gpu'):
@@ -113,10 +113,10 @@ def main():
         img = np.reshape(x_data.numpy(), [1, 28, 28])
         adversary = Adversary(img, int(y_data[0]))
         # SinglePixelAttack attack
-        target_class = args.target
-        if target_class != -1:
-            tlabel = target_class
-            adversary.set_status(is_targeted_attack=True, target_label=tlabel)
+        # target_class = args.target
+        # if target_class != -1:
+        #    tlabel = target_class
+        #    adversary.set_status(is_targeted_attack=True, target_label=tlabel)
 
         adversary = attack(adversary, **attack_config)
 

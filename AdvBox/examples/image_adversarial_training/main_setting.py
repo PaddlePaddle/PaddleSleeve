@@ -18,14 +18,15 @@ Contains:
 * Towernet finetuning with PGD advtraining mode on Mini-ImageNet.
 * The other experiments to be finished.
 """
+import os
+
 import paddle
 from paddle.regularizer import L2Decay
 print(paddle.__version__)
-from defences.advtrain_natural import adverarial_train_natural
+from defences.advtrain_natural import adversarial_train_natural
 from defences.advtrain_trades import adverarial_train_trades
-from defences.advtrain_awp import adversarial_train_awp
 from attacks.gradient_method import FGSM, PGD
-from attacks.logits_dispersion import LOGITS_DISPERSION
+from attacks.logits_dispersion import LD
 
 """
 According to the DL theory, the adversarial training is similar to adding a regularization
@@ -37,313 +38,142 @@ robust model in adversarial training, we have to adjust model structure (wider o
 #################################################################################################################
 # CHANGE HERE: try different data augmentation methods and model type.
 # TODO: use parse_args...
-model_zoo = ("towernet", "preactresnet", "mobilenet", "resnet", "pretrained_vgg16")
-training_zoo = ("base", "advtraining", "advtraining_TRADES_PGD", "advtraining_TRADES_LD", "advtraining_AWP_FGSM")
+model_zoo = ("towernet", "preactresnet")
+training_zoo = ("base", "advtraining_natural", "advtraining_TRADES")
 dataset_zoo = ("cifar10", "mini-imagenet")
-pretrain_choices = ('yes', 'no')
+attack_zoo = ("FGSM", "LD", "PGD")
+use_base_pretrain_zoo = ("yes", "no")
 
-model_choice = input("choose {model_zoo}:".format(model_zoo=model_zoo))
-training_choice = input("choose {training_zoo}:".format(training_zoo=training_zoo))
-dataset_choice = input("choose {dataset_zoo}:".format(dataset_zoo=dataset_zoo))
-use_pretrain = input("choose if pretrain {pretrain_choices}:".format(pretrain_choices=pretrain_choices))
+def assert_input(model_choice, training_choice, dataset_choice, attack_choice, use_base_pretrain):
+    assert model_choice in model_zoo, 'Only support model in {model_zoo}.'.format(model_zoo=model_zoo)
+    assert training_choice in training_zoo, 'Only support training method in {training_zoo}.'.format(training_zoo=training_zoo)
+    assert dataset_choice in dataset_zoo, 'Only support dataset in {dataset_zoo}.'.format(dataset_zoo=dataset_zoo)
+    assert attack_choice in attack_zoo, 'Only support attack method in {attack_zoo}'.format(attack_zoo=attack_zoo)
+    assert use_base_pretrain in use_base_pretrain_zoo, 'use_base_pretrain only support in {use_base_pretrain_zoo}'.format(use_base_pretrain_zoo=use_base_pretrain_zoo)
+    
 
-assert model_choice in model_zoo
-assert training_choice in training_zoo
-assert dataset_choice in dataset_zoo
+def get_mean_and_std(dataset_choice):
+    if dataset_choice == 'cifar10':
+        MEAN = [0.491, 0.482, 0.447]
+        STD = [0.247, 0.243, 0.262]
+    elif dataset_choice == 'mini-imagenet':
+        MEAN = [0.485, 0.456, 0.406]
+        STD = [0.229, 0.224, 0.225]
+    return MEAN, STD
 
-MODEL_PARA_NAME = training_choice + '_net_'
-MODEL_OPT_PARA_NAME = training_choice + '_optimizer_'
-if model_choice == 'towernet':
-    # training process value
+# Model Setting
+def get_model_setting(model_choice, dataset_choice):
+
+    if model_choice == 'towernet':
+        from examples.classifier.towernet import get_transform, TowerNet
+        if dataset_choice == dataset_zoo[0]:
+            model = TowerNet(3, 10, wide_scale=1)
+        elif dataset_choice == dataset_zoo[1]:
+            model = TowerNet(3, 100, wide_scale=1)
+
+    elif model_choice == 'preactresnet':
+        from examples.classifier.preactresnet import get_transform, preactresnet18
+        if dataset_choice == dataset_zoo[0]:
+            model = preactresnet18(num_classes=10)
+        elif dataset_choice == dataset_zoo[1]:
+            model = preactresnet18(num_classes=100)
+
+    mean, std = get_mean_and_std(dataset_choice)
+    transform_train = get_transform(mean, std, 'train')
+    transform_eval = get_transform(mean, std, 'eval')
+
+    return model, mean, std, transform_train, transform_eval
+
+
+def get_save_path(model_choice, training_choice, dataset_choice, attack_choice, use_base_pretrain):
+    if training_choice == 'base':
+        save_path = "./tutorial_result/%s/%s/%s/" % (dataset_choice, model_choice, training_choice)
+    else:
+        if use_base_pretrain == 'yes':
+            save_path = "./tutorial_result/%s/%s/%s_finetuned/%s/" % (dataset_choice, model_choice, training_choice, attack_choice)
+        else:
+            save_path = "./tutorial_result/%s/%s/%s/%s/" % (dataset_choice, model_choice, training_choice, attack_choice)
+    return save_path
+
+# Attack Setting
+def get_attack_setting(attack_choice):
+    if attack_choice == 'FGSM':
+        attack_method = FGSM
+        init_config = {"norm": "Linf", "epsilon_ball": 8/255, "epsilon_stepsize": 2/255}
+        attack_config = {}
+    elif attack_choice == 'LD':
+        attack_method = LD
+        init_config = {"norm": "Linf", "epsilon_ball": 8/255}
+        attack_config = {"steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
+    elif attack_choice == 'PGD':
+        attack_method = PGD
+        init_config = {"norm": "Linf", "epsilon_ball": 8 / 255, "epsilon_stepsize": 2 / 255}
+        attack_config = {}
+    return attack_method, init_config, attack_config
+
+def get_model_para_name(training_choice):
+    return training_choice + '_net_'
+
+def get_opt_para_name(training_choice):
+    return training_choice + '_optimizer_'
+
+# Training Setting
+def get_train_method_setting(model, training_choice):
+
+    # Training Process Value Setting
+    MODEL_PARA_NAME = get_model_para_name(training_choice)
+    MODEL_OPT_PARA_NAME = get_opt_para_name(training_choice)
     EPOCH_NUM = 80
     ADVTRAIN_START_NUM = 0
     BATCH_SIZE = 256
-    advtrain_settings = {"epoch_num": EPOCH_NUM,
-                         "advtrain_start_num": ADVTRAIN_START_NUM,
-                         "batch_size": BATCH_SIZE,
-                         "model_para_name": MODEL_PARA_NAME,
-                         "model_opt_para_name": MODEL_OPT_PARA_NAME}
 
-    from examples.classifier.towernet import transform_train, transform_eval, MEAN, STD, TowerNet
-    if dataset_choice == dataset_zoo[0]:
-        model = TowerNet(3, 10, wide_scale=1)
-    elif dataset_choice == dataset_zoo[1]:
-        model = TowerNet(3, 100, wide_scale=1)
-    else:
-        exit(0)
+    advtrain_settings = {
+        "epoch_num": EPOCH_NUM,
+        "advtrain_start_num": ADVTRAIN_START_NUM,
+        "batch_size": BATCH_SIZE,
+        "model_para_name": MODEL_PARA_NAME,
+        "model_opt_para_name": MODEL_OPT_PARA_NAME
+    }
 
-    # TowerNet
-    if training_choice == training_zoo[0]:
-        attack_method = None
-        adverarial_train = adverarial_train_natural
-        init_config = None
+    # Train method setting
+    if training_choice == 'base':
+        adverarial_train = adversarial_train_natural
         # "p" controls the probability of this enhance.
         # for base model training, we set "p" == 0, so we skipped adv trans data augmentation.
         enhance_config = {"p": 0}
-        opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
-    elif training_choice == training_zoo[1]:
-        # use adversarial training in finetuning scenario.
-        if use_pretrain == 'yes':
-            import sys
-            sys.path.append("../..")
-            from examples.utils import get_best_weigthts_from_folder
-            # in examples.image_adversarial_training, run `python run_advtrain_main.py` to train a pretrain model.
-            model_path = get_best_weigthts_from_folder("../cifar10/towernet_base_cifar10_tutorial_result", "base_net_")
-            model_state_dict = paddle.load(model_path)
-            model.set_state_dict(model_state_dict)
-        else:
-            pass
 
-        attack_method = PGD
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        # for adv trained model, we set "p" == 0.05, which means each batch
-        # will probably contain 3% adv trans augmented data.
+    elif training_choice == 'advtraining_natural':
+        adverarial_train = adversarial_train_natural
         enhance_config = {"p": 0.1}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-    elif training_choice == training_zoo[2]:
-        attack_method = PGD
+
+    elif training_choice == 'advtraining_TRADES':
         adverarial_train = adverarial_train_trades
-        init_config = None
-        # 100% of each input batch will be convert into adv augmented data.
         enhance_config = {"p": 1}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
         advtrain_settings["TRADES_beta"] = 1
-    elif training_choice == training_zoo[3]:
-        attack_method = LOGITS_DISPERSION
-        adverarial_train = adverarial_train_trades
-        init_config = {"norm": "Linf"}
-        enhance_config = {"p": 1, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
+
+    if training_choice == 'base':
+        opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
+    else:
         opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        advtrain_settings["TRADES_beta"] = 1
-    else:
-        exit(0)
     advtrain_settings["optimizer"] = opt
+    return adverarial_train, enhance_config, advtrain_settings
 
-elif model_choice == 'mobilenet':
-    # training process value
-    EPOCH_NUM = 24
-    ADVTRAIN_START_NUM = 0
-    BATCH_SIZE = 1024
-    advtrain_settings = {"epoch_num": EPOCH_NUM,
-                         "advtrain_start_num": ADVTRAIN_START_NUM,
-                         "batch_size": BATCH_SIZE,
-                         "model_para_name": MODEL_PARA_NAME,
-                         "model_opt_para_name": MODEL_OPT_PARA_NAME}
-
-    from examples.classifier.mobilenet_v3 import transform_train, transform_eval, MEAN, STD
-    from examples.classifier.mobilenet_v3 import MobileNetV3_large_x1_0, MobileNetV3_large_x1_25
-    path = '../classifier/pretrained_weights/MobileNetV3_large_x1_0_imagenet1k_pretrained.pdparams'
-    model_state_dict = paddle.load(path)
-    # MobileNet V3
-    if training_choice == "base":
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0}
-        model = MobileNetV3_large_x1_0(class_dim=10)
-        model.set_state_dict(model_state_dict)
-    elif training_choice == "advtraining":
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0.05}
-        # adv trained model
-        with paddle.utils.unique_name.guard():
-            model = MobileNetV3_large_x1_0(class_dim=10)
-    else:
-        exit(0)
-    scheduler = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=0.004, T_max=5, verbose=True)
-    opt = paddle.optimizer.Adam(learning_rate=scheduler, parameters=model.parameters())
-    advtrain_settings["optimizer"] = opt
-
-elif model_choice == 'resnet':
-    # training process value
-    EPOCH_NUM = 5
-    ADVTRAIN_START_NUM = 0
-    BATCH_SIZE = 256
-    advtrain_settings = {"epoch_num": EPOCH_NUM,
-                         "advtrain_start_num": ADVTRAIN_START_NUM,
-                         "batch_size": BATCH_SIZE,
-                         "model_para_name": MODEL_PARA_NAME,
-                         "model_opt_para_name": MODEL_OPT_PARA_NAME}
-
-    from examples.classifier.resnet_vd import transform_train, transform_eval, MEAN, STD, ResNet50_vd
-    path = '../classifier/pretrained_weights/ResNet50_vd_ssld_pretrained.pdparams'
-    model_state_dict = paddle.load(path)
-    # ResNet V50
-    if training_choice == "base":
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0}
-        model = ResNet50_vd(class_dim=10)
-        model.set_state_dict(model_state_dict)
-    elif training_choice == "advtraining":
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0.03}
-        # adv trained model
-        with paddle.utils.unique_name.guard():
-            model = ResNet50_vd(class_dim=10)
-            model.set_state_dict(model_state_dict)
-    else:
-        exit(0)
-    scheduler = paddle.optimizer.lr.CosineAnnealingDecay(learning_rate=0.001, T_max=10, verbose=True)
-    opt = paddle.optimizer.Momentum(learning_rate=scheduler, momentum=0.9,
-                                    parameters=model.parameters(), weight_decay=L2Decay(0.0001))
-    advtrain_settings["optimizer"] = opt
-
-elif model_choice == 'preactresnet':
-    # training process value
-    EPOCH_NUM = 80
-    ADVTRAIN_START_NUM = 0
-    BATCH_SIZE = 256
-    advtrain_settings = {"epoch_num": EPOCH_NUM,
-                         "advtrain_start_num": ADVTRAIN_START_NUM,
-                         "batch_size": BATCH_SIZE,
-                         "model_para_name": MODEL_PARA_NAME,
-                         "model_opt_para_name": MODEL_OPT_PARA_NAME}
-
-    from examples.classifier.preactresnet import transform_train, transform_eval, MEAN, STD, preactresnet18
+# Dataset Setting
+def get_dataset(dataset_choice, mode, transform):
+    assert dataset_choice in dataset_zoo, 'Only support dataset in {dataset_zoo}.'.format(dataset_zoo=dataset_zoo)
     if dataset_choice == dataset_zoo[0]:
-        model = preactresnet18(num_classes=10)
+        dataset = paddle.vision.datasets.Cifar10(mode=mode, transform=transform)
+        class_num = 10
     elif dataset_choice == dataset_zoo[1]:
-        model = preactresnet18(num_classes=100)
-    else:
-        exit(0)
-
-    if training_choice == training_zoo[0]:
-        attack_method = None
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0}
-        opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
-    elif training_choice == training_zoo[1]:
-        attack_method = PGD
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0.1}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-    elif training_choice == training_zoo[2]:
-        attack_method = PGD
-        adverarial_train = adverarial_train_trades
-        init_config = None
-        enhance_config = {"p": 1}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        advtrain_settings["TRADES_beta"] = 1
-    elif training_choice == training_zoo[3]:
-        attack_method = LOGITS_DISPERSION
-        adverarial_train = adverarial_train_trades
-        init_config = {"norm": "Linf"}
-        enhance_config = {"p": 1, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        advtrain_settings["TRADES_beta"] = 1
-    elif training_choice == training_zoo[4]:
-        attack_method = PGD
-        adverarial_train = adversarial_train_awp
-        init_config = {"norm": "Linf"}
-        enhance_config = {"p": 0.5, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        # TODO: undecided where to put.
-        # advtrain_settings["AWP_adversary"] = AdvWeightPerturb(MODEL, gamma=0.005)
-    else:
-        exit(0)
-    advtrain_settings["optimizer"] = opt
-
-# TODO: change here!
-elif model_choice == 'pretrained_vgg16':
-    # training process value
-    EPOCH_NUM = 80
-    ADVTRAIN_START_NUM = 0
-    BATCH_SIZE = 256
-    advtrain_settings = {"epoch_num": EPOCH_NUM,
-                         "advtrain_start_num": ADVTRAIN_START_NUM,
-                         "batch_size": BATCH_SIZE,
-                         "model_para_name": MODEL_PARA_NAME,
-                         "model_opt_para_name": MODEL_OPT_PARA_NAME}
-    MEAN = [0.485, 0.456, 0.406]
-    STD = [0.229, 0.224, 0.225]
-    # Set the testing set
-    from paddle.vision import transforms as T
-    transform_train = T.Compose([T.Resize((224, 224)),
-                                 T.RandomHorizontalFlip(0.5),
-                                 T.RandomVerticalFlip(0.5),
-                                 T.Transpose(),
-                                 T.Normalize(
-                                     mean=[0, 0, 0],
-                                     std=[255, 255, 255]),
-                                 T.Normalize(MEAN, STD, data_format='CHW')
-                                 ])
-    transform_eval = T.Compose([T.Resize((224, 224)),
-                                 T.Transpose(),
-                                 T.Normalize(
-                                     mean=[0, 0, 0],
-                                     std=[255, 255, 255]),
-                                 T.Normalize(MEAN, STD, data_format='CHW')
-                                ])
-    model = paddle.vision.models.vgg16(pretrained=True)
-
-    if training_choice == training_zoo[0]:
-        attack_method = None
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0}
-        opt = paddle.optimizer.Adam(learning_rate=0.001, parameters=model.parameters())
-    elif training_choice == training_zoo[1]:
-        attack_method = FGSM
-        adverarial_train = adverarial_train_natural
-        init_config = None
-        enhance_config = {"p": 0.1}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-    elif training_choice == training_zoo[2]:
-        attack_method = FGSM
-        adverarial_train = adverarial_train_trades
-        init_config = None
-        enhance_config = {"p": 1}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        advtrain_settings["TRADES_beta"] = 1
-    elif training_choice == training_zoo[3]:
-        attack_method = LOGITS_DISPERSION
-        adverarial_train = adverarial_train_trades
-        init_config = {"norm": "Linf"}
-        enhance_config = {"p": 1, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        advtrain_settings["TRADES_beta"] = 1
-    elif training_choice == training_zoo[4]:
-        attack_method = FGSM
-        adverarial_train = adversarial_train_awp
-        init_config = {"norm": "Linf"}
-        enhance_config = {"p": 0.5, "steps": 10, "dispersion_type": "softmax_kl", "verbose": False}
-        opt = paddle.optimizer.Adam(learning_rate=0.0005, parameters=model.parameters())
-        # TODO: undecided where to put.
-        # advtrain_settings["AWP_adversary"] = AdvWeightPerturb(MODEL, gamma=0.005)
-    else:
-        exit(0)
-    advtrain_settings["optimizer"] = opt
-
-else:
-    exit(0)
-
-
-if dataset_choice == dataset_zoo[0]:
-    train_set = paddle.vision.datasets.Cifar10(mode='train', transform=transform_train)
-    test_set = paddle.vision.datasets.Cifar10(mode='test', transform=transform_eval)
-    CLASS_NUM = 10
-elif dataset_choice == dataset_zoo[1]:
-    from examples.dataset.mini_imagenet1 import MiniImageNet1
-    train_set = MiniImageNet1(mode='train', transform=transform_train)
-    test_set = MiniImageNet1(mode='test', transform=transform_eval)
-    CLASS_NUM = 100
-else:
-    exit(0)
-
-#################################################################################################################
-MODEL = model
-# all model weights will be saved under MODEL_PATH
-p = enhance_config['p']
-if use_pretrain == 'yes':
-    MODEL_PATH = '../cifar10/' + str(model_choice) + '_' + str(training_choice) + '_finetuned' + '_' + str(dataset_choice) + '_tutorial_result/'
-else:
-    MODEL_PATH = '../cifar10/' + str(model_choice) + '_' + str(training_choice) + '_' + str(dataset_choice) +'_tutorial_result/'
-# dataset
-MEAN = MEAN
-STD = STD
-#################################################################################################################
+        from examples.dataset.mini_imagenet import MINIIMAGENET
+        if mode == 'train':
+            cached_path = '../dataset/mini-imagenet/re_split_mini-imagenet-cache-train.pkl'
+        elif mode == 'test':
+            cached_path = '../dataset/mini-imagenet/re_split_mini-imagenet-cache-test.pkl'
+        else:
+            print('mini-imagenet only support mode in ["train", "test"].')
+            exit(0)
+        label_path = '../dataset/mini-imagenet/re_split_mini-imagenet_labels.txt'
+        dataset = MINIIMAGENET(dataset_path=cached_path, label_path=label_path, mode=mode, transform=transform)
+        class_num = 100
+    return dataset, class_num

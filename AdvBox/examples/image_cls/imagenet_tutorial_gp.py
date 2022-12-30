@@ -60,7 +60,7 @@ else:
     paddle.set_device("cpu")
 paddle.seed(2021)
 
-def main(image_path):
+def main():
     """
 
     Args:
@@ -72,7 +72,7 @@ def main(image_path):
     # parse args
     args = parser.parse_args()
     print_arguments(args)
-
+    image_path = args.image_path
     # Define what device we are using
     logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
@@ -138,10 +138,10 @@ def main(image_path):
         adv = np.clip(adv, 0, 255).astype(np.uint8)
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
-        cv2.imwrite('output/img_adv_fgsm.png', adv_cv)
+        cv2.imwrite('output/img_adv_gp.png', adv_cv)
         show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
 
 if __name__ == '__main__':
-    main('input/cat_example.png')
+    main()

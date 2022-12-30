@@ -16,6 +16,7 @@ paddle2 model adversarial training based on TRADES.
 * Theoretically Principled Trade-off between Robustness and Accuracy.
 * https://arxiv.org/abs/1901.08573
 """
+import os
 import sys
 sys.path.append("../..")
 import paddle
@@ -65,26 +66,29 @@ def adverarial_train_trades(model, train_set, test_set, save_path=None, **kwargs
     valid_loader = paddle.io.DataLoader(test_set, batch_size=batch_size)
     max_acc = 0
     for epoch in range(epoch_num):
+        # make sure gradient flow for model parameter
+        for param in model.parameters():
+            param.stop_gradient = False
         for batch_id, data in enumerate(train_loader()):
             x_data = data[0]
             y_data = paddle.unsqueeze(data[1], 1)
             # adversarial training late start
             if epoch >= advtrain_start_num and adversarial_trans is not None:
-                x_data_augmented, y_data_augmented = adversarial_trans(x_data.numpy(), y_data.numpy())
+                model.eval()
+                #x_data_augmented, y_data_augmented = adversarial_trans(x_data, y_data[0])
+                x_data_augmented, y_data_augmented = adversarial_trans(x_data, y_data)
+                x_data_augmented = paddle.Tensor(x_data_augmented)
+                y_data_augmented = paddle.Tensor(y_data_augmented)
             else:
                 print("adversarial_trans is None!!")
                 x_data_augmented, y_data_augmented = x_data, y_data
-            # turn model into training mode
-            model.train()
-            # make sure gradient flow for model parameter
-            for param in model.parameters():
-                param.stop_gradient = False
 
             # numpy to paddle.Tensor
-            x_data_augmented = paddle.to_tensor(x_data_augmented, dtype='float32', place=USE_GPU)
-            y_data_augmented = paddle.to_tensor(y_data_augmented, dtype='int64', place=USE_GPU)
+            #x_data_augmented = paddle.to_tensor(x_data_augmented, dtype='float32', place=USE_GPU)
+            #y_data_augmented = paddle.to_tensor(y_data_augmented, dtype='int64', place=USE_GPU)
             y_data_augmented = paddle.unsqueeze(y_data_augmented, 1)
 
+            model.train()
             # TODO: seperate trades loss out for awp to call.
             logits = model(x_data)
             loss_ce = F.cross_entropy(logits, y_data_augmented)
@@ -122,6 +126,8 @@ def adverarial_train_trades(model, train_set, test_set, save_path=None, **kwargs
         avg_loss = round(avg_loss, 6)
         if avg_acc > max_acc:
             max_acc = avg_acc
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
             paddle.save(model.state_dict(), save_path + model_para_name + str(max_acc) + '.pdparams')
             paddle.save(opt.state_dict(), save_path + model_opt_para_name + str(max_acc) + '.pdopt')
             print("best saved at: ", save_path)

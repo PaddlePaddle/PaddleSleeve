@@ -129,6 +129,8 @@ class DLGInversionAttack(InversionAttack):
                 updater_idx = (updater_idx + 1) % self.data_shape[0]
                 iter_count = 0
             
+            dummy_x.stop_gradient = True
+            dummy_y.stop_gradient = True
             dummy_x[updater_idx] = paddle.subtract(dummy_x[updater_idx], self.learning_rate * x_grad[0][updater_idx])
             dummy_y[updater_idx] = paddle.subtract(dummy_y[updater_idx], self.learning_rate * y_grad[0][updater_idx])
 

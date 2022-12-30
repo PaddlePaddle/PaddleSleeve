@@ -11,7 +11,7 @@ The example illustrates how to use the ML-Leaks membership inference attack modu
 
 Install the `privbox` tool ([Installation](../../../README.md###Installation)) firstly, then run the example as:
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/membership_inference/ml_leaks_with_cifar10_cifar100
 python3 ml_leaks_with_cifar10_cifar100.py
 
 ```
@@ -37,6 +37,11 @@ Input Parameters：
 
 ```shell
 batch_size=128, classifier_epoch=10, classifier_lr=0.0002, shadow_dataset='cifar10', shadow_epoch=10, shadow_lr=0.0002, shadow_model='resnet18', target_dataset='cifar10', target_epoch=10, target_lr=0.0002, topk=10
+```
+
+Command Line
+```shell
+python ml_leaks_with_cifar10_cifar100.py --batch_size=128 --classifier_epoch=10 --classifier_lr=0.0002 --shadow_dataset='cifar10' --shadow_epoch=10 --shadow_lr=0.0002 --shadow_model='resnet18' --target_dataset='cifar10' --target_epoch=10 --target_lr=0.0002 --topk=10
 ```
 
 Evaluation Result：

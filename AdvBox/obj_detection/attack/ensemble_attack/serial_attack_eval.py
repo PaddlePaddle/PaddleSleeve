@@ -78,7 +78,7 @@ if __name__ == "__main__":
     model_list = ["paddledet_yolov3_darknet53", "paddledet_faster_rcnn_resnet50_fpn"]
     victim_model_name = "paddledet_yolov3_mobilenet_v3_large"
 
-    dataset_dir = os.path.dirname(os.path.realpath(__file__ + '../../')) + '/utils/images/ensemble_demo'
+    dataset_dir = os.path.dirname(os.path.realpath(__file__ + '/..')) + '/utils/images/ensemble_demo'
 
     # Change the attacking config below
     dist = 'l2'
@@ -176,7 +176,7 @@ if __name__ == "__main__":
           .format(num_test, np.mean(np.array(orig_conf)), np.mean(np.array(transfer_conf))))
 
     if best_data is not None and best_adv is not None:
-        img_dir = os.path.dirname(os.path.realpath(__file__ + '../..')) + '/outputs/images'
+        img_dir = os.path.dirname(os.path.realpath(__file__ + '/..')) + '/outputs/images'
         if not os.path.exists(img_dir):
             os.makedirs(img_dir)
         vic._data = best_data

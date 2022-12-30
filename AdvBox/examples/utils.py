@@ -165,7 +165,7 @@ def show_images_diff(original_img, original_label, adversarial_img, adversarial_
 
     """
 
-    plt.figure()
+    plt.figure(figsize=(6.4, 2.5))
 
     plt.subplot(131)
     plt.title('Original')
@@ -342,10 +342,10 @@ def show_input_adv_and_denoise(image_a, image_b, image_c, image_d, \
     yos = 10    # offset to y of the second line
 
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6.4, 2.5))
 
     title = 'Denoise method: ' + method
-    fig.suptitle(title, fontsize=12, fontweight='bold', y=0.80)
+    fig.suptitle(title, fontsize=12, fontweight='bold', y=0.92)
 
     plt.subplot(141)
     plt.title(image_a_title)

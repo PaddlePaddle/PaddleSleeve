@@ -10,7 +10,7 @@
 
 首先需要按照说明安装privbox（[安装教程](../../../README_cn.md###安装)），安装成功后，运行：
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/inversion/dlg_with_mnist
 python3 dlg_inversion_with_mnist.py
 
 ```
@@ -32,6 +32,11 @@ python3 dlg_inversion_with_mnist.py
 输入参数：
 ```shell
 attack_epoch=2000, batch_size=1, learning_rate=0.2, result_dir='./att_results', return_epoch=100, window_size=200
+```
+
+命令行：
+```shell
+python3 dlg_inversion_with_mnist.py --attack_epoch=2000 --batch_size=1 --learning_rate=0.2 --result_dir='./att_results' --return_epoch=100 --window_size=200
 ```
 
 输出结果：

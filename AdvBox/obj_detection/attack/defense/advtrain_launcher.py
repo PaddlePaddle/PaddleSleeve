@@ -17,9 +17,8 @@ paddle2 model adversarial training
 import argparse
 import os
 import sys
-work_dir = os.path.abspath(os.getcwd())
-sys.path.append(work_dir)
 
+sys.path.append('../..')
 from attack.utils.tools import bcolors
 import paddle
 from ppdet.core.workspace import create, load_config
@@ -65,7 +64,7 @@ def parse_summary():
     import json
     import os
     with open(
-            os.path.dirname(os.path.realpath(__file__ + '../..')) +
+            os.path.dirname(os.path.realpath(__file__ + '/..')) +
             '/utils/summary.json') as f:
         summary = json.load(f)
 
@@ -89,7 +88,7 @@ def main(args, model):
                       "c_search_steps": 6,
                       "abort_early": True}
 
-    model_path = os.path.dirname(os.path.realpath(__file__ + '../..')) + '/outputs/models'
+    model_path = os.path.dirname(os.path.realpath(__file__ + '/..')) + '/outputs/models'
     if not os.path.exists(model_path):
         os.makedirs(model_path)
     adversarial_trans = defense.DetectionAdversarialTransform(model,
@@ -201,7 +200,7 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
 
-    config_dir = os.path.dirname(os.path.realpath(__file__ + '../../..')) + '/configs/'
+    config_dir = os.path.dirname(os.path.realpath(__file__ + '/../..')) + '/configs/'
     model = None
     if 'yolov3' in args.model:
         config_file = config_dir + 'yolov3/{}.yml'.format(args.model)

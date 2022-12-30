@@ -81,6 +81,7 @@ class PaddleWhiteBoxModel(Model):
         Return:
             numpy.ndarray: Predictions of the data with shape (batch_size, num_of_classes).
         """
+        '''
         # freeze BN when forwarding
         for model in self._model_list:
             for param in model.parameters():
@@ -90,10 +91,12 @@ class PaddleWhiteBoxModel(Model):
                                        paddle.nn.BatchNorm2D, paddle.nn.BatchNorm3D)):
                     # print("evaled!!")
                     module.eval()
+        '''
 
         tensor_data = paddle.to_tensor(data, dtype='float32', place=self._device)
         predict = self._weighted_ensemble_model(tensor_data)
 
+        '''
         # free model parameter
         for model in self._model_list:
             for param in model.parameters():
@@ -103,6 +106,7 @@ class PaddleWhiteBoxModel(Model):
                                        paddle.nn.BatchNorm2D, paddle.nn.BatchNorm3D)):
                     # print("trained!!")
                     module.train()
+        '''
         return predict.numpy()
 
     def predict_tensor(self, data):
@@ -113,6 +117,7 @@ class PaddleWhiteBoxModel(Model):
         Return:
             Paddle.Tensor: predictions of the data with shape (batch_size, num_of_classes).
         """
+        ''''
         # freeze BN when forwarding
         for model in self._model_list:
             for param in model.parameters():
@@ -122,10 +127,12 @@ class PaddleWhiteBoxModel(Model):
                                        paddle.nn.BatchNorm2D, paddle.nn.BatchNorm3D)):
                     # print("evaled!!")
                     module.eval()
+        '''
 
         # Run prediction
         predict = self._weighted_ensemble_model(data)
 
+        '''
         # free model parameter
         for model in self._model_list:
             for param in model.parameters():
@@ -135,6 +142,7 @@ class PaddleWhiteBoxModel(Model):
                                        paddle.nn.BatchNorm2D, paddle.nn.BatchNorm3D)):
                     # print("trained!!")
                     module.train()
+        '''
         return predict
 
     def num_classes(self):

@@ -12,9 +12,11 @@ DGC (Deep Gradient Compress) is one of the famous gradient compress algorithm. D
 We implement DGC as a Paddle optimizer (DGCMomentum) just as other Paddle optimizer like SGD. We also give an example for DGCMomentum optimizer. Meanwhile, DLG attack is append for evaluating the defense of gradient compress.
 
 ## Run example
+PaddleSleeve/PrivBox needs to be installed, [`Installation Tutorial`](../../PrivBox/README.md#installation)
+
 
 ```shell
-
+cd PaddleSleeve/PrivacyGuard/gradient_compress
 python3 dgc_demo.py
 
 ```
@@ -48,6 +50,11 @@ Input Parameters:
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=True, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.001, use_dgc=True, window_size=200
 ```
 
+Command Line:
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=True --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.001 --use_dgc=True --window_size=200
+```
+
 Output Result:
 
 ```shell
@@ -64,6 +71,11 @@ Input Parameters:
 
 ```shell
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=True, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.01, use_dgc=False, window_size=200
+```
+
+Command Line:
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=True --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.01 --use_dgc=False --window_size=200
 ```
 
 Output Result:
@@ -86,6 +98,11 @@ Input Parameters:
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=False, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.01, use_dgc=False, window_size=200
 ```
 
+Command Line:
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=False --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.01 --use_dgc=False --window_size=200
+```
+
 Output Result:
 
 ```shell
@@ -103,6 +120,11 @@ Input Parameters:
 
 ```shell
 attack_batch_size=1, attack_epoch=2000, attack_lr=0.2, dlg_attack=False, result_dir='./att_results', return_epoch=100, sparsity=0.8, train_batch_size=64, train_epoch=2, train_lr=0.001, use_dgc=True, window_size=200
+```
+
+Command Line:
+```shell
+python dgc_demo.py --attack_batch_size=1 --attack_epoch=2000 --attack_lr=0.2 --dlg_attack=False --result_dir='./att_results' --return_epoch=100 --sparsity=0.8 --train_batch_size=64 --train_epoch=2 --train_lr=0.001 --use_dgc=True --window_size=200
 ```
 
 Output Result:

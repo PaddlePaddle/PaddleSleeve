@@ -182,7 +182,7 @@ def main():
             
             # add pgd attack algorithm                          
             epsilon_ball = 0.2
-            steps = 100
+            steps = 200
             epsilon_stepsize = 1e-2 
             shape = images.shape
             resize_image_w, resize_image_h = ext_resize_chinese(shape, img_cv)

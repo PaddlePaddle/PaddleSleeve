@@ -10,7 +10,7 @@ The example illustrates how to use the label-only membership inference attack mo
 ## Run example
 
 ```shell
-
+d PaddleSleeve/PrivBox/examples/membership_inference/label_only_with_cifar10
 python3 label_only_with_cifar10.py
 
 ```
@@ -37,6 +37,11 @@ Input Parameters：
 
 ```shell
 attack_type='r', batch_size=128, classifier_epoch=10, classifier_lr=0.0002, r=6, shadow_dataset='cifar10', shadow_epoch=10, shadow_lr=0.0002, shadow_model='resnet18', target_dataset='cifar10', target_epoch=10, target_lr=0.0002
+```
+
+Command Line
+```shell
+python label_only_with_cifar10.py --attack_type='r' --batch_size=128 --classifier_epoch=10 --classifier_lr=0.0002 --r=6 --shadow_dataset='cifar10' --shadow_epoch=10 --shadow_lr=0.0002 --shadow_model='resnet18' --target_dataset='cifar10' --target_epoch=10 --target_lr=0.0002
 ```
 
 Evaluation Result：

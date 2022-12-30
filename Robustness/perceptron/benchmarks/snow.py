@@ -22,7 +22,6 @@ from .base import call_decorator
 from PIL import Image
 import warnings
 from perceptron.benchmarks.motion_blur import MotionBlurMetric
-import pdb
 
 
 class SnowMetric(Metric):

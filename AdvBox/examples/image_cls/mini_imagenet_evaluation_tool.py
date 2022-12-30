@@ -42,9 +42,9 @@ from denoisers.denoising_method import FeatureSqueezing
 from attacks.gradient_method import FGSMT
 from attacks.gradient_method import FGSM
 from models.whitebox import PaddleWhiteBoxModel
-from utility import add_arguments, print_arguments
-from miniimagenet import MINIIMAGENET
-from paddle.vision.transforms import Compose, Normalize
+from examples.utils import add_arguments, print_arguments
+from examples.dataset.mini_imagenet import MINIIMAGENET
+from paddle.vision import transforms as T
 from tqdm import tqdm
 from collections import OrderedDict
 
@@ -135,7 +135,10 @@ def test():
     denoise_method = Denoiser(paddle_model)
 
     # Set the testing set
-    transform = Compose([Normalize(mean, std, data_format='CHW')])
+    transform = T.Compose([
+        T.ToTensor(),
+        T.Normalize(mean, std, data_format='CHW')
+    ])
     dataset_path = args.dataset_path
     label_path = args.label_path
     mode = args.mode

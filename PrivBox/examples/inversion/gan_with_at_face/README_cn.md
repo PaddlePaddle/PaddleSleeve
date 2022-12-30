@@ -11,7 +11,7 @@
 
 首先需要按照说明安装privbox（[安装教程](../../../README_cn.md###安装)），安装成功后，运行：
 ```shell
-
+cd PaddleSleeve/PrivBox/examples/inversion/gan_with_at_face
 python3 gan_inversion_with_at_face.py
 
 ```
@@ -35,6 +35,11 @@ python3 gan_inversion_with_at_face.py
 输入参数：
 ```shell
 attack_epoch=100, batch_size=32, learning_rate_fake=0.0002, learning_rate_gen=0.0002, learning_rate_real=0.0002, num_pic_save=4, result_dir='./att_results', target_label=1
+```
+
+命令行：
+```shell
+python gan_inversion_with_at_face.py --attack_epoch=100 --batch_size=32 --learning_rate_fake=0.0002 --learning_rate_gen=0.0002 --learning_rate_real=0.0002 --num_pic_save=4 --result_dir='./att_results' --target_label=1
 ```
 
 攻击结果：

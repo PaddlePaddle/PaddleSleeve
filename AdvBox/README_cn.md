@@ -32,6 +32,27 @@ AdvBox( Adversarialbox ) 是一款由百度安全实验室研发，支持Paddle�
 | [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
 ---
+# 安装
+## 要求
+- Python >= 3.7
+- PaddlePaddle(GPU) >= 2.2.2
+- protobuf==3.19.0
+- opencv-python 
+- opencv-contrib-python
+- pyyaml
+- tqdm
+- pycocotools
+- scipy
+- lap
+- scikit-learn
+- motmetrics
+- openpyxl
+- future
+- imgaug
+- pyclipper
+- lmdb
+- pandas
+
 # 攻击
 进入攻击示例目录：
 
@@ -528,7 +549,7 @@ for batch_id, data in enumerate(train_loader()):
    
    ```
    cd PaddleSleeve/AdvBox/defences
-   python -m paddle.distributed.launch defences/advtrain_natural.py
+   python -m paddle.distributed.launch advtrain_natural.py
    ```
    
    **Command-Line Parameters**
@@ -893,6 +914,16 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 | 椒盐噪声    | 41.3%  | 8.1%  | 18.5% | 41.0% |
 | 随机缩放填充 | 41.3%  | 8.1%  | 31.0% | 40.2% |
 | 特征压缩 (3 bits)| 41.3%  | 8.1%  | 11.6% | 32.5% |
+
+# 其他模块
+## 目标检测攻击
+目标检测攻击模块在**[obj_detection](/AdvBox/obj_detection)**中。
+
+## 目标分割攻击
+目标分割攻击模块在**[img_segmentation](/AdvBox/img_segmentation)**中。
+
+## OCR攻击
+OCR攻击模块在**[text_recognition](/AdvBox/text_recognition)**中。
 
 # 贡献
 我们感谢您的贡献!

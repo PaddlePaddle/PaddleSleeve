@@ -37,6 +37,27 @@ The project also contains plenty of useful tutorials for different AI applicatio
 | [SquareAttack](attacks/square_attack.py)                                         |    | ✓ |   |   |
 
 ---
+# Installation
+## Requirements
+- Python >= 3.7
+- PaddlePaddle(GPU) >= 2.2.2
+- protobuf==3.19.0
+- opencv-python
+- opencv-contrib-python
+- pyyaml
+- tqdm
+- pycocotools
+- scipy
+- lap
+- scikit-learn
+- motmetrics
+- openpyxl
+- future
+- imgaug
+- pyclipper
+- lmdb
+- pandas
+
 # Attack
 Go to the attack example directory:
 
@@ -531,7 +552,7 @@ Advbox also supports adversarial training on multi-card devices. The following t
    
    ```
    cd PaddleSleeve/AdvBox/defences
-   python -m paddle.distributed.launch defences/advtrain_natural.py
+   python -m paddle.distributed.launch advtrain_natural.py
    ```
    
    **Command-Line Parameters**

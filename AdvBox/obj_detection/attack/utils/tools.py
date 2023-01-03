@@ -154,7 +154,7 @@ def plot_image_objectdetection(adversary, kmodel, bounds=(0, 1), title=None, fig
     ax2.axis('off')
 
     if title:
-        fig.suptitle(title, fontsize=12, fontweight='bold', y=0.9)
+        fig.suptitle(title, fontsize=12, fontweight='bold', y=0.72)
 
     # in case you do not have GUI interface
     plt.savefig(figname, bbox_inches='tight', dpi=1000)
@@ -347,7 +347,7 @@ def plot_image_objectdetection_ppdet(adv=None,
         if isinstance(title, int):
             title = "Attack target: {}".format(catid2name[clsid2catid[title+1]])
             print(title)
-        fig.suptitle(title, fontsize=10, fontweight='bold', y=0.80)
+        fig.suptitle(title, fontsize=10, fontweight='bold', y=0.72)
     plt.savefig(figname, bbox_inches='tight', dpi=600)
 
 

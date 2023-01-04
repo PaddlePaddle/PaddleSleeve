@@ -67,34 +67,31 @@ In Advbox-ObjectDetection, two well-known whitebox attacking methods, CW and PGD
 **Misclassification attacks on different models:**
 
 <table align="center">
-<tr>
-    <td align="center">Model</td>
-    <td align="center">Original Detection Results</td>
-    <td align="center">Adversarial Detection Results </td>
-    <td align="center">Diff</td>
-
-</tr>
-
-<tr>
-    <td align="center">yolov3</td>
-    <td align="center"><img src="./attack/outputs/images/motor_yolov3_origin.png" width=300></td>
-    <td align="center"><img src="./attack/outputs/images/motor_yolov3_adv.png" width=300></td>
-    <td align="center"><img src="./attack/outputs/images/motor_yolov3_diff.png" width=300></td>
-</tr>
-
-<tr>
-    <td align="center">detr</td>
-    <td align="center"><img src="./attack/outputs/images/motor_detr_origin.png" width=300></td>
-    <td align="center"><img src="./attack/outputs/images/motor_detr_adv.png" width=300></td>
-    <td align="center"><img src="./attack/outputs/images/motor_detr_diff.png" width=300></td>
-</tr>
-
-<tr>
-    <td align="center">ssd</td>
-    <td align="center"><img src="./attack/outputs/images/motor_ssd300_origin.png" width=300></td>
-    <td align="center"><img src="./attack/outputs/images/motor_ssd300_adv.png" width=300></td>
-    <td align="center"><img src="./attack/outputs/images/motor_ssd_diff.png" width=300></td>
-</tr>
+    <tr>
+        <td align="center">Model</td>
+        <td align="center">Original Detection Results</td>
+        <td align="center">Adversarial Detection Results </td>
+        <td align="center">Diff</td>
+    </tr>
+    <tr>
+        <td align="center">yolov3</td>
+        <td align="center"><img src="./attack/outputs/images/motor_yolov3_origin.png" width=300></td>
+        <td align="center"><img src="./attack/outputs/images/motor_yolov3_adv.png" width=300></td>
+        <td align="center"><img src="./attack/outputs/images/motor_yolov3_diff.png" width=300></td>
+    </tr>
+    <tr>
+        <td align="center">detr</td>
+        <td align="center"><img src="./attack/outputs/images/motor_detr_origin.png" width=300></td>
+        <td align="center"><img src="./attack/outputs/images/motor_detr_adv.png" width=300></td>
+        <td align="center"><img src="./attack/outputs/images/motor_detr_diff.png" width=300></td>
+    </tr>
+    <tr>
+        <td align="center">ssd</td>
+        <td align="center"><img src="./attack/outputs/images/motor_ssd300_origin.png" width=300></td>
+        <td align="center"><img src="./attack/outputs/images/motor_ssd300_adv.png" width=300></td>
+        <td align="center"><img src="./attack/outputs/images/motor_ssd_diff.png" width=300></td>
+    </tr>
+</table>
 
       
 ### Attack Transferability Eval & Ensemble Attacks

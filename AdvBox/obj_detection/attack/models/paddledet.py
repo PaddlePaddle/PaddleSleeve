@@ -34,7 +34,8 @@ import matplotlib.pyplot as plt
 __all__ = [
     'PPdet_Yolov3_Model',
     'PPdet_Rcnn_Model',
-    'PPdet_Detr_Model'
+    'PPdet_Detr_Model',
+    'PPdet_SSD_Model'
 ]
 
 config_dir = os.path.dirname(os.path.realpath(__file__ + '../../..')) + '/configs'

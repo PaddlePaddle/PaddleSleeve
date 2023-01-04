@@ -13,7 +13,11 @@
     "paddledet_cascade_rcnn_resnet50_fpn",
     "paddledet_faster_rcnn_resnext101_64x4d_dcn",
     "paddledet_detr_resnet50",
-    "paddledet_deformable_detr_resnet50"
+    "paddledet_deformable_detr_resnet50",
+    "paddledet_ssdlite_mobilenet_v1_300",
+    "paddledet_ssdlite_mobilenet_v3_large_320",
+    "paddledet_ssdlite_ghostnet_320",
+    "paddledet_ssdlite_mobilenet_v3_small_320"
   ],
   "detection_models": [
     "paddledet_yolov3_darknet53",
@@ -26,7 +30,11 @@
     "paddledet_faster_rcnn_resnext101_64x4d_dcn",
     "paddledet_detr_resnet50",
     "paddledet_deformable_detr_resnet50",
-    "paddledet_cascade_rcnn_resnet50_fpn"
+    "paddledet_cascade_rcnn_resnet50_fpn",
+    "paddledet_ssdlite_mobilenet_v1_300",
+    "paddledet_ssdlite_mobilenet_v3_large_320",
+    "paddledet_ssdlite_ghostnet_320",
+    "paddledet_ssdlite_mobilenet_v3_small_320"
   ],
   "metrics": [
     "carlini_wagner",

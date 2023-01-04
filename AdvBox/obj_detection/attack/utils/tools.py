@@ -115,7 +115,12 @@ def _load_paddledet_model(model_name, summary=None):
         'paddledet_faster_rcnn_resnext101_64x4d_dcn': 'faster_rcnn_dcn_x101_vd_64x4d_fpn_1x_coco',
         'paddledet_cascade_rcnn_resnet50_fpn': 'cascade_rcnn_r50_fpn_1x_coco',
         'paddledet_detr_resnet50': 'detr_r50_1x_coco',
-        'paddledet_deformable_detr_resnet50': 'deformable_detr_r50_1x_coco'
+        'paddledet_deformable_detr_resnet50': 'deformable_detr_r50_1x_coco',
+        'paddledet_ssdlite_mobilenet_v1_300': 'ssdlite_mobilenet_v1_300_coco',
+        'paddledet_ssdlite_mobilenet_v3_large_320' :'ssdlite_mobilenet_v3_large_320_coco',
+        'paddledet_ssdlite_ghostnet_320': 'ssdlite_ghostnet_320_coco',
+        'paddledet_ssdlite_mobilenet_v3_small_320': 'ssdlite_mobilenet_v3_small_320_coco',
+        'paddledet_ssd_r34_70e': 'ssd_r34_70e_coco'
     }
 
     cfg_name = switcher.get(model_name, None)
@@ -127,6 +132,8 @@ def _load_paddledet_model(model_name, summary=None):
         model = ppdet.PPdet_Rcnn_Model(cfg_name, cascade=True)
     elif cfg_name.__contains__('detr'):
         model = ppdet.PPdet_Detr_Model(cfg_name)
+    elif cfg_name.startswith('ssd'):
+        model = ppdet.PPdet_SSD_Model(cfg_name)
     return model
 
 

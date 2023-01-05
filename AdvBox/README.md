@@ -182,6 +182,55 @@ Square attack is a black-box attack algorithm based on score. The model does not
 </p>
 The tiger cat, of class 282, was misidentified as class 390 eel after the black-box attack.
 
+### HopSkipJumpAttack(HSJA)
+HSJA is an algorithm based on binary boundary search. In the black box case, the gradient can be approximated to generate adversarial samples.
+
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_hsja.py)** The Square Attack is applied to the ResNet101 model trained on the ImageNet dataset.
+  - **Command-line parameters**
+    - `--image_path`
+    : the path of the input image, default: input/cat_example.png.
+    - `--norm`
+    : Choose to launch the attack in the l2 or linf norm.
+    - `--target_image`
+    : the target class path, None if untargeted attack
+    - `--num_iterations`
+    : iteration num for hsja, The larger the number is, the better attacks effection. default value is 1
+
+#### Usage of HopSkipJumpAttack (L2)
+**Untargeted Attack**
+
+    python imagenet_tutorial_hsja.py --norm l2
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackL2.png", width=500><br>
+</p>
+
+**Targeted Attack**
+
+    python imagenet_tutorial_hsja.py --norm l2 --target_image input/lion.png --num_iterations 32
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackL2targeted.png", width=500><br>
+</p>
+The tiger cat, of class 282, was misidentified as class 291 lion after the black-box attack.
+
+#### Usage of HopSkipJumpAttack (LInf)
+**Untargeted Attack**
+
+    python imagenet_tutorial_hsja.py --norm linf
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackLInf.png", width=500><br>
+</p>
+
+**Targeted Attack**
+
+    python imagenet_tutorial_hsja.py --norm linf --target_image input/lion.png --num_iterations 96
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackLInftargeted.png", width=500><br>
+</p>
+The tiger cat, of class 282, was misidentified as class 291 lion after the black-box attack.
+
 ## Usage of white-box attack
 In the case of FGSM, other attack methods are used in a similar way. The resnet50 pre-trained model trained on imagenet dataset is used as the attack object.
 

@@ -34,7 +34,8 @@ import matplotlib.pyplot as plt
 __all__ = [
     'PPdet_Yolov3_Model',
     'PPdet_Rcnn_Model',
-    'PPdet_Detr_Model'
+    'PPdet_Detr_Model',
+    'PPdet_SSD_Model'
 ]
 
 config_dir = os.path.dirname(os.path.realpath(__file__ + '../../..')) + '/configs'
@@ -529,6 +530,109 @@ class PPdet_Detr_Model(PPdet_Model):
         boi = target_scores > confidence
         # logits = paddle.masked_select(cls_prob_logits[:, self._target_class], boi)
         # loss = paddle.mean(logits)
+
+        boi = paddle.unsqueeze(boi, axis=1)
+        logits = cls_prob_logits * boi
+        if logits.shape[-1] != self._cfg['num_classes']:
+            logits = logits[:, :-1]
+        nonzero_idx = paddle.tolist(paddle.squeeze(paddle.nonzero(logits[:, target_class])))
+        if nonzero_idx == []:
+            return paddle.zeros([1])
+        logits = logits[nonzero_idx]
+        target_onehot = paddle.nn.functional.one_hot(paddle.to_tensor(target_class, dtype='int32'), self._cfg['num_classes'])
+        loss = paddle.max(logits * target_onehot, axis=1) - paddle.max(logits * (1 - target_onehot), axis=1)
+        return loss
+
+
+class PPdet_SSD_Model(PPdet_Model):
+    """
+    Base wrapper class for ppdet ssd models trained on coco dataset
+
+    Configs:
+        backbone (nn.Layer): backbone instance
+        ssd_head (nn.Layer): `SSDHead` instance
+        post_process (object): `BBoxPostProcess` instance
+    """
+    def __init__(
+            self,
+            name,
+            bounds=(0, 1),
+            channel_axis=0,
+            preprocessing=(0, 1),
+            pretrained=True):
+        super(PPdet_SSD_Model, self).__init__(
+            bounds=bounds,
+            channel_axis=channel_axis,
+            preprocessing=preprocessing)
+
+        cfg_file = "{0}/ssd/{1}.yml".format(config_dir, name)
+        self._cfg = load_config(cfg_file)
+        self._cfg['norm_type'] = 'bn'
+        self.architecture = 'ssd'
+        self._model = create(self._cfg.architecture)
+        self._model.load_meanstd(self._cfg['TestReader']['sample_transforms'])
+        self.MEAN = self._cfg['TestReader']['sample_transforms'][2]['NormalizeImage']['mean']
+        self.STD = self._cfg['TestReader']['sample_transforms'][2]['NormalizeImage']['std']
+        self._preprocessing = paddle.vision.transforms.Normalize(mean=self.MEAN, std=self.STD)
+        self._scale_factor = None
+        self._num_classes = self._cfg['num_classes']
+
+        if pretrained:
+            weight_path = "ppdet://models/{}.pdparams".format(name)
+            load_weight(self._model, weight_path)
+
+        assert isinstance(self._model, paddle.nn.Layer), 'Unrecognized model'
+
+        self._model.eval()
+
+        self._task = 'det'
+        self._data = None
+        self._dataset = self._cfg['TestDataset']
+
+    def load_image(self, image):
+        images = [os.path.join(os.path.dirname(__file__), '../../../', single_image) for single_image in image]
+        self._dataset.set_images(images*1)
+        loader1 = create('TestReader')(self._dataset, 0)
+        for i, data in enumerate(loader1):
+            self._data = data
+            self._scale_factor = data['scale_factor']
+        return denormalize_image(paddle.squeeze(self._data['image'][0]), self.MEAN, self.STD)
+
+    def _gather_feats(self, image):
+        if len(paddle.shape(image)) < 4:
+            image = paddle.unsqueeze(image, axis=0)
+        assert self._data['image'].shape == image.shape
+
+        data1 = copy.deepcopy(self._data)
+        data1['image'] = image
+
+        self._model.eval()
+
+        body_feats = self._model.backbone(data1)
+        # SSD Head
+        preds, anchors = self._model.ssd_head(body_feats, image)
+
+        # SSD post process
+        bbox, bbox_num = self._model.post_process(preds, anchors, data1['im_shape'], data1['scale_factor'])
+        return {'body_feats': body_feats, 'preds': preds, 'anchors': anchors, 'box_preds': preds[0],
+                'cls_scores': preds[1], 'bbox_pred': bbox, 'bbox_num': bbox_num}
+
+    def adv_loss(self, features, target_class, confidence=0.1):
+        """
+
+        :param features:
+        :param target_class:
+        :param confidence:
+        :return:
+        """
+        # print("box_preds:", features['box_preds'], "type(features['box_preds']):", type(features['box_preds']))
+        # print("cls_scores:", features['cls_scores'], "type(features['cls_scores']):", type(features['cls_scores']))
+
+        cls_prob_logits = paddle.squeeze(features['cls_scores'][3])
+        scores = paddle.squeeze(paddle.nn.functional.softmax(cls_prob_logits))
+
+        target_scores = scores[:, target_class]
+        boi = target_scores > confidence
 
         boi = paddle.unsqueeze(boi, axis=1)
         logits = cls_prob_logits * boi

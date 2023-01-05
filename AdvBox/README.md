@@ -192,9 +192,9 @@ HSJA is an algorithm based on binary boundary search. In the black box case, the
     - `--norm`
     : Choose to launch the attack in the l2 or linf norm.
     - `--target_image`
-    : the target class label, None if untargeted attack
+    : the target class path, None if untargeted attack
     - `--num_iterations`
-    : iteration num for hsja, The larger the number is, the better attacks effection
+    : iteration num for hsja, The larger the number is, the better attacks effection. default value is 1
 
 #### Usage of HopSkipJumpAttack (L2)
 **Untargeted Attack**
@@ -207,14 +207,14 @@ HSJA is an algorithm based on binary boundary search. In the black box case, the
 
 **Targeted Attack**
 
-    python imagenet_tutorial_hsja.py --norm l2 --target_image input/lion.png --num_iterations 128
+    python imagenet_tutorial_hsja.py --norm l2 --target_image input/lion.png --num_iterations 32
 
 <p align="center">
 <img align="center" src="./examples/image_cls/output/HopSkipJumpAttackL2targeted.png", width=500><br>
 </p>
+The tiger cat, of class 282, was misidentified as class 291 lion after the black-box attack.
 
-
-#### Usage of Square Attack (LInf)
+#### Usage of HopSkipJumpAttack (LInf)
 **Untargeted Attack**
 
     python imagenet_tutorial_hsja.py --norm linf
@@ -225,7 +225,7 @@ HSJA is an algorithm based on binary boundary search. In the black box case, the
 
 **Targeted Attack**
 
-    python imagenet_tutorial_hsja.py --norm linf --target_image input/lion.png --num_iterations 128
+    python imagenet_tutorial_hsja.py --norm linf --target_image input/lion.png --num_iterations 96
 <p align="center">
 <img align="center" src="./examples/image_cls/output/HopSkipJumpAttackLInftargeted.png", width=500><br>
 </p>

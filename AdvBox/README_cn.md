@@ -179,6 +179,57 @@ Square attack是一种基于得分的黑盒攻击算法，该模型不依赖于�
 </p>
 类别282的小猫，经过黑盒攻击后被误识别为类别390鳗鱼。
 
+### HopSkipJumpAttack(HSJA)
+HopSkipJumpAttack一种基于二分边界搜索的算法，在黑盒情况可以近似对梯度进行估计，从而能够生成对抗样本。
+
+- **[tutorial python script](/AdvBox/examples/image_cls/imagenet_tutorial_hsja.py)** 运用HopSkipJumpAttack对通过ImageNet数据集训练的ResNet101模型进行攻击。
+  - **命令行参数介绍**
+    - `--image_path`
+    : 输入图像的路径，输入图像的路径，默认为input/cat_example.png。
+    - `--norm`
+    : 选择在 l2 或 linf 范数下展开攻击。
+    - `--target_image`
+    : 目标图片路径，如果无目标攻击为None。
+    - `--num_iterations`
+    : 迭代次数, 数值越大攻击效果越好。默认值是1
+
+#### HopSkipJumpAttack (L2)示例
+**Untargeted Attack**
+
+    python imagenet_tutorial_hsja.py --norm L2
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackL2.png", width=500><br>
+</p>
+
+**Targeted Attack**
+
+     python imagenet_tutorial_hsja.py --norm l2 --target_image input/lion.png --num_iterations 32
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/SquareAttackL2targeted.png", width=500><br>
+</p>
+类别282的小猫，经过黑盒攻击后被误识别为类别291的狮子。
+
+#### HopSkipJumpAttack (LInf)示例
+**Untargeted Attack**
+
+    python imagenet_tutorial_hsja.py --norm linf
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackLInf.png", width=500><br>
+</p>
+
+**Targeted Attack**
+
+     python imagenet_tutorial_hsja.py --norm linf --target_image input/lion.png --num_iterations 96
+
+<p align="center">
+<img align="center" src="./examples/image_cls/output/HopSkipJumpAttackLInftargeted.png", width=500><br>
+</p>
+类别282的小猫，经过黑盒攻击后被误识别为类别291的狮子。
+
+
 ## 白盒攻击示例
 
 以FGSM为例，其他攻击方法使用方式类似。采用imagenet数据集，resnet50的预训练模型作为攻击对象。

@@ -171,8 +171,9 @@ class Adversary(object):
             return False
         assert isinstance(adversarial_label, int) or isinstance(adversarial_label, np.int64)
         if self._is_targeted_attack:
-            #return adversarial_label == self._target_label
-            return adversarial_label != self._original_label
+            # Must be a target class to be successful
+            return adversarial_label == self._target_label
+            #return adversarial_label != self._original_label
         else:
             return adversarial_label != self._original_label
 

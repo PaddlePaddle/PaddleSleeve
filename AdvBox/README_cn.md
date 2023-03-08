@@ -979,6 +979,9 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 ## OCR攻击
 OCR攻击模块在 **[text_recognition](/AdvBox/text_recognition)** 中。
 
+## 结构化数据攻击
+结构化数据攻击模块在 **[abular_adversarial_toolbox](/AdvBox/abular_adversarial_toolbox)** 中。
+
 # 贡献
 我们感谢您的贡献!
 

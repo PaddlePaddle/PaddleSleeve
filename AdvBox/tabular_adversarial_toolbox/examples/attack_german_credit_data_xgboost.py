@@ -87,6 +87,7 @@ def main():
     # Loading German Credit Dataset
     file_path = args.data_path
     gcd_X, gcd_Y = load_gcd(file_path)
+    nb_fields = gcd_X.shape[1]
 
     # Get list of onehot_encoders by raw data. You can also set your own.
     X_onehot_encoders_list = get_onehot_encoders(gcd_X)
@@ -122,8 +123,8 @@ def main():
 
     # Building a function (class) of calculate the distortion norm.
     # Assume a field checkability vector and a field importance vector. Assume for the moment that `CheckAndImportanceNorm` is equivalent to p-norm.
-    field_check = [0] * num_features
-    field_importance = [1] * num_features
+    field_check = [0] * nb_fields
+    field_importance = [1] * nb_fields
     # Transfrom field-level vector to feature-level vector
     feature_check = vector_transform_by_onehot_info(field_check, X_onehot_encoders_list)
     feature_importance = vector_transform_by_onehot_info(field_importance, X_onehot_encoders_list)

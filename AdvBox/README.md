@@ -985,5 +985,8 @@ Module of image segmentation attack in **[img_segmentation](/AdvBox/img_segmenta
 ## OCR Attack
 Module of OCR attack in **[text_recognition](/AdvBox/text_recognition)** .
 
+## Tabular Data Attack
+Module ofTabular Data Attack in **[abular_adversarial_toolbox](/AdvBox/abular_adversarial_toolbox)** .
+
 # Contributing
 We appreciate your contributions!

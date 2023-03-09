@@ -290,8 +290,6 @@ def get_labels_np_array(preds):
     else:
         raise ValueError(f'Shape of preds {preds.shape} is not supported.')
 
-    y = y.astype(np.uint8)
-
     return y
 
 
@@ -316,18 +314,19 @@ class DataProcessor(object):
     '''
     Data processor for converting raw data to encoded data and encoded data to raw data.
     '''
-    def __init__(self, onehot_encoders_list, scaler=None):
+    def __init__(self, onehot_encoders_list, scaler=None, corrector=None):
         '''
         Initialize.
 
         Args:
             onehot_encoders_list (list): List of onehot_encoders. The value is `None` or `onehot_encoder`. If type of field is not in deal_type, value is None, else value is onehot_encoder.
-            scaler : A scaler used to scale values. Must has transform and inverse_transform functions.
-
+            scaler: The scaler used to scale values. Must has transform and inverse_transform functions.
+            corrector: The corrector used to correct the data features based on the data types of each field.
         '''
 
         self.onehot_encoders_list = onehot_encoders_list
         self.scaler = scaler
+        self.corrector = corrector
 
     def transform(self, raw_data):
         '''
@@ -359,6 +358,9 @@ class DataProcessor(object):
 
         if not self.scaler is None:
             onehot_data = self.scaler.inverse_transform(onehot_data)
+
+        if not self.corrector is None:
+            onehot_data = self.corrector.transform(onehot_data)
 
         raw_data = onehot_to_raw(onehot_data, self.onehot_encoders_list)
 
@@ -428,23 +430,20 @@ class DataCorrector(object):
 
         if field_type == 'Boolean':
             corrected_field_data = field_data > 0.5
-            corrected_field_data = corrected_field_data.astype(np.uint8)
 
         elif field_type == 'Integer':
             corrected_field_data = field_data.astype(np.float32)
             corrected_field_data = np.round(corrected_field_data)
-            corrected_field_data = corrected_field_data.astype(np.uint8)
 
         elif field_type == 'Positive Integer':
             corrected_field_data = field_data.astype(np.float32)
             corrected_field_data = np.where(corrected_field_data > 0, np.round(corrected_field_data), 0)
-            corrected_field_data = corrected_field_data.astype(np.uint8)
 
         elif field_type == 'Positive Float':
             corrected_field_data = field_data.astype(np.float32)
             corrected_field_data = np.where(corrected_field_data > 0., corrected_field_data, 0.)
 
-        elif field_type == 'Onehot':
+        elif field_type == 'String':
             onehot_len = len(field_data)
             max_value = np.max(field_data, axis=1, keepdims=True)
             corrected_field_data = field_data == max_value

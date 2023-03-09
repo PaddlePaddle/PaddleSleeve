@@ -120,7 +120,6 @@ def main():
     classifier = XGBoostClassifier(model, preprocessing=preprocessing_func, postprocessing=None, nb_features=num_features, nb_classes=num_classes)
 
     # Building a attacker.
-
     # Building a function (class) of calculate the distortion norm.
     # Assume a field checkability vector and a field importance vector. Assume for the moment that `CheckAndImportanceNorm` is equivalent to p-norm.
     field_check = [0] * nb_fields
@@ -138,36 +137,51 @@ def main():
     # Build a scaler. This is built for convenience using training data. You can also use custom value ranges to generate virtual samples for building.
     scaler = MinMaxScaler()
     scaler.fit(X_train_onehot)
-    
-    # Note that the onehot_encoders_list used here doesn't have to be the same as the model training, it's just for convenience.
-    processor = DataProcessor(X_onehot_encoders_list, scaler=scaler) 
-
     # Build a corrector, if data correction is required.
     # Fill in the field type for each field
     field_types_list = [
-        'Onehot',
-        'Positive Integer',
-        'Onehot',
-        'Onehot',
-        'Positive Integer', #
-        'Onehot',
-        'Onehot',
-        'Positive Integer',
-        'Onehot',
-        'Onehot', #
+        'String',
         'Integer more 1',
-        'Onehot',
+        'String',
+        'String',
+        'Positive Integer', #
+        'String',
+        'String',
         'Positive Integer',
-        'Onehot',
-        'Onehot',
+        'String',
+        'String', #
+        'Integer more 1',
+        'String',
         'Positive Integer',
-        'Onehot',
+        'String',
+        'String',
         'Positive Integer',
-        'Onehot',
-        'Onehot',
+        'String',
+        'Positive Integer',
+        'String',
+        'String',
     ]
-    # Note that the onehot_encoders_list used here doesn't have to be the same as the model training, it's just for convenience. But it has to be the same as the processor.
+    # Note that the onehot_encoders_list used here doesn't have to be the same as the model training, it's just for convenience.
     corrector = DataCorrector(field_types_list, X_onehot_encoders_list)
+
+    # Note that the onehot_encoders_list used here doesn't have to be the same as the model training, it's just for convenience. But it has to be the same as the corrector.
+    processor = DataProcessor(X_onehot_encoders_list, scaler=scaler, corrector=corrector)
+
+    # Building allowed_vector.
+    allowed_vector = [1] * nb_fields
+    # Set credit amount cannot be modified.
+    allowed_vector[4] = 0
+    # Set savings account/bonds cannot be modified.
+    allowed_vector[5] = 0
+    # Set installment rate in percentage of disposable income cannot be modified.
+    allowed_vector[7] = 0
+    # Set job cannot be modified.
+    allowed_vector[16] = 0
+
+    feature_allowed_vector = vector_transform_by_onehot_info(allowed_vector, X_onehot_encoders_list)
+
+    # Building variable_h
+    variable_h = 1 / (scaler.data_max_ - scaler.data_min_) + 0.01
 
     attacker = ZooAttack(
         predictor=classifier, 
@@ -175,23 +189,25 @@ def main():
         loss_func=loss_func,
         targeted=False, 
         learning_rate=1.0, 
-        max_iter=100,
+        max_iter=1000,
         const_binary_search_steps=1, 
         initial_const=1.0, 
-        allowed_vector=None,
+        allowed_vector=feature_allowed_vector,
         nb_parallel=10,
-        variable_h=0.1, 
+        variable_h=variable_h, 
         processor=processor,
-        corrector=corrector
     )
         
-
     for data in X_test:
         data = data.reshape(1, -1)
         ori_label = np.argmax(classifier.predict(data))
         if ori_label == 1:
             o_best_distortion_norms, o_best_adversarial_losses, o_best_labels, o_best_attacks, o_success_indices = attacker.generate(data)
             print(o_success_indices, o_best_labels)
+            print(data)
+            print(o_best_attacks)
+            pdb.set_trace()
+            processor.inverse_transform(processor.transform(data))
             break
         
 if __name__ == '__main__':

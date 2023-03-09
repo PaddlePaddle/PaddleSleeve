@@ -27,7 +27,6 @@ class ZooAttack(object):
         adam_beta1=0.9, 
         adam_beta2=0.999, 
         processor=None,
-        corrector=None, 
     ):
         '''
         Create a ZOO attack instance.
@@ -45,7 +44,6 @@ class ZooAttack(object):
             nb_parallel: Number of coordinate updates to run in parallel.
             variable_h (int|list|numpy.ndarray): Step size for numerical estimation of derivatives.
             processor: 
-            corrector: Correct the data features based on the data types of each field.
         '''            
 
         self.predictor = predictor
@@ -60,7 +58,6 @@ class ZooAttack(object):
         self.nb_parallel = nb_parallel
         self.variable_h = variable_h
         self.processor = processor
-        self.corrector = corrector
 
         self.adam_mean = None
         self.adam_var = None
@@ -188,6 +185,10 @@ class ZooAttack(object):
                 success_indices, c_current, c_lower_bound, c_upper_bound
             )
 
+        # Inverse transform to field-level
+        if not self.processor is None:
+            o_best_attacks = self.processor.inverse_transform(o_best_attacks)
+
         return o_best_distortion_norms, o_best_adversarial_losses, o_best_labels, o_best_attacks, o_success_indices
 
     def generate_bss(self, ori_data, y, constants):
@@ -231,18 +232,19 @@ class ZooAttack(object):
 
             # Correct perturbed data and inverse transform to field-level
             # Correct perturbed data
-            if not self.corrector is None:
-                corrected_x_adv = self.corrector.transform(x_adv)
-            else:
-                corrected_x_adv = x_adv
 
             # Inverse transform to field-level
             if not self.processor is None:
-                inverse_transformed_x_adv = inverse_transformed_data = self.processor.inverse_transform(corrected_x_adv)
+                inverse_transformed_x_adv = self.processor.inverse_transform(x_adv)
             else:
-                inverse_transformed_x_adv = corrected_x_adv
+                inverse_transformed_x_adv = x_adv
 
             adv_preds = self.predictor.predict(inverse_transformed_x_adv)
+
+            if not self.processor is None:
+                corrected_x_adv = self.processor.transform(inverse_transformed_x_adv)
+            else:
+                corrected_x_adv = inverse_transformed_x_adv
 
             # Calculate the loss function
             # Calculate the distortion norms using x_ori and corrected_x_adv
@@ -406,22 +408,20 @@ class ZooAttack(object):
         # Add noise to original feature-level data
         expanded_x_perturbed = expanded_x + coord_batch.reshape(expanded_x.shape)
 
-        # Correct perturbed data and inverse transform to field-level
-        # Correct perturbed data
-        if not self.corrector is None:
-            correct_perturbed_data = self.corrector.transform(expanded_x_perturbed)
-        else:
-            correct_perturbed_data = expanded_x_perturbed
         # Inverse transform to field-level
         if not self.processor is None:
-            inverse_transformed_perturbed_data = self.processor.inverse_transform(correct_perturbed_data)
+            inverse_transformed_perturbed_data = self.processor.inverse_transform(expanded_x_perturbed)
         else:
-            inverse_transformed_perturbed_data = correct_perturbed_data
+            inverse_transformed_perturbed_data = expanded_x_perturbed
 
         perturbed_preds = self.predictor.predict(inverse_transformed_perturbed_data)
 
         # Calculate the loss function
         # Calculate the distortion norms.
+        if not self.processor is None:
+            correct_perturbed_data = self.processor.transform(inverse_transformed_perturbed_data)
+        else:
+            correct_perturbed_data = inverse_transformed_perturbed_data
         distortion_norms = self.norm_func(correct_perturbed_data, expanded_x).reshape(-1)
         # Calculate the adversarial losses
         adversarial_losses = self.loss_func(perturbed_preds, expanded_y).reshape(-1)

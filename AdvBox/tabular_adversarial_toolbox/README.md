@@ -44,61 +44,10 @@ cd examples
     ```
   - **Result**
 
-    |  | Status&nbsp;of&nbsp;existing&nbsp;checking&nbsp;account | Duration&nbsp;in&nbsp;month | Credit&nbsp;history | Purpose | Credit&nbsp;amount | Savings&nbsp;account/bonds | Present&nbsp;employment&nbsp;since | Installment&nbsp;rate&nbsp;in&nbsp;percentage&nbsp;of&nbsp;disposable&nbsp;income | Personal&nbsp;status&nbsp;and&nbsp;sex | Other&nbsp;debtors/guarantors | Present&nbsp;residence&nbsp;since | Property | Age&nbsp;in&nbsp;years | Other&nbsp;installment&nbsp;plans | Housing | Number&nbsp;of&nbsp;existing&nbsp;credits&nbsp;at&nbsp;this&nbsp;bank | Job | Number&nbsp;of&nbsp;people&nbsp;being&nbsp;liable&nbsp;to&nbsp;provide&nbsp;maintenance&nbsp;for | Telephone | foreign&nbsp;worker |
-    | :--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-    | Original sample    | < 0 DM | 18 | no credits taken/all credits paid back duly | business | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes |
-    | Adversarial sample | *no checking account | 18 | no credits taken/all credits paid back duly | *car (used) | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes |
-
-
-    <table>
-        <tr>
-          <th>Samples</th>
-          <th>Status of existing checking account</th>
-          <th>Duration in month</th>
-          <th>Credit history</th>
-          <th>Purpose</th>
-          <th>Credit amount</th>
-          <th>Savings account/bonds</th>
-          <th>Present employment since</th>
-          <th>Installment rate in percentage of disposable income</th>
-          <th>Personal status and sex</th>
-          <th>Other debtors/guarantors</th>
-          <th>Present residence since</th>
-          <th>Property</th>
-          <th>Age in years</th>
-          <th>Other installment plans</th>
-          <th>Housing</th>
-          <th>Number of existing credits at this bank</th>
-          <th>Job</th>
-          <th>Number of people being liable to provide maintenance for</th>
-          <th>Telephone</th>
-          <th>foreign worker</th>
-        </tr>
-        <tr>
-          <td>Original sample</td>
-          <td>Something shortish</td>
-          <td><div style="width: 1000pt">Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</div></td>
-          <td>Something shortish</td>
-          <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-          <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
-          <td>Something shortish</td>
-          <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-          <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
-          <td>Something shortish</td>
-          <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-          <td>Something shortish</td>
-        </tr>
-    </table>
-
+    | Samples | Status&nbsp;of&nbsp;existing&nbsp;checking&nbsp;account | Duration&nbsp;in&nbsp;month | Credit&nbsp;history | Purpose | Credit&nbsp;amount | Savings&nbsp;account/bonds | Present&nbsp;employment&nbsp;since | Installment&nbsp;rate&nbsp;in&nbsp;percentage&nbsp;of&nbsp;disposable&nbsp;income | Personal&nbsp;status&nbsp;and&nbsp;sex | Other&nbsp;debtors/guarantors | Present&nbsp;residence&nbsp;since | Property | Age&nbsp;in&nbsp;years | Other&nbsp;installment&nbsp;plans | Housing | Number&nbsp;of&nbsp;existing&nbsp;credits&nbsp;at&nbsp;this&nbsp;bank | Job | Number&nbsp;of&nbsp;people&nbsp;being&nbsp;liable&nbsp;to&nbsp;provide&nbsp;maintenance&nbsp;for | Telephone | foreign&nbsp;worker |
+    |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+    | Original&nbsp;sample | <&nbsp;0&nbsp;DM | 18 | no&nbsp;credits&nbsp;taken/all&nbsp;credits&nbsp;paid&nbsp;back&nbsp;duly | business | 3104 | <&nbsp;100&nbsp;DM | 4&nbsp;<=&nbsp;...&nbsp;<&nbsp;7&nbsp;years | 3 | male:&nbsp;single | none | 1 | building&nbsp;society&nbsp;savings&nbsp;agreement/life&nbsp;insurance | 31 | bank | own | 1 | skilled&nbsp;employee/official | 1 | yes,&nbsp;registered&nbsp;under&nbsp;the&nbsp;customers&nbsp;name | yes |
+    | Adversarial&nbsp;sample | *no&nbsp;checking&nbsp;account | 18 | no&nbsp;credits&nbsp;taken/all&nbsp;credits&nbsp;paid&nbsp;back&nbsp;duly | *car&nbsp;(used) | 3104 | <&nbsp;100&nbsp;DM | 4&nbsp;<=&nbsp;...&nbsp;<&nbsp;7&nbsp;years | 3 | male:&nbsp;single | none | 1 | building&nbsp;society&nbsp;savings&nbsp;agreement/life&nbsp;insurance | 31 | bank | own | 1 | skilled&nbsp;employee/official | 1 | yes,&nbsp;registered&nbsp;under&nbsp;the&nbsp;customers&nbsp;name | yes |
 
 ## Citing
 

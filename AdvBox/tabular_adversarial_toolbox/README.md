@@ -76,8 +76,8 @@ cd examples
         </tr>
         <tr>
           <td>Original sample</td>
-          <td width='1000px'>Something shortish</td>
-          <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
+          <td>Something shortish</td>
+          <td><div style="width: 1000pt">Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</div></td>
           <td>Something shortish</td>
           <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
           <td>Something shortish</td>

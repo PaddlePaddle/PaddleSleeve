@@ -1,4 +1,4 @@
-English | [简体中文](/AdvBox/tabular_adversarial_toolbox/README_cn.md)
+English | **[简体中文](/AdvBox/tabular_adversarial_toolbox/README_cn.md)**
 
 # Advbox - Tabular Adversarial Toolbox
 The tabular adversarial toolbox(TAT) is a sub-module of AdvBox used to generate adversarial samples for structured data training models.

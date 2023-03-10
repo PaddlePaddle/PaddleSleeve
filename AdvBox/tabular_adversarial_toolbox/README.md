@@ -52,18 +52,46 @@ cd examples
 
     <table>
         <tr>
-          <th>A heading 1</th>
-          <th>A heading 2</th>
-          <th>A heading 3</th>
-          <th>A heading 4</th>
-          <th>A heading 5</th>
-          <th>A heading 6</th>
+          <th>Status of existing checking account</th>
+          <th>Duration in month</th>
+          <th>Credit history</th>
+          <th>Purpose</th>
+          <th>Credit amount</th>
+          <th>Savings account/bonds</th>
+          <th>Present employment since</th>
+          <th>Installment rate in percentage of disposable income</th>
+          <th>Personal status and sex</th>
+          <th>Other debtors/guarantors</th>
+          <th>Present residence since</th>
+          <th>Property</th>
+          <th>Age in years</th>
+          <th>Other installment plans</th>
+          <th>Housing</th>
+          <th>Number of existing credits at this bank</th>
+          <th>Job</th>
+          <th>Number of people being liable to provide maintenance for</th>
+          <th>Telephone</th>
+          <th>foreign worker</th>
         </tr>
         <tr>
           <td>Something shortish</td>
           <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
           <td>Something shortish</td>
           <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
+          <td>Something shortish</td>
+          <td>Something shortish</td>
+          <td>Something shortish</td>
+          <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
+          <td>Something shortish</td>
+          <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
+          <td>Something shortish</td>
+          <td>Something shortish</td>
+          <td>Something shortish</td>
+          <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
+          <td>Something shortish</td>
+          <td>Another cell  with lots of text in it, that also really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
+          <td>Something shortish</td>
+          <td>Something shortish</td>
           <td>Something shortish</td>
           <td>Something shortish</td>
         </tr>

@@ -42,6 +42,8 @@ cd examples
     ```
     python attack_german_credit_data_xgboost.py --seed 666 --data_path ../data/German_Credit_Data/german.data
     ```
+  - **Result**
+    |Status of existing checking account|Duration in month|Credit history|Purpose|Credit amount|Savings account/bonds|Present employment since|Installment rate in percentage of disposable income|Personal status and sex|
 
 ## Citing
 

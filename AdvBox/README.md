@@ -977,16 +977,16 @@ python mini_imagenet_evaluation_tool.py --method='GaussianBlur' --dataset_path='
 
 # Other Modules
 ## Object Detection Attack
-Module of object detection attack in **[obj_detection](/AdvBox/obj_detection)** .
+Module of object detection attack in **[obj_detection](/AdvBox/obj_detection)**.
 
 ## Image Segmentation Attack
-Module of image segmentation attack in **[img_segmentation](/AdvBox/img_segmentation)** .
+Module of image segmentation attack in **[img_segmentation](/AdvBox/img_segmentation)**.
 
 ## OCR Attack
-Module of OCR attack in **[text_recognition](/AdvBox/text_recognition)** .
+Module of OCR attack in **[text_recognition](/AdvBox/text_recognition)**.
 
 ## Tabular Data Attack
-Module of Tabular Data Attack in **[tabular_adversarial_toolbox](/AdvBox/tabular_adversarial_toolbox)** .
+Module of Tabular Data Attack in **[tabular_adversarial_toolbox](/AdvBox/tabular_adversarial_toolbox)**.
 
 # Contributing
 We appreciate your contributions!

@@ -15,6 +15,15 @@ These examples train a XGboost model on the german credit dataset and creates ad
 
 ### Dataset
 Our examples are based on the **[Statlog (German Credit Data) Data Set](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))**. We have downloaded the data to **[data/German_Credit_Data](/AdvBox/tabular_adversarial_toolbox/data/German_Credit_Data)**.
+
+The German Credit Data with the following structure:
+
+```
+German_Credit_Data
+|_ german.doc
+|_ german.data
+|_ german.data-numeric
+```
  
 
 ## Citing

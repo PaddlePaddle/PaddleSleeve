@@ -13,7 +13,7 @@
 
 ## 开始使用表格对抗工具箱
 
-    这些示例在德国信用数据集上训练XGboost模型，并使用TAT创建对抗示例。在这里，我们训练XGBoost模型提供给TAT预测器，也可以向TAT预测器提供您自己的预训练模型或使用您自己的预测器。参数的选择是为了减少脚本的计算需求，而不是为了精度而优化。
+这些示例在德国信用数据集上训练XGboost模型，并使用TAT创建对抗示例。在这里，我们训练XGBoost模型提供给TAT预测器，也可以向TAT预测器提供您自己的预训练模型或使用您自己的预测器。参数的选择是为了减少脚本的计算需求，而不是为了精度而优化。
 
 ### Dataset
 我们的例子是基于**[Statlog (German Credit Data) Data Set](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))**。我们已经将数据下载到**[data/German_Credit_Data](/AdvBox/tabular_adversarial_toolbox/data/German_Credit_Data)**。

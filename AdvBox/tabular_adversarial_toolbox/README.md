@@ -49,6 +49,12 @@ cd examples
     | Original sample    | < 0 DM | 18 | no credits taken/all credits paid back duly | business | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes |
     | Adversarial sample | *no checking account | 18 | no credits taken/all credits paid back duly | *car (used) | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes
 
+
+| a | b | c | d |
+|:---|----|--------|:----------:|
+| 1 | 2 | 3 | 44444444 |
+| 101 010 101 | 5 | 6 | 7 |
+
 ## Citing
 
 ### BibTeX

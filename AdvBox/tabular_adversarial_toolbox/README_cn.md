@@ -13,7 +13,7 @@
 
 ## 开始使用表格对抗工具箱
 
-这些示例在德国信用数据集上训练XGboost模型，并使用TAT创建对抗示例。在这里，我们训练XGBoost模型提供给TAT预测器，也可以向TAT预测器提供您自己的预训练模型或使用您自己的预测器。参数的选择是为了减少脚本的计算需求，而不是为了精度而优化。
+这些示例在German Credit Data上训练XGboost模型，并使用TAT创建对抗示例。在这里，我们训练XGBoost模型提供给TAT预测器，也可以向TAT预测器提供您自己的预训练模型或使用您自己的预测器。参数的选择是为了减少脚本的计算需求，而不是为了精度而优化。
 
 ### Dataset
 我们的例子是基于 **[Statlog (German Credit Data) Data Set](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))**。我们已经将数据下载到 **[data/German_Credit_Data](/AdvBox/tabular_adversarial_toolbox/data/German_Credit_Data)**。
@@ -34,7 +34,7 @@ German_Credit_Data
 cd examples
 ```
 
-- **[attack_german_credit_data_xgboost.py](/AdvBox/tabular_adversarial_toolbox/examples/attack_german_credit_data_xgboost.py)** 演示了一个使用德国信用数据训练XBGoost模型，然后使用TAT来构建预测器，并根据攻击设置生成对抗样本的示例。
+- **[attack_german_credit_data_xgboost.py](/AdvBox/tabular_adversarial_toolbox/examples/attack_german_credit_data_xgboost.py)** 演示了一个使用German Credit Data训练XBGoost模型，然后使用TAT来构建预测器，并根据攻击设置生成对抗样本的示例。
   - **命令行参数**
     - `--seed`: 随机种子，默认值:666。
     - `--data_path`: German Credit Data中文件“german.data”的路径。

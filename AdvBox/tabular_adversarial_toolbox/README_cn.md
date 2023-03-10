@@ -43,6 +43,12 @@ cd examples
     ```
     python attack_german_credit_data_xgboost.py --seed 666 --data_path ../data/German_Credit_Data/german.data
     ```
+  - **结果**
+
+    | Samples | Status&nbsp;of&nbsp;existing&nbsp;checking&nbsp;account | Duration&nbsp;in&nbsp;month | Credit&nbsp;history | Purpose | Credit&nbsp;amount | Savings&nbsp;account/bonds | Present&nbsp;employment&nbsp;since | Installment&nbsp;rate&nbsp;in&nbsp;percentage&nbsp;of&nbsp;disposable&nbsp;income | Personal&nbsp;status&nbsp;and&nbsp;sex | Other&nbsp;debtors/guarantors | Present&nbsp;residence&nbsp;since | Property | Age&nbsp;in&nbsp;years | Other&nbsp;installment&nbsp;plans | Housing | Number&nbsp;of&nbsp;existing&nbsp;credits&nbsp;at&nbsp;this&nbsp;bank | Job | Number&nbsp;of&nbsp;people&nbsp;being&nbsp;liable&nbsp;to&nbsp;provide&nbsp;maintenance&nbsp;for | Telephone | foreign&nbsp;worker |
+    |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+    | Original&nbsp;sample | <&nbsp;0&nbsp;DM | 18 | no&nbsp;credits&nbsp;taken/all&nbsp;credits&nbsp;paid&nbsp;back&nbsp;duly | business | 3104 | <&nbsp;100&nbsp;DM | 4&nbsp;<=&nbsp;...&nbsp;<&nbsp;7&nbsp;years | 3 | male:&nbsp;single | none | 1 | building&nbsp;society&nbsp;savings&nbsp;agreement/life&nbsp;insurance | 31 | bank | own | 1 | skilled&nbsp;employee/official | 1 | yes,&nbsp;registered&nbsp;under&nbsp;the&nbsp;customers&nbsp;name | yes |
+    | Adversarial&nbsp;sample | *no&nbsp;checking&nbsp;account | 18 | no&nbsp;credits&nbsp;taken/all&nbsp;credits&nbsp;paid&nbsp;back&nbsp;duly | *car&nbsp;(used) | 3104 | <&nbsp;100&nbsp;DM | 4&nbsp;<=&nbsp;...&nbsp;<&nbsp;7&nbsp;years | 3 | male:&nbsp;single | none | 1 | building&nbsp;society&nbsp;savings&nbsp;agreement/life&nbsp;insurance | 31 | bank | own | 1 | skilled&nbsp;employee/official | 1 | yes,&nbsp;registered&nbsp;under&nbsp;the&nbsp;customers&nbsp;name | yes |
 
 ## 引用
 

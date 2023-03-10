@@ -34,6 +34,8 @@ cd examples
 
 - **[attack_german_credit_data_xgboost.py](/AdvBox/tabular_adversarial_toolbox/examples/attack_german_credit_data_xgboost.py)** demonstrates a example of train the XBGoost model using the German Credit Data and then use TAT to build the predictor and generate adversarial samples based on the attack Settings.
   - **Command-line parameters**
+    - `--seed`: Random seed, default: 666.
+    - `--data_path`: Path of file "german.data" in German Credit Data.
   - **Usage**
     ```
     python attack_german_credit_data_xgboost.py --seed 666 --data_path ../data/German_Credit_Data/german.data

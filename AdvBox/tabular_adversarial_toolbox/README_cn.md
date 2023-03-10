@@ -28,7 +28,7 @@ German_Credit_Data
 ```
 
 ### 示例
-所有的例子都在**[examples](/AdvBox/tabular_adversarial_toolbox/examples)**文件夹。
+所有的例子都在 **[examples](/AdvBox/tabular_adversarial_toolbox/examples)**文件夹。
 
 ```
 cd examples

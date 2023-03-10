@@ -52,8 +52,8 @@ cd examples
 
     <table>
         <tr>
-          <th >Samples</th>
-          <th width="1000">Status of existing checking account</th>
+          <th>Samples</th>
+          <th>Status of existing checking account</th>
           <th>Duration in month</th>
           <th>Credit history</th>
           <th>Purpose</th>
@@ -100,7 +100,77 @@ cd examples
     </table>
 
 
-
+<div class="divTable">
+    <div class="row">
+        <div class="cell">Samples</td>
+        <div class="cell">Status of existing checking account</td>
+        <div class="cell">Duration in month</td>
+        <div class="cell">Credit history</td>
+        <div class="cell">Purpose</td>
+        <div class="cell">Credit amount</td>
+        <div class="cell">Savings account/bonds</td>
+        <div class="cell">Present employment since</td>
+        <div class="cell">Installment rate in percentage of disposable income</td>
+        <div class="cell">Personal status and sex</td>
+        <div class="cell">Other debtors/guarantors</td>
+        <div class="cell">Present residence since</td>
+        <div class="cell">Property</td>
+        <div class="cell">Age in years</td>
+        <div class="cell">Other installment plans</td>
+        <div class="cell">Housing</td>
+        <div class="cell">Number of existing credits at this bank</td>
+        <div class="cell">Job</td>
+        <div class="cell">Number of people being liable to provide maintenance for</td>
+        <div class="cell">Telephone</td>
+        <div class="cell">Foreign worker</td>
+    </div>
+    <div class="row">
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell">null</td>
+        <div class="cell"></td>
+    </div>
+    <div class="row">
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell"></td>
+        <div class="cell">null</td>
+        <div class="cell"></td>
+    </div>
+</div>
 
 ## Citing
 

@@ -1,4 +1,3 @@
-import pdb
 import sys
 sys.path.append('../')
 import argparse
@@ -206,7 +205,6 @@ def main():
             print(o_success_indices, o_best_labels)
             print(data)
             print(o_best_attacks)
-            pdb.set_trace()
             processor.inverse_transform(processor.transform(data))
             break
         

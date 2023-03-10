@@ -44,14 +44,10 @@ cd examples
     ```
   - **Result**
 
-    |  | Status&nbsp;of&nbsp;existing&nbsp;checking&nbsp;account | Duration in month | Credit history | Purpose | Credit amount | Savings account/bonds | Present employment since | Installment rate in percentage of disposable income | Personal status and sex | Other debtors/guarantors | Present residence since | Property | Age in years | Other installment plans | Housing | Number of existing credits at this bank | Job | Number of people being liable to provide maintenance for | Telephone | foreign worker |
+    |  | Status&nbsp;of&nbsp;existing&nbsp;checking&nbsp;account | Duration&nbsp;in&nbsp;month | Credit&nbsp;history | Purpose | Credit&nbsp;amount | Savings&nbsp;account/bonds | Present&nbsp;employment&nbsp;since | Installment&nbsp;rate&nbsp;in&nbsp;percentage&nbsp;of&nbsp;disposable&nbsp;income | Personal&nbsp;status&nbsp;and&nbsp;sex | Other&nbsp;debtors/guarantors | Present&nbsp;residence&nbsp;since | Property | Age&nbsp;in&nbsp;years | Other&nbsp;installment&nbsp;plans | Housing | Number&nbsp;of&nbsp;existing&nbsp;credits&nbsp;at&nbsp;this&nbsp;bank | Job | Number&nbsp;of&nbsp;people&nbsp;being&nbsp;liable&nbsp;to&nbsp;provide&nbsp;maintenance&nbsp;for | Telephone | foreign&nbsp;worker |
     |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
     | Original sample    | < 0 DM | 18 | no credits taken/all credits paid back duly | business | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes |
     | Adversarial sample | *no checking account | 18 | no credits taken/all credits paid back duly | *car (used) | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes |
-
-
-| a | b | c | d |
-|:---|----|--------|:----------:|
 
 
 

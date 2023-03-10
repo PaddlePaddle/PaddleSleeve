@@ -52,6 +52,7 @@ cd examples
 
     <table>
         <tr>
+          <th >Samples</th>
           <th>Status of existing checking account</th>
           <th>Duration in month</th>
           <th>Credit history</th>
@@ -74,6 +75,7 @@ cd examples
           <th>foreign worker</th>
         </tr>
         <tr>
+          <td>Original sample</td>
           <td>Something shortish</td>
           <td>Something much longer that really goes into a lot of detail about something, so much so that the table formatting starts to look bad in GFM format.</td>
           <td>Something shortish</td>
@@ -96,6 +98,13 @@ cd examples
           <td>Something shortish</td>
         </tr>
     </table>
+
+
+| Samples | Status of existing checking account | Duration in month | Credit history | Purpose | Credit amount | Savings account/bonds | Present employment since | Installment rate in percentage of disposable income | Personal status and sex | Other debtors/guarantors | Present residence since | Property | Age in years | Other installment plans | Housing | Number of existing credits at this bank | Job | Number of people being liable to provide maintenance for | Telephone | Foreign worker |
+|:-------:|:-----------------------------------:|:-----------------:|:--------------:|:-------:|:-------------:|:---------------------:|:------------------------:|:---------------------------------------------------:|:-----------------------:|:------------------------:|:-----------------------:|:--------:|:------------:|:-----------------------:|:-------:|:---------------------------------------:|:---:|:--------------------------------------------------------:|:---------:|:--------------:|
+|         |                                     |                   |                |         |               |                       |                          |                                                     |                         |                          |                         |          |              |                         |         |                                         |     |                                                          |           |                |
+|         |                                     |                   |                |         |               |                       |                          |                                                     |                         |                          |                         |          |              |                         |         |                                         |     |                                                          |           |                |
+
 
 ## Citing
 

@@ -25,6 +25,11 @@ German_Credit_Data
 |_ german.data-numeric
 ```
  
+### Examples
+All examples are in the **[examples](/AdvBox/tabular_adversarial_toolbox/examples)** folder.
+```
+cd examples
+```
 
 ## Citing
 

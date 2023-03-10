@@ -28,13 +28,13 @@ German_Credit_Data
 ```
 
 ### 示例
-所有的例子都在 **[examples](/AdvBox/tabular_adversarial_toolbox/examples)**文件夹。
+所有的例子都在 **[examples](/AdvBox/tabular_adversarial_toolbox/examples)** 文件夹。
 
 ```
 cd examples
 ```
 
-- **[attack_german_credit_data_xgboost.py](/AdvBox/tabular_adversarial_toolbox/examples/attack_german_credit_data_xgboost.py)**演示了一个使用德国信用数据训练XBGoost模型，然后使用TAT来构建预测器，并根据攻击设置生成对抗样本的示例。
+- **[attack_german_credit_data_xgboost.py](/AdvBox/tabular_adversarial_toolbox/examples/attack_german_credit_data_xgboost.py)** 演示了一个使用德国信用数据训练XBGoost模型，然后使用TAT来构建预测器，并根据攻击设置生成对抗样本的示例。
   - **命令行参数**
     - `--seed`: 随机种子，默认值:666。
     - `--data_path`: German Credit Data中文件“german.data”的路径。

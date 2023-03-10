@@ -45,7 +45,7 @@ cd examples
   - **Result**
 
     |  | Status of existing checking account | Duration in month | Credit history | Purpose | Credit amount | Savings account/bonds | Present employment since | Installment rate in percentage of disposable income | Personal status and sex | Other debtors/guarantors | Present residence since | Property | Age in years | Other installment plans | Housing | Number of existing credits at this bank | Job | Number of people being liable to provide maintenance for | Telephone | foreign worker |
-    |:--:|:----:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+    |:--:|--------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
     | Original sample | < 0 DM | 18 | no credits taken/all credits paid back duly | business | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes |
     | Adversarial sample | *no checking account | 18 | no credits taken/all credits paid back duly | *car (used) | 3104 | < 100 DM | 4 <= ... < 7 years | 3 | male : single | none | 1 | building society savings agreement/life insurance | 31 | bank | own | 1 | skilled employee/official | 1 | yes, registered under the customers name | yes
 

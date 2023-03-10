@@ -44,8 +44,8 @@ cd examples
     ```
   - **Result**
 
-| Status of existing checking account | Duration in month | Credit history | Purpose | Credit amount | Savings account/bonds | Present employment since | Installment rate in percentage of disposable income | Personal status and sex |
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+    | Status of existing checking account | Duration in month | Credit history | Purpose | Credit amount | Savings account/bonds | Present employment since | Installment rate in percentage of disposable income | Personal status and sex | Other debtors/guarantors | Present residence since |
+    |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 
 ## Citing
 

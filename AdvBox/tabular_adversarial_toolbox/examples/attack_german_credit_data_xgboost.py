@@ -205,7 +205,7 @@ def main():
             print(o_success_indices, o_best_labels)
             print(data)
             print(o_best_attacks)
-            processor.inverse_transform(processor.transform(data))
+            print(o_best_attacks == data)
             break
         
 if __name__ == '__main__':

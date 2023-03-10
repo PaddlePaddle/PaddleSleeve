@@ -53,7 +53,7 @@ cd examples
 | a | b | c | d |
 |:---|----|--------|:----------:|
 | 1 | 2 | 3 | 44444444 |
-| 101 010 101 | 5 | 6 | 7 |
+| &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | 5 | 6 | 7 |
 
 ## Citing
 

@@ -14,7 +14,7 @@ The tabular adversarial toolbox(TAT) is a sub-module of AdvBox used to generate 
 These examples train a XGboost model on the german credit dataset and creates adversarial examples using the TAT.  Here we provide the trained model before to the TAT predictor, it would also be possible to provide your own pretrained models to the TAT predictor or uesd your own predictor. The parameters are chosen for reduced computational requirements of the script and not optimised for accuracy.
 
 ### Dataset
-Our examples are based on the **[Statlog (German Credit Data) Data Set](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))** .
+Our examples are based on the **[Statlog (German Credit Data) Data Set](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))**. 
 
 ## Citing
 

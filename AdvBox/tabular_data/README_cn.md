@@ -1,7 +1,7 @@
 简体中文 | **[English](/AdvBox/tabular_data/README.md)**
 
 # Advbox - Tabular Data
-AdvBox -tabular_data是AdvBox的子模块，用于为结构化数据机器学习模型生成对抗样本。
+AdvBox-tabular_data是AdvBox的子模块，用于为结构化数据机器学习模型生成对抗样本。
 
 ## 安装
 ### 要求

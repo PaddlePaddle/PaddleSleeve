@@ -281,7 +281,8 @@ class PPdet_Yolov3_Model(PPdet_Model):
         # logits = paddle.masked_select(cls_prob_logits[:, self._target_class], boi)
         # loss = paddle.mean(logits)
         boi = paddle.unsqueeze(boi, axis=1)
-        logits = cls_prob_logits * boi
+        logits = cls_prob_logits - paddle.min(cls_prob_logits, axis=1, keepdim=True)
+        logits = logits * boi
         nonzero_idx = paddle.tolist(paddle.squeeze(paddle.nonzero(logits[:, target_class])))
         if nonzero_idx == []:
             return paddle.zeros([1])
@@ -424,7 +425,8 @@ class PPdet_Rcnn_Model(PPdet_Model):
         # loss = paddle.mean(logits)
 
         boi = paddle.unsqueeze(boi, axis=1)
-        logits = cls_prob_logits * boi
+        logits = cls_prob_logits - paddle.min(cls_prob_logits, axis=1, keepdim=True)
+        logits = logits * boi
         if logits.shape[-1] != self._cfg['num_classes']:
             logits = logits[:, :-1]
         nonzero_idx = paddle.tolist(paddle.squeeze(paddle.nonzero(logits[:, target_class])))
@@ -532,6 +534,7 @@ class PPdet_Detr_Model(PPdet_Model):
         # loss = paddle.mean(logits)
 
         boi = paddle.unsqueeze(boi, axis=1)
+        logits = cls_prob_logits - paddle.min(cls_prob_logits, axis=1, keepdim=True)
         logits = cls_prob_logits * boi
         if logits.shape[-1] != self._cfg['num_classes']:
             logits = logits[:, :-1]
@@ -635,7 +638,8 @@ class PPdet_SSD_Model(PPdet_Model):
         boi = target_scores > confidence
 
         boi = paddle.unsqueeze(boi, axis=1)
-        logits = cls_prob_logits * boi
+        logits = cls_prob_logits - paddle.min(cls_prob_logits, axis=1, keepdim=True)
+        logits = logits * boi
         if logits.shape[-1] != self._cfg['num_classes']:
             logits = logits[:, :-1]
         nonzero_idx = paddle.tolist(paddle.squeeze(paddle.nonzero(logits[:, target_class])))

@@ -535,7 +535,7 @@ class PPdet_Detr_Model(PPdet_Model):
 
         boi = paddle.unsqueeze(boi, axis=1)
         logits = cls_prob_logits - paddle.min(cls_prob_logits, axis=1, keepdim=True)
-        logits = cls_prob_logits * boi
+        logits = logits * boi
         if logits.shape[-1] != self._cfg['num_classes']:
             logits = logits[:, :-1]
         nonzero_idx = paddle.tolist(paddle.squeeze(paddle.nonzero(logits[:, target_class])))

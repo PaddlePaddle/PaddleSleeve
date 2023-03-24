@@ -19,6 +19,7 @@ import os
 import numpy as np
 import paddle
 import paddle.fluid as fluid
+import paddle.nn.functional as F
 import sys
 
 import ppdet
@@ -74,6 +75,16 @@ def _draw_bbox(image, bboxes, ignore_thresh=0.1, mask_cls=[]):
         draw.text((xmin + 1, ymin - th), text, fill=(255, 255, 255))
 
     return image
+
+
+def _de_sigmoid(x, eps=1e-7):
+    """
+        decode sigmoid
+    """
+    x = paddle.clip(x, eps, 1. / eps)
+    x = paddle.clip(1. / x - 1., eps, 1. / eps)
+    x = -paddle.log(x)
+    return x
 
 
 class PPdet_Model(Model):
@@ -250,6 +261,27 @@ class PPdet_Yolov3_Model(PPdet_Model):
             yolo_outputs.append(yolo_output)
 
         decode = self._model.post_process.decode
+        if self._model.yolo_head.iou_aware:
+            y = []
+            for i, out in enumerate(yolo_outputs):
+                na = len(self._model.yolo_head.anchors[i])
+                ioup, x = out[:, 0:na, :, :], out[:, na:, :, :]
+                b, c, h, w = x.shape
+                no = c // na
+                x = x.reshape((b, na, no, h * w))
+                ioup = ioup.reshape((b, na, 1, h * w))
+                obj = x[:, :, 4:5, :]
+                ioup = F.sigmoid(ioup)
+                obj = F.sigmoid(obj)
+                obj_t = (obj ** (1 - self._model.yolo_head.iou_aware_factor)) * (
+                        ioup ** self._model.yolo_head.iou_aware_factor)
+                obj_t = _de_sigmoid(obj_t)
+                loc_t = x[:, :, :4, :]
+                cls_t = x[:, :, 5:, :]
+                y_t = paddle.concat([loc_t, obj_t, cls_t], axis=2)
+                y_t = y_t.reshape((b, c, h, w))
+                y.append(y_t)
+            yolo_outputs = y
         bboxes, scores = decode(yolo_outputs, self._model.yolo_head.mask_anchors,
                         data1['im_shape'], data1['scale_factor'])
         bbox_pred, bbox_num, _ = self._model.post_process.nms(bboxes, scores, self._model.post_process.num_classes)
@@ -631,7 +663,7 @@ class PPdet_SSD_Model(PPdet_Model):
         # print("box_preds:", features['box_preds'], "type(features['box_preds']):", type(features['box_preds']))
         # print("cls_scores:", features['cls_scores'], "type(features['cls_scores']):", type(features['cls_scores']))
 
-        cls_prob_logits = paddle.squeeze(features['cls_scores'][3])
+        cls_prob_logits = paddle.squeeze(paddle.concat(features['cls_scores'], axis=1))
         scores = paddle.squeeze(paddle.nn.functional.softmax(cls_prob_logits))
 
         target_scores = scores[:, target_class]

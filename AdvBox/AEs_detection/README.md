@@ -94,8 +94,10 @@
     <td align="center">62.34%</td>
 </tr>
 
-</table>
+</table>  
+
 ### Citation  
+
   @article{ma2018characterizing,
   title={Characterizing adversarial subspaces using local intrinsic dimensionality},
   author={Ma, Xingjun and Li, Bo and Wang, Yisen and Erfani, Sarah M and Wijewickrema, Sudanthi and Schoenebeck, Grant and Song, Dawn and Houle, Michael E and Bailey, James},

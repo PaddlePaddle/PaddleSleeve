@@ -27,9 +27,6 @@ import numpy as np
 
 class LgmLoss(paddle.nn.Layer):
     def __init__(self, num_classes):
-        """
-        2. 构造函数根据自己的实际算法需求和使用需求进行参数定义即可
-        """
         super().__init__()
         self.num_classes = num_classes
         means_init = paddle.fluid.initializer.XavierInitializer(uniform = True)
@@ -128,12 +125,8 @@ optimizer = Momentum(learning_rate=0.01,
                      momentum=0.9,
                      weight_decay=L2Decay(1e-4),
                      parameters=model.parameters())
-import pdb
-pdb.set_trace()
-# 进行训练前准备
 
 earlystop = paddle.callbacks.EarlyStopping( 
-    # acc不在上升时停止
     'acc',
     mode='max',
     patience=4,
@@ -142,12 +135,11 @@ earlystop = paddle.callbacks.EarlyStopping(
     baseline=None,
     save_best_model=True)
 
-#model.prepare(optimizer, CrossEntropyLoss(), Accuracy(topk=(1, 5)))
 model.prepare(optimizer, LgmLoss(10), Accuracy(topk=(1, 5)))
-# 启动训练
+
 model.fit(train_dataset,
           val_dataset,
-          epochs=20, #时间原因只训练5轮
+          epochs=20, 
           batch_size=200,
           save_dir="./checkpoints/final_lgm/",
           num_workers=8,

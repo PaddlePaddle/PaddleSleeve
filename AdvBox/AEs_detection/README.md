@@ -23,17 +23,17 @@
          python detect_lid_paddle.py -d=cifar -a=pgdi_0.0625
          ```
    2. LID adversarial example detection method + baseline model output;
-      Step-1 The first 2 steps are the same as the classical lid adversarial sample detection method
-      Step-2 Run the adversarial example detection algorithm:
+      Step-1 The first 2 steps are the same as the classical lid adversarial sample detection method.
+      Step-2 Run the adversarial example detection algorithm.
          ```python
          python detect_lid_paddle_logits.py -d=cifar -a=pgdi_0.0625
          ```
-   3. LID adversarial example detection method + lgm mixture gaussian based baseline model optimization
-      Step-1 Fine-tuning the baseline model with lgm loss
+   3. LID adversarial example detection method + lgm mixture gaussian based baseline model optimization.
+      Step-1 Fine-tuning the baseline model with lgm loss.
          ```python
          python model_retrain_lgm.py -d=cifar -a=pgdi_0.0625
          ```
-      Step-2 The 2rd steps are the same as the classical lid adversarial sample detection method
+      Step-2 The 2rd steps are the same as the classical lid adversarial sample detection method.
       Step-3 Run the adversarial example detection algorithm:
          ```
          python detect_lid_paddle_lgm.py -d=cifar -a=pgdi_0.0625
@@ -50,6 +50,7 @@ Results
 
  <table align="center">
  <tr>
+    <td align="center">Model</td>
     <td align="center">Accuracy</td>
     <td align="center">FPR</td>
     <td align="center">Pretrained accuray</td>

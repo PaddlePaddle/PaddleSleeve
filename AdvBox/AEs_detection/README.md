@@ -87,9 +87,9 @@
 
 <tr>
     <td align="center">**LID_lgm_logit**</td>
-    <td align="center"><b85.10%></td>
+    <td align="center"><b>85.10%</td>
     <td align="center"><b>6.78%</td>
-    <td align="center"><b 19.23%></td>
+    <td align="center"><b>19.23%</td>
     <td align="center"><b>75.84%</td>
     <td align="center"><b>62.34%</td>
 </tr>

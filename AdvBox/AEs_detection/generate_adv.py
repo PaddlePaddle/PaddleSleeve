@@ -49,7 +49,7 @@ def main():
     model = paddle.vision.models.resnet34(pretrained=False, num_classes=10)
     state_dict = paddle.load("./checkpoints/final.pdparams")
     model.set_state_dict(state_dict)
-    # 获取测试数据
+  
     temp_labels,temp_datas=unpickle("./cifar_data/" + "cifar-10-batches-py/test_batch")
     temp_labels=np.array(temp_labels)
     temp_datas=np.array(temp_datas)
@@ -67,12 +67,7 @@ def main():
     stds = paddle.tile(paddle.to_tensor(std).reshape((1, 3, 1, 1)), [10000, 1, 32, 32])
     
     X_test = old_div((X_test - means), stds) # 32, 32, 3
-    #y_pred =  model(X_test)
-    #inds_success = np.where(y_pred.numpy().argmax(axis=1) == Y_test)[0]
-
-
-
-
+    
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
         [model],
@@ -99,8 +94,6 @@ def main():
         x_test = np.squeeze(x_test)
         inputs = x_test
         labels = y_test
-        print(label, y_test, "===========")
-        #print("input img shape: ", inputs.shape)
         adversary = Adversary(inputs.numpy(), labels)
     
         # 设定epsilons
@@ -124,7 +117,7 @@ def main():
         adv_cv = adv_cv[..., ::-1]
         adv_data.append(adv_cv)
         
-    adv_data = np.array(adv_data) # 需要看下形状和大小是否和原版本一致
+    adv_data = np.array(adv_data) 
     adv_file_path = adv_path + 'adv_datacifar' + '_pgdinf' + '.npy'
     np.save(adv_file_path, adv_data)
 

@@ -36,9 +36,7 @@ class LgmLoss(paddle.nn.Layer):
         #feat = get_model(image, resnet_size, is_training, num_classes=num_classes, reuse=reuse, output_feat=True) 
         logits, likelihood_reg_loss = self.lgm_logits(y_pred, self.num_classes, labels=y_true, alpha=0.1, lambda_=0.01, batch_size = 200)
         y_true =  paddle.reshape(y_true, [200, 1])
-        #y_true = paddle.nn.functional.one_hot(y_true, self.num_classes, name=None)
         cross_entropy_loss = paddle.fluid.layers.reduce_sum(paddle.nn.functional.softmax_with_cross_entropy(y_pred, y_true), dim=0)
-              
         return (likelihood_reg_loss + cross_entropy_loss)/200.
     def lgm_logits(self, feat, num_classes, labels=None, alpha=0.1, lambda_=0.01, batch_size = 200):
         '''
@@ -53,9 +51,6 @@ class LgmLoss(paddle.nn.Layer):
         
         N = batch_size#feat.get_shape().as_list()[0]
         feat_len = feat.shape[1]
-            
-        #means = tf.get_variable('rbf_centers', [num_classes, feat_len], dtype=tf.float32,
-        #                            initializer=tf.contrib.layers.xavier_initializer())
         XY = paddle.fluid.layers.matmul(feat, self.means, transpose_y=True)
         XX = paddle.fluid.layers.reduce_sum(paddle.square(feat), dim=1, keep_dim=True)
         
@@ -71,10 +66,9 @@ class LgmLoss(paddle.nn.Layer):
             # In fact, in validation mode, we only need to output neg_sqr_dist.
             # The likelihood_reg_loss and means are only for research purposes.
             return neg_sqr_dist, likelihood_reg_loss, self.means
-        # *(1 + alpha)
+        
         labels_hot = paddle.nn.functional.one_hot(labels, self.num_classes, name=None)
         ALPHA = labels_hot * alpha
-        #ALPHA = tf.one_hot(labels, num_classes, on_value=alpha, dtype=tf.float32)
         K = ALPHA + paddle.fluid.layers.ones([N, num_classes], dtype='float32')
         logits_with_margin = paddle.fluid.layers.elementwise_mul(neg_sqr_dist, K)
         # likelihood regularization

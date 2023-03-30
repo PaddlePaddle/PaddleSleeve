@@ -60,12 +60,8 @@ optimizer = Momentum(learning_rate=0.001,
                      momentum=0.9,
                      weight_decay=L2Decay(1e-4),
                      parameters=model.parameters())
-import pdb
-pdb.set_trace()
-# 进行训练前准备
 
 earlystop = paddle.callbacks.EarlyStopping( 
-    # acc不在上升时停止
     'acc',
     mode='max',
     patience=4,
@@ -75,10 +71,9 @@ earlystop = paddle.callbacks.EarlyStopping(
     save_best_model=True)
 
 model.prepare(optimizer, CrossEntropyLoss(), Accuracy(topk=(1, 5)))
-# 启动训练
 model.fit(train_dataset,
           val_dataset,
-          epochs=100, #时间原因只训练5轮
+          epochs=100, 
           batch_size=64,
           save_dir="./checkpoints/final/",
           num_workers=8,

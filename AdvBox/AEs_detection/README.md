@@ -14,7 +14,7 @@
          ```python
          python model_retrain.py
          ```
-      **Step-2** Generate the adversarial examples corresponding to the baseline model and save them in npy format. Here we use pgd attack algorithm.   
+      **Step-2** Generate the adversarial examples corresponding to the baseline model and save them in npy format. Here we use pgd attack algorithm. The attack algorithms are cited from `PaddleSleeve/AdvBox/attacks`.
          ```python
          python generate_adv.py
          ```

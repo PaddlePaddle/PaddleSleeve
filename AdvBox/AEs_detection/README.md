@@ -39,8 +39,8 @@
          python detect_lid_paddle_lgm.py -d=cifar -a=pgdi_0.0625
          ```
 
-Results
-   Evaluation Index:  
+### Results
+   **Evaluation Index:  
       1) Accuracy: The overall classification accuracy of the whole original and adversarial examples.  
       2) FPR: False positive rate. It is measured by calculating the number of clean inputs that are detected as adversarial samples divided by the total number of clean inputs. The lower the better.   
       3) Pretrained accuray: The classification accuracy of adversarial examples on the baseline classifier.  

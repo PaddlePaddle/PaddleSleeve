@@ -1,6 +1,6 @@
 ## Adversarial example detection
 
-   In `PaddleSleeve/AdvBox/AEs_detection`, we implements the adversarial example detection function for image classification models. By using the local intrinsic dimensionality (LID) metric as the base algorithm, two optimized adversarial example detection algorithms based on model output and mixture gaussian are implemented on the basis of the LID algorithm. The LID metric is used to characterize the dimensionality of the adversarial subspace to reveal the essential difference between ordinary samples and adversarial examples. The model output-based approach uses model vector features, i.e., confidence output, to compute the regularized vector features. The mixture gaussian-based approach uses mixture gaussian loss to optimize the baseline model, and the optimized classifier is used to discriminate between normal and adversarial examples.
+    In `PaddleSleeve/AdvBox/AEs_detection`, we implements the adversarial example detection function for image classification models. By using the local intrinsic dimensionality (LID) metric as the base algorithm, two optimized adversarial example detection algorithms based on model output and mixture gaussian are implemented on the basis of the LID algorithm. The LID metric is used to characterize the dimensionality of the adversarial subspace to reveal the essential difference between ordinary samples and adversarial examples. The model output-based approach uses model vector features, i.e., confidence output, to compute the regularized vector features. The mixture gaussian-based approach uses mixture gaussian loss to optimize the baseline model, and the optimized classifier is used to discriminate between normal and adversarial examples.
 
 
 ### Setup_paths
@@ -40,12 +40,12 @@
          ```
 
 ### Results
-   **Evaluation Index**: 
-      1) Accuracy: The overall classification accuracy of the whole original and adversarial examples.  
-      2) FPR: False positive rate. It is measured by calculating the number of clean inputs that are detected as adversarial samples divided by the total number of clean inputs. The lower the better.   
-      3) Pretrained accuray: The classification accuracy of adversarial examples on the baseline classifier.  
-      4) SAEs: The detection accuracy of the adversarial samples that are predicted to be positive and the actual positive samples (TPR), in which the adversarial samples are not recognized by the original classification model.  
-      5) FAEs: The detection accuracy of the adversarial samples that are predicted to be positive and the actual positive samples (TPR),in which the adversarial samples are not recognized by the original classification model.  
+   **Evaluation Index**:  
+       1) Accuracy: The overall classification accuracy of the whole original and adversarial examples.  
+       2) FPR: False positive rate. It is measured by calculating the number of clean inputs that are detected as adversarial samples divided by the total number of clean inputs. The lower the better.   
+       3) Pretrained accuray: The classification accuracy of adversarial examples on the baseline classifier.  
+       4) SAEs: The detection accuracy of the adversarial samples that are predicted to be positive and the actual positive samples (TPR), in which the adversarial samples are not recognized by the original classification model.  
+       5) FAEs: The detection accuracy of the adversarial samples that are predicted to be positive and the actual positive samples (TPR),in which the adversarial samples are not recognized by the original classification model.  
 
  <table align="center">
  <tr>

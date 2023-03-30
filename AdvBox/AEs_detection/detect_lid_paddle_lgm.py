@@ -109,16 +109,10 @@ def get_lid(model, X_test, X_test_noisy, X_test_adv, k=10, batch_size=100, datas
     return artifacts, labels
 
 def main(args):
-    '''
-    assert args.dataset in DATASETS, \
-        "Dataset parameter must be either {}".format(DATASETS)
-    '''
-    
+  
     DATASETS = ['cifar']
     ATTACKS = ATTACK[DATASETS.index(args.dataset)]
-    #assert args.attack in ATTACKS, \
-    #    "Train attack must be either {}".format(ATTACKS)
-    
+   
     assert os.path.isfile('{}adv_data{}_{}.npy'.format(adv_data_dir, args.dataset, args.attack)), \
         'adversarial sample file not found... must first craft adversarial samples'
     
@@ -201,7 +195,7 @@ def main(args):
     preds = np.concatenate((preds_pos, preds_neg))
     #X = np.hstack((X, preds))# add logits + lid feature
  
-    scaler = MinMaxScaler().fit(X) # 归一化函数
+    scaler = MinMaxScaler().fit(X) 
     X = scaler.transform(X) # standarization
 
     print("LID: [characteristic shape: ", X.shape, ", label shape: ", Y.shape)
@@ -212,16 +206,14 @@ def main(args):
 
     ## Build detector
     print("LR Detector on [dataset: %s, train_attack: %s, test_attack: %s] with:" % (args.dataset, args.attack, args.test_attack))
-    lr = train_lr(x_train, y_train) #逻辑回归分类器
-    
-  
+    lr = train_lr(x_train, y_train)
+   
     #Split
-
     n_samples = int(len(x_test)/3)
     x_normal=x_test[:n_samples]
     x_noise=x_test[n_samples:n_samples*2]
     x_adv=x_test[n_samples*2:]
-    x_test = np.concatenate([x_normal, x_adv]) # 只需要normal and adv 
+    x_test = np.concatenate([x_normal, x_adv]) 
     y_normal=y_test[:n_samples]
     y_noise=y_test[n_samples:n_samples*2]
     y_adv=y_test[n_samples*2:]
@@ -230,8 +222,8 @@ def main(args):
     
     pred_adv = model(paddle.to_tensor(X_test_adv[ind_adv_start:]))
     ## Evaluate detector on adversarial attack
-    y_pred = lr.predict_proba(x_test)[:, 1] ## 输出分类概率。返回每种类别的概率，按照分类类别顺序给出，此处输出类别为1>的分类概率
-    y_label_pred = lr.predict(x_test) # 用来预测样本，也就是分类，X是测试集。返回array；
+    y_pred = lr.predict_proba(x_test)[:, 1] 
+    y_label_pred = lr.predict(x_test) 
     pred_adv_label = pred_adv.argmax(axis=1)
     pred_lgm = model_lgm(X_test_adv[ind_adv_start:])
     pred_lgm_label =  pred_lgm.argmax(axis=1)
@@ -242,9 +234,9 @@ def main(args):
     shape = Y_test[ind_adv_start:].shape
     loss = paddle.fluid.layers.cross_entropy(pred_adv, paddle.to_tensor(Y_test[ind_adv_start:]))
     
-    acc_suc = paddle.metric.accuracy(pred_adv, paddle.to_tensor(Y_test[ind_adv_start:].reshape(shape[0], 1)))#计算精度
-    inds_success = np.where(pred_adv.numpy().argmax(axis=1) != Y_test_hot[ind_adv_start:].argmax(axis=1))[0] # 对抗样本不被原始分类模型识别的索引   
-    inds_fail = np.where(pred_adv.numpy().argmax(axis=1) == Y_test_hot[ind_adv_start:].argmax(axis=1))[0] # 对抗样本被原始分类模型识别的索引
+    acc_suc = paddle.metric.accuracy(pred_adv, paddle.to_tensor(Y_test[ind_adv_start:].reshape(shape[0], 1)))
+    inds_success = np.where(pred_adv.numpy().argmax(axis=1) != Y_test_hot[ind_adv_start:].argmax(axis=1))[0]   
+    inds_fail = np.where(pred_adv.numpy().argmax(axis=1) == Y_test_hot[ind_adv_start:].argmax(axis=1))[0] 
     
     X_success = np.concatenate([x_normal[inds_success], x_adv[inds_success]])
     Y_success = np.concatenate([np.zeros(len(inds_success), dtype=bool), np.ones(len(inds_success), dtype=bool)])
@@ -307,7 +299,7 @@ def main(args):
                     'acc': accuracy_fail, 'tpr': tpr_fail, 'fpr': fpr_fail, 'tp': tp_fail, 'ap': ap_fail, 'fb': fb_fail, 'an': an_fail,	\
                     'tprs': list(fprs_fail), 'fprs': list(tprs_fail),	'auc': roc_auc_fail}
         results_all.append(curr_result)
-    # 预训练模型的分类准确度：对抗样本在原始10分类模型上的分类准确率
+   
     print('{:>15} attack - accuracy of pretrained model: {:7.2f}% \
         - detection rates ------ SAEs: {:7.2f}%, FAEs: {:7.2f}%'.format(args.attack, 100*acc_suc.numpy()[0], 100*tpr_success, 100*tpr_fail))
     print('Done!')

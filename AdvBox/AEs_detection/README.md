@@ -98,12 +98,12 @@
 
 ### Citation  
 
-  @article{ma2018characterizing,
-  title={Characterizing adversarial subspaces using local intrinsic dimensionality},
-  author={Ma, Xingjun and Li, Bo and Wang, Yisen and Erfani, Sarah M and Wijewickrema, Sudanthi and Schoenebeck, Grant and Song, Dawn and Houle, Michael E and Bailey, James},
-  journal={arXiv preprint arXiv:1801.02613},
-  year={2018}
-}    
+    @article{ma2018characterizing,  
+    title={Characterizing adversarial subspaces using local intrinsic dimensionality},  
+    author={Ma, Xingjun and Li, Bo and Wang, Yisen and Erfani, Sarah M and Wijewickrema, Sudanthi and Schoenebeck, Grant and Song, Dawn and Houle, Michael E and Bailey, James},  
+    journal={arXiv preprint arXiv:1801.02613},  
+    year={2018}  
+    }    
   @inproceedings{LGM2018,
   title={Rethinking Feature Distribution for Loss Functions in Image Classification},
   author={Wan, Weitao and Zhong, Yuanyi and Li, Tianpeng and Chen, Jiansheng},

@@ -5,7 +5,7 @@
 
 ### Setup_paths
 
-   Open `setup_paths.py` and set the paths and other detector-related settings.
+   Open `setup_paths.py` and set the paths, attack methods and other detector-related settings.
 
 ### Run Adversarial example detection
 

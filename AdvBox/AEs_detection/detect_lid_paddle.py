@@ -109,17 +109,10 @@ def get_lid(model, X_test, X_test_noisy, X_test_adv, k=10, batch_size=100, datas
 
     return artifacts, labels
 
-def main(args):
-    '''
-    assert args.dataset in DATASETS, \
-        "Dataset parameter must be either {}".format(DATASETS)
-    '''
-    
+def main(args):   
     DATASETS = ['cifar']
     ATTACKS = ATTACK[DATASETS.index(args.dataset)]
-    #assert args.attack in ATTACKS, \
-    #    "Train attack must be either {}".format(ATTACKS)
-    
+  
     assert os.path.isfile('{}adv_data{}_{}.npy'.format(adv_data_dir, args.dataset, args.attack)), \
         'adversarial sample file not found... must first craft adversarial samples'
     

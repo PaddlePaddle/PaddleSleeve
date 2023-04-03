@@ -23,7 +23,7 @@ from matplotlib import pyplot as plt
 import pickle
 import numpy as np
 import sys
-sys.path.append("..")
+sys.path.append("../..")
 from adversary import Adversary
 from attacks.gradient_method import PGD
 

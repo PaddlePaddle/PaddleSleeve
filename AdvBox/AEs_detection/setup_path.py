@@ -14,6 +14,6 @@
 
 DATASETS = ['tiny']
 adv_data_dir = "/mnt/tianweijuan/PaddleSleeve/AdvBox/AEs_detection/detectors_adv/"
-ATTACK = [['pgdi_0.0625'
+ATTACK = [ ['pgdi_0.0625'
            ]
-        ]
+         ]

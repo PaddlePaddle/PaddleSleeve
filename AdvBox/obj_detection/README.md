@@ -505,24 +505,23 @@ The improved results are as follows:
   4) provide the training strategy of attack algorithm for object detection, including median pooling, smoothness, nps, and intervention of intermediate layer feature interference enhancement strategy.  
 
 ### Run adaptive patch adversarial attack  
-  Step1: For the given video, conduct `video2image.py` to obtain images.    
-  Step2: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as *.txt, as follows:  
+  **Step1**: For the given video, conduct `video2image.py` to obtain images.    
+  **Step2**: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as     *.txt, as follows:  
        6 0.576 0.447 0.834 0.880  
-  where the first number is the object class label, and the last four numbers are the center coordinates and aspect ratio of the target box. The object label information can be obtained by calling paddledet models.  
-  Step3: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.  
+       where the first number is the object class label, and the last four numbers are the center coordinates and aspect ratio of the target box. The object label information can be obtained by calling paddledet models.    
+  **Step3**: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.    
       ```python 
       python optim_pos.py
       ```
-  Step4: Based on the above candidate patch positions, conduct `optim_range.py` to obtain the optimal patch size of multiple candidates.  
+  **Step4**: Based on the above candidate patch positions, conduct `optim_range.py` to obtain the optimal patch size of multiple candidates.  
       ```python 
       python optim_range.py
-      ```python
-  Step5: For each candidate patch position and size, modify the patch_def information according to your needs.  
+      ```
+  **Step5**: For each candidate patch position and size, modify the patch_def information according to your needs.    
      ```python
      cd patch_def
      vim patch_def.xml
-     ```python
-
+     ```
      The patch_def.xml is mainly defined as follows:  
          size，the size of the image. Include: image width, image height, image depth.  
          <size>
@@ -578,10 +577,10 @@ The improved results are as follows:
    
 <table align="center">
 <tr>
-    <td align="center"><img src="./adaptive_patch_attack/truck_toy/jpgs_355.jpg" width=300></td>
-    <td align="center"><img src="./adaptive_patch_attack/output/out_jpgs_355.jpg" width=300></td>
-    <td align="center"><img src="./adaptive_patch_attack/output/adv_jpgs_355.jpg" width=300></td>
-    <td align="center"><img src="./adaptive_patch_attack/output/outadv_jpgs_355.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/truck_toy/jpgs_308.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/out_jpgs_308.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/adv_jpgs_308.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/outadv_jpgs_308.jpg" width=300></td>
     <td align="center">52%</td>
     <td align="center">66.5%</td>
 </tr>

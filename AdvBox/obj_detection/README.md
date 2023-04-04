@@ -505,24 +505,24 @@ The improved results are as follows:
   4) provide the training strategy of attack algorithm for object detection, including median pooling, smoothness, nps, and intervention of intermediate layer feature interference enhancement strategy.  
 
 ### Run adaptive patch adversarial attack  
-  Step1: For the given video, conduct `video2image.py` to obtain images.    
-  Step2: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as     *.txt, as follows:    
+    Step1: For the given video, conduct `video2image.py` to obtain images.    
+    Step2: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as     *.txt, as follows:    
        6 0.576 0.447 0.834 0.880    
        where the first number is the object class label, and the last four numbers are the center coordinates and aspect ratio of the target box. The object label information can be obtained by calling paddledet models.    
-  Step3: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.  
+    Step3: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.  
       ```python 
       python optim_pos.py
       ```
-  Step4: Based on the above candidate patch positions, conduct `optim_range.py` to obtain the optimal patch size of multiple candidates.    
-     ```python 
-     python optim_range.py
-     ```
-  Step5: For each candidate patch position and size, modify the patch_def information according to your needs.     
-     ```python
-     cd patch_def
-     vim patch_def.xml
+    Step4: Based on the above candidate patch positions, conduct `optim_range.py` to obtain the optimal patch size of multiple candidates.    
+      ```python 
+      python optim_range.py
+      ```
+    Step5: For each candidate patch position and size, modify the patch_def information according to your needs.     
+      ```python
+      cd patch_def
+      vim patch_def.xml
        
-     The patch_def.xml is mainly defined as follows:  
+      The patch_def.xml is mainly defined as follows:  
          size，the size of the image. Include: image width, image height, image depth.  
          <size>
                 <width>960</width>
@@ -556,22 +556,22 @@ The improved results are as follows:
                         <ymax>313</ymax>
                 </bndbox>
          </object>
-     ```
-  Step 6: modify the data loader file:   
-     ```python
-     cd PaddleSleeve/AdvBox/obj_detection/ppdet/data/transform
-     vim __init.py :
-       #from .operators import *
-       from .operators_adapatch import *
-     ```
-  Step7: Run the adaptive_patch_attack.py to training adaptive optimal patch.   
-     ```python
-     python adaptive_patch_attack.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco_adapatch.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_dir=./truck_toy/
-     ```
-  Step8: Run the adaptive_patch_attack_test.py to add patch into the testing digit images.    
-     ```python
-     python adaptive_patch_attack_test.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco_adapatch.yml --infer_dir=./truck_toy/
-     ```
+      ```
+    Step 6: modify the data loader file:   
+      ```python
+      cd PaddleSleeve/AdvBox/obj_detection/ppdet/data/transform
+      vim __init.py :
+        #from .operators import *
+        from .operators_adapatch import *
+      ```
+    Step7: Run the adaptive_patch_attack.py to training adaptive optimal patch.   
+      ```python
+      python adaptive_patch_attack.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco_adapatch.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_dir=./truck_toy/
+      ```
+    Step8: Run the adaptive_patch_attack_test.py to add patch into the testing digit images.    
+      ```python
+      python adaptive_patch_attack_test.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco_adapatch.yml --infer_dir=./truck_toy/
+      ```
 ### Results
    
 <table align="center">

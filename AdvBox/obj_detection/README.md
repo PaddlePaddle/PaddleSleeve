@@ -507,9 +507,10 @@ The improved results are as follows:
 ### Run adaptive patch adversarial attack  
   **Step1**: For the given video, conduct `video2image.py` to obtain images.   
   
-  **Step2**: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as     *.txt, as follows:    
-      6 0.576 0.447 0.834 0.880    
-      where the first number is the object class label, and the last four numbers are the center coordinates and aspect ratio of the target box. The object label information can be obtained by calling paddledet models.  
+  **Step2**: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as     *.txt, as follows:  
+  
+          6 0.576 0.447 0.834 0.880    
+          where the first number is the object class label, and the last four numbers are the center coordinates and aspect ratio of the target box. The object label information can be obtained by calling paddledet models.  
          
   **Step3**: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.  
     

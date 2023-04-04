@@ -1,0 +1,38 @@
+<annotation>
+	<folder>Downloads</folder>
+	<filename>109.png</filename>
+	<path>/Users/somebody/Downloads/109.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>960</width>
+		<height>540</height>
+		<depth>3</depth>
+	</size>
+        <segmented>0</segmented>
+	<obj_size>
+		<xmin>274</xmin>
+		<ymin>164</ymin>
+                <width>445</width>
+                <height>243</height>
+        </obj_size>
+        <segmented>1</segmented>
+        <label>
+                <id>8</id>
+        </label>
+	<segmented>2</segmented>
+	<object>
+		<name>ad_sticker</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>419</xmin>
+			<ymin>208</ymin>
+			<xmax>574</xmax>
+			<ymax>313</ymax>
+		</bndbox>
+	</object>
+	
+</annotation>

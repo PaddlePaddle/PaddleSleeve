@@ -19,6 +19,7 @@ from . import mot_operators
 from . import rotated_operators
 
 from .operators import *
+#from .operators_adapatch import *
 from .batch_operators import *
 from .keypoint_operators import *
 from .mot_operators import *

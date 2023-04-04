@@ -497,40 +497,41 @@ The improved results are as follows:
 </table>
 
 ## Adaptive Patch attack on object detection models
-  In `PaddleSleeve/AdvBox/obj_detection/adaptive_patch_attack`, we achieve an adaptive patch learning attack algorithm faced multi-scene, multi-scale, multi-view and multi-objects. Compared to the classic patch adversarial attack framework, the followings are mainly improved:
+  In `PaddleSleeve/AdvBox/obj_detection/adaptive_patch_attack`, we achieve an adaptive patch learning attack algorithm faced multi-scene, multi-scale, multi-view and multi-objects. Compared to the classic patch adversarial attack framework, the followings are mainly improved:  
+  
   1) provide adaptive patch position determination algorithm;      
-  2) provide adaptive patch size determination algorithm;
-  3) provide the patch position and size determination algorithm for multi-scale, multi-scene and multi-object images during training and testing with better adaptive capability;
-  4) provide the training strategy of attack algorithm for object detection, including median pooling, smoothness, nps, and intervention of intermediate layer feature interference enhancement strategy.
+  2) provide adaptive patch size determination algorithm;  
+  3) provide the patch position and size determination algorithm for multi-scale, multi-scene and multi-object images during training and testing with better adaptive capability;  
+  4) provide the training strategy of attack algorithm for object detection, including median pooling, smoothness, nps, and intervention of intermediate layer feature interference enhancement strategy.  
 
 ### Run adaptive patch adversarial attack  
-  Step1: For the given video, conduct `video2image.py` to obtain images.  
-  Step2: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as *.txt, as follows:
+  Step1: For the given video, conduct `video2image.py` to obtain images.    
+  Step2: Obtain the object label information for each image, including class label and boxes, where the "object" is to be attacked, and save as *.txt, as follows:  
        6 0.576 0.447 0.834 0.880  
   where the first number is the object class label, and the last four numbers are the center coordinates and aspect ratio of the target box. The object label information can be obtained by calling paddledet models.  
-  Step3: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.
+  Step3: Select optimal patch location and size. Conduct `optim_pos.py` to obtain the optimal patch position of multiple candidates.  
       ```python 
       python optim_pos.py
       ```
-  Step4: Based on the above candidate patch positions, conduct `optim_range.py` to obtain the optimal patch size of multiple candidates.
+  Step4: Based on the above candidate patch positions, conduct `optim_range.py` to obtain the optimal patch size of multiple candidates.  
       ```python 
       python optim_range.py
       ```python
-  Step5: For each candidate patch position and size, modify the patch_def information according to your needs:
+  Step5: For each candidate patch position and size, modify the patch_def information according to your needs.  
      ```python
      cd patch_def
      vim patch_def.xml
      ```python
 
-     The patch_def.xml is mainly defined as follows:
-         size，the size of the image. Include: image width, image height, image depth
+     The patch_def.xml is mainly defined as follows:  
+         size，the size of the image. Include: image width, image height, image depth.  
          <size>
                 <width>960</width>
                 <height>540</height>
                 <depth>3</depth>
         </size>
 
-        obj_size, the total size of the object to be attack
+        obj_size, the total size of the object to be attack.  
         <obj_size>
                 <xmin>274</xmin>
                 <ymin>164</ymin>
@@ -538,12 +539,12 @@ The improved results are as follows:
                 <height>243</height>
         </obj_size>
 
-        label, the object class label to be attacked.
+        label, the object class label to be attacked.  
         <label>
                 <id>8</id>
         </label>
        
-        object, the patch information definition.
+        object, the patch information definition.  
         <object>
                 <name>ad_sticker</name>
                 <pose>Unspecified</pose>
@@ -557,7 +558,7 @@ The improved results are as follows:
                 </bndbox>
         </object>
 
-  Step 6: modify the data loader file:
+  Step 6: modify the data loader file:  
        ```python
        cd PaddleSleeve/AdvBox/obj_detection/ppdet/data/transform
        vim __init.py :
@@ -565,11 +566,11 @@ The improved results are as follows:
            from .operators_adapatch import *
        ```
  
-  Step7: Run the adaptive_patch_attack.py to training adaptive optimal patch.
+  Step7: Run the adaptive_patch_attack.py to training adaptive optimal patch.  
        ```python
        python adaptive_patch_attack.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco_adapatch.yml -o weights=https://paddledet.bj.bcebos.com/models/yolov3_mobilenet_v3_large_270e_coco.pdparams --infer_dir=./truck_toy/
        ```
-  Step8: Run the adaptive_patch_attack_test.py to add patch into the testing digit images.
+  Step8: Run the adaptive_patch_attack_test.py to add patch into the testing digit images.  
        ```python
        python adaptive_patch_attack_test.py -c ../configs/yolov3/yolov3_mobilenet_v3_large_270e_coco_adapatch.yml --infer_dir=./truck_toy/
        ```
@@ -577,10 +578,10 @@ The improved results are as follows:
    
 <table align="center">
 <tr>
-    <td align="center"><img src="./truck_toy/jpgs_355.jpg" width=300></td>
-    <td align="center"><img src="./output/out_jpgs_355.jpg" width=300></td>
-    <td align="center"><img src="./output/adv_jpgs_355.jpg" width=300></td>
-    <td align="center"><img src="./output/outadv_jpgs_355.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/truck_toy/jpgs_355.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/out_jpgs_355.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/adv_jpgs_355.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/outadv_jpgs_355.jpg" width=300></td>
     <td align="center">52%</td>
     <td align="center">66.5%</td>
 </tr>

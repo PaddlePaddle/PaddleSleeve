@@ -582,7 +582,7 @@ The improved results are as follows:
     <td align="center"><img src="./adaptive_patch_attack/truck_toy/jpgs_308.jpg" width=300></td>
     <td align="center"><img src="./adaptive_patch_attack/output/out_jpgs_308.jpg" width=300></td>
     <td align="center"><img src="./adaptive_patch_attack/output/adv_jpgs_308.jpg" width=300></td>
-    <td align="center"><img src="./adaptive_patch_attack/output/outadv_jpgs_308.jpg" width=300></td>
+    <td align="center"><img src="./adaptive_patch_attack/output/outadv_jps_308.jpg" width=300></td>
     <td align="center">52%</td>
     <td align="center">66.5%</td>
 </tr>

@@ -496,7 +496,7 @@ The improved results are as follows:
 </tr>
 </table>
 
-## Adaptive Patch attack on object detection models
+## Adaptive patch attack on object detection models
   In `PaddleSleeve/AdvBox/obj_detection/adaptive_patch_attack`, we achieve an adaptive patch learning attack algorithm faced multi-scene, multi-scale, multi-view and multi-objects. Compared to the classic patch adversarial attack framework, the followings are mainly improved:  
   
   1) provide adaptive patch position determination algorithm;      

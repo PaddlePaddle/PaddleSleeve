@@ -469,6 +469,7 @@ class DataCorrector(object):
 
         elif field_type == 'Integer more 1':
             corrected_field_data = field_data.astype(np.float32)
+            corrected_field_data = np.round(corrected_field_data)
             corrected_field_data = np.where(corrected_field_data > 1., corrected_field_data, 1.)
         elif field_type is None:
             corrected_field_data = field_data

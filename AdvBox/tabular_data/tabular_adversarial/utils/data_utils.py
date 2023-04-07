@@ -345,7 +345,7 @@ class DataProcessor(object):
         
         return onehot_data
 
-    def inverse_transform(self, onehot_data):
+    def inverse_transform(self, onehot_data, clip_values=False):
         '''
         Inverse transform embedding data to raw data.
 
@@ -360,7 +360,7 @@ class DataProcessor(object):
             onehot_data = self.scaler.inverse_transform(onehot_data)
 
         if not self.corrector is None:
-            onehot_data = self.corrector.transform(onehot_data)
+            onehot_data = self.corrector.transform(onehot_data, clip_values=clip_values)
 
         raw_data = onehot_to_raw(onehot_data, self.onehot_encoders_list)
 
@@ -370,21 +370,28 @@ class DataCorrector(object):
     '''
     Correct the data features based on the data types of each field.
     '''
-    def __init__(self, field_types_list, onehot_encoders_list):
+    def __init__(self, fields_type_list, onehot_encoders_list, fields_clip_list, fields_min_list, fields_max_list):
         '''
         Initialize.
 
         Args:
-            field_types_list: A list of individual field data types. Type must in [`Boolean`, `Integer`, `Positive Integer`, `Positive Float`, `Onehot`, `Integer more 1`, None].
+            fields_type_list (list): A list of individual field data types. Type must in [`Boolean`, `Integer`, `Positive Integer`, `Positive Float`, `String`, `Integer more 1`, None].
             onehot_encoders_list (list): List of onehot_encoders. The value is `None` or `onehot_encoder`. If type of field is not in deal_type, value is None, else value is onehot_encoder.
+            fields_clip_list (list): A list of flags that fields need to be cilpped. Note, `String` is unsupported clip.
+            fields_min_list (list): A list of minimum values for fields. Note, `String` values is ignored.
+            fields_max_list (list): A list of maximum values for fields. Note, `String` values is ignored.
+
         '''
 
-        self.field_types_list = field_types_list
+        self.fields_type_list = fields_type_list
         self.onehot_encoders_list = onehot_encoders_list
+        self.fields_clip_list = fields_clip_list
+        self.fields_min_list = fields_min_list
+        self.fields_max_list = fields_max_list
         
-    def transform(self, data):
+    def transform(self, data, clip_values=False):
         '''
-        Correct the input `data` by `field_types_list` and `onehot_encoders_list`
+        Correct the input `data` by `fields_type_list` and `onehot_encoders_list`
 
         Args:
             data: The data to be correct. Shape (nb_samples, nb_features).
@@ -396,9 +403,19 @@ class DataCorrector(object):
         idx = 0
         corrected_data = []
 
-        for i in range(len(self.field_types_list)):
-            field_type = self.field_types_list[i]
+        for i in range(len(self.fields_type_list)):
+            # Get field info.
+            field_type = self.fields_type_list[i]
             onehot_encoder = self.onehot_encoders_list[i]
+            # Get field value clip info.
+            clip_value = self.fields_clip_list[i]
+            min_value = self.fields_min_list[i]
+            max_value = self.fields_max_list[i]
+
+            # Check `clip_value` and `field_type`.
+            if field_type == 'String' and clip_value == True:
+                print(f'Warning: Field type {field_type} not supported value clip.')
+                clip_value = False
 
             # Field is processed by onehot.
             if not onehot_encoder is None:
@@ -410,13 +427,14 @@ class DataCorrector(object):
                 field_data = data[:, idx].reshape(-1, 1)
                 idx += 1
 
-            corrected_data.append(self.correct(field_data, field_type))
+            
+            corrected_data.append(self.correct(field_data, field_type, clip_value, min_value, max_value))
 
         corrected_data = np.concatenate(corrected_data, axis=1)
 
         return corrected_data
 
-    def correct(self, field_data, field_type):
+    def correct(self, field_data, field_type, clip_value=False, min_value=None, max_value=None):
         '''
         Correct the data based on the field data type.
 
@@ -456,5 +474,8 @@ class DataCorrector(object):
             corrected_field_data = field_data
         else:
             raise ValueError(f'Not support field type: {field_type}.')
+
+        if clip_value:
+            corrected_field_data = np.clip(corrected_field_data, min_value, max_value)
 
         return corrected_field_data

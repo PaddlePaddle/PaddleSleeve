@@ -138,7 +138,7 @@ def main():
     scaler.fit(X_train_onehot)
     # Build a corrector, if data correction is required.
     # Fill in the field type for each field
-    field_types_list = [
+    fields_type_list = [
         'String',
         'Integer more 1',
         'String',
@@ -160,8 +160,23 @@ def main():
         'String',
         'String',
     ]
+
+    # Make fields_clip_list
+    fields_clip_list = []
+    for field_type in fields_type_list:
+        clip_value = False if field_type == 'String' else True
+        fields_clip_list.append(clip_value)
+
+    # Set fields_min_list. Note that fields_min_list can be set as needed, in this case to facilitate inference directly from the dataset.
+
+    fields_min_list = np.min(gcd_X, axis=0)
+
+    # Set fields_max_list. Note that fields_max_list can be set as needed, in this case to facilitate inference directly from the dataset.
+
+    fields_max_list = np.max(gcd_X, axis=0)
+
     # Note that the onehot_encoders_list used here doesn't have to be the same as the model training, it's just for convenience.
-    corrector = DataCorrector(field_types_list, X_onehot_encoders_list)
+    corrector = DataCorrector(fields_type_list, X_onehot_encoders_list, fields_clip_list=fields_clip_list, fields_min_list=fields_min_list, fields_max_list=fields_max_list)
 
     # Note that the onehot_encoders_list used here doesn't have to be the same as the model training, it's just for convenience. But it has to be the same as the corrector.
     processor = DataProcessor(X_onehot_encoders_list, scaler=scaler, corrector=corrector)

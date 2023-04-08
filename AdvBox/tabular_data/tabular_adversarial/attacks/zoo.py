@@ -106,7 +106,10 @@ class ZooAttack(object):
             y = get_labels_np_array(self.predictor.predict(raw_data))
 
         # Transform raw_data to embedding data.
-        ori_data = self.processor.transform(raw_data)
+        if not self.processor is None:
+            ori_data = self.processor.transform(raw_data)
+        else:
+            ori_data = raw_data.copy()
 
         # Get number of features.
         nb_features = ori_data.shape[1]
@@ -187,7 +190,7 @@ class ZooAttack(object):
 
         # Inverse transform to field-level
         if not self.processor is None:
-            o_best_attacks = self.processor.inverse_transform(o_best_attacks)
+            o_best_attacks = self.processor.inverse_transform(o_best_attacks, clip_values=True)
 
         return o_best_distortion_norms, o_best_adversarial_losses, o_best_labels, o_best_attacks, o_success_indices
 
@@ -235,7 +238,7 @@ class ZooAttack(object):
 
             # Inverse transform to field-level
             if not self.processor is None:
-                inverse_transformed_x_adv = self.processor.inverse_transform(x_adv)
+                inverse_transformed_x_adv = self.processor.inverse_transform(x_adv, clip_values=True)
             else:
                 inverse_transformed_x_adv = x_adv
 

@@ -44,19 +44,18 @@
          ```
 
 #### Patch noise adversarial example detection  
-
    **Step-1** Train baseline classifier for cifar10 dataset, here we use the pretrained resnet34 model.  
-      ```python
-      python model_retrain.py
-      ```  
+        ```python
+        python model_retrain.py
+        ```  
    **Step-2** Generate the patch noise adversarial examples corresponding to the baseline model and save them in npy format. Here we use patch adversarial attack algorithm. The attack algorithms are cited from `PaddleSleeve/AdvBox/attacks`.  
-      ```python
-      python generate_adv_patch.py
-      ```  
+        ```python
+        python generate_adv_patch.py
+        ```  
    **Step-3** Run the adversarial example detection algorithm.  
-      ```python
-      python detect_auglid.py -d=cifar -a=patch
-      ```
+        ```python
+        python detect_auglid.py -d=cifar -a=patch
+        ```
 
 ### Results
    **Evaluation Index**:  

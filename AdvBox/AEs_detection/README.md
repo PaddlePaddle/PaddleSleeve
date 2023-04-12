@@ -2,9 +2,7 @@
 
 ## 1. LID (local intrinsic dimensionality) related detection algorithms
 
-  In `PaddleSleeve/AdvBox/AEs_detection/LID`, we implements the adversarial example detection function for image classification models, which contain two detetcion algorithms for global noise and patch noise adversarial examples. For global noise adversarial example detection, by using the local intrinsic dimensionality (LID) metric as the base algorithm, two optimized adversarial example detection algorithms based on model output and mixture gaussian are implemented on the basis of the LID algorithm.   
-        For patch noise adversarial example detection, based on LID metric, the feature norm in the feature map is significantly higher at the corresponding adversarial patch position than at other positions, and also significantly higher than the maximum feature norm of the normal sample. During the process of LID feature extraction, the high norms of the adversarial patch is used for feature enhancement, which increases the distinguishability between the adversarial sample and the normal sample. The LID metric extracted after feature enhancement with the high feature norm of the adversarial patch is used for adversarial example detection to improve the detection performance of the patched adversarial samples.  
-        The LID metric is used to characterize the dimensionality of the adversarial subspace to reveal the essential difference between ordinary samples and adversarial examples. The model output-based approach uses model vector features, i.e., confidence output, to compute the regularized vector features. The mixture gaussian-based approach uses mixture gaussian loss to optimize the baseline model, and the optimized classifier is used to discriminate between normal and adversarial examples.
+  In `PaddleSleeve/AdvBox/AEs_detection/LID`, we implements the adversarial example detection function for image classification models, which contain two detetcion algorithms for global noise and patch noise adversarial examples. For global noise adversarial example detection, by using the local intrinsic dimensionality (LID) metric as the base algorithm, two optimized adversarial example detection algorithms based on model output and mixture gaussian are implemented on the basis of the LID algorithm. For patch noise adversarial example detection, based on LID metric, the feature norm in the feature map is significantly higher at the corresponding adversarial patch position than at other positions, and also significantly higher than the maximum feature norm of the normal sample. During the process of LID feature extraction, the high norms of the adversarial patch is used for feature enhancement, which increases the distinguishability between the adversarial sample and the normal sample. The LID metric extracted after feature enhancement with the high feature norm of the adversarial patch is used for adversarial example detection to improve the detection performance of the patched adversarial samples. The LID metric is used to characterize the dimensionality of the adversarial subspace to reveal the essential difference between ordinary samples and adversarial examples. The model output-based approach uses model vector features, i.e., confidence output, to compute the regularized vector features. The mixture gaussian-based approach uses mixture gaussian loss to optimize the baseline model, and the optimized classifier is used to discriminate between normal and adversarial examples.
 
 
 ### Setup_paths
@@ -50,11 +48,11 @@
    **Step-1** Train baseline classifier for cifar10 dataset, here we use the pretrained resnet34 model.  
       ```python
       python model_retrain.py
-      ```
+      ```  
    **Step-2** Generate the patch noise adversarial examples corresponding to the baseline model and save them in npy format. Here we use patch adversarial attack algorithm. The attack algorithms are cited from `PaddleSleeve/AdvBox/attacks`.  
       ```python
       python generate_adv_patch.py
-      ```
+      ```  
    **Step-3** Run the adversarial example detection algorithm.  
       ```python
       python detect_auglid.py -d=cifar -a=patch

@@ -28,6 +28,7 @@ from sklearn.linear_model import LogisticRegressionCV
 from sklearn.preprocessing import scale
 from scipy.spatial.distance import pdist, cdist, squareform
 from sklearn.decomposition import PCA
+import paddle
 
 # Gaussian noise scale sizes that were determined so that the average
 # L-2 perturbation size is equal to that of the adversarial samples
@@ -527,24 +528,35 @@ def get_lids_random_batch(model, X, X_noisy, X_adv, dataset, k=10, batch_size=10
         lid_batch = np.zeros(shape=(n_feed, lid_dim))
         lid_batch_adv = np.zeros(shape=(n_feed, lid_dim))
         lid_batch_noisy = np.zeros(shape=(n_feed, lid_dim))
-        
+          
 
         for i in range(lid_dim):
             X_act = out_normal[i][start:end]
+            _, c, h, w = X_act.shape
+            
+            X_act_norm  = paddle.norm(X_act, axis = 1, keepdim=True).numpy()
+
+            X_act = X_act.numpy() * X_act_norm
+            
             X_act = np.asarray(X_act, dtype=np.float32).reshape((n_feed, -1))
             lid_batch[:, i] = mle_batch(X_act, X_act, k=k)
             X_noisy_act = out_noisy[i][start:end]
+            X_noisy_norm  = paddle.norm(X_noisy_act, axis = 1, keepdim=True).numpy()
+            
+            X_noisy_act = X_noisy_act.numpy() * X_noisy_norm
+
             X_noisy_act = np.asarray(X_noisy_act, dtype=np.float32).reshape((n_feed, -1))
             lid_batch_noisy[:, i] = mle_batch(X_act, X_noisy_act, k=k)
             X_adv_act = out_adv[i][start:end]
+            X_adv_norm  = paddle.norm(X_adv_act, axis = 1, keepdim=True).numpy()
+            
+            X_adv_act = X_adv_act.numpy() * X_adv_norm
+           
             X_adv_act = np.asarray(X_adv_act, dtype=np.float32).reshape((n_feed, -1))
             lid_batch_adv[:, i] = mle_batch(X_act, X_adv_act, k=k)   
-            # random clean samples
-            # Maximum likelihood estimation of local intrinsic dimensionality (LID)
       
         return lid_batch, lid_batch_noisy, lid_batch_adv
-    import pdb
-    pdb.set_trace()
+    
     lids = []
     lids_adv = []
     lids_noisy = []

@@ -982,6 +982,9 @@ OCR攻击模块在 **[text_recognition](/AdvBox/text_recognition)** 中。
 ## 结构化数据攻击
 结构化数据攻击模块在 **[tabular_adversarial_toolbox](/AdvBox/tabular_adversarial_toolbox)** 中。
 
+## 对抗样本检测
+对抗样本检测模块在  **[AEs_detection](/AdvBox/AEs_detection)** 中。
+
 # 贡献
 我们感谢您的贡献!
 

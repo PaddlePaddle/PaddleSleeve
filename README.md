@@ -1,6 +1,6 @@
 PaddleSleeve
 ===
-简体中文 | [English](./README_en.md)
+简体中文 
 
 **PaddleSleeve是基于百度开源深度学习平台飞桨的安全与隐私工具**，为AI产业实践提供丰富、有效、易用的模型安全及隐私评测及保护能力。
 

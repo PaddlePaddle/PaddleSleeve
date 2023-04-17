@@ -986,7 +986,7 @@ Module of image segmentation attack in **[img_segmentation](/AdvBox/img_segmenta
 Module of OCR attack in **[text_recognition](/AdvBox/text_recognition)**.
 
 ## Tabular Data Attack
-Module of Tabular Data Attack in **[tabular_adversarial_toolbox](/AdvBox/tabular_adversarial_toolbox)**.
+Module of Tabular Data Attack in **[tabular_data](/AdvBox/tabular_data)**.
 
 ## Adversarial Example Detection
 Module of adversarial example detection in **[AEs_detection](/AdvBox/AEs_detection)**.

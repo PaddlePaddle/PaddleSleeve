@@ -8,13 +8,13 @@ from sklearn.preprocessing import MinMaxScaler
 import xgboost as xgb
 
 from tabular_adversarial.datasets.german_credit_dataset import load_gcd
-from tabular_adversarial.utils.data_utils import get_onehot_encoders, raw_to_onehot, onehot_to_raw, get_label_encoders, raw_to_label, label_to_raw, DataProcessor, DataCorrector, vector_transform_by_onehot_info
+from tabular_adversarial.utils.data_utils import get_onehot_encoders, raw_to_onehot, onehot_to_raw, get_label_encoders, raw_to_label, label_to_raw, DataProcessor, DataCorrector, vector_transform_by_onehot_info, get_target_scores
 from tabular_adversarial.utils.misc_utils import set_seed
-from tabular_adversarial.predictors.classification.xgboost_classifier import XGBoostClassifier
+from tabular_adversarial.predictors.regression.xgboost_regressor import XGBoostRegressor
 from tabular_adversarial.attacks.zoo import ZooAttack
-from tabular_adversarial.attacks.attack_utils import ClassificationAttackSuccessDiscriminator
+from tabular_adversarial.attacks.attack_utils import RegressionAttackSuccessDiscriminator
 from tabular_adversarial.losses.norm_function import CheckAndImportanceNorm
-from tabular_adversarial.losses.loss_function import CWLoss
+from tabular_adversarial.losses.loss_function import RegressionAttackLoss
 
 def parse_args():
     '''
@@ -78,13 +78,18 @@ def main():
     Main function to loading the German Credit Dataset, training XGBoost and generates adversarial examples using ZOO.
     '''
 
-    # Parse parameters
+    # Parse parameters.
     args = parse_args()
 
-    # Set random seed
+    # Set random seed.
     set_seed(args.seed)
+
+    # Set parameters for regression.
+    direction = 'decrease' # `increase` or `decrease`
+    target_score_change = 0.2
+    target_score_type = 'absolute' # `absolute` or `relative`
     
-    # Loading German Credit Dataset
+    # Loading German Credit Dataset.
     file_path = args.data_path
     gcd_X, gcd_Y = load_gcd(file_path)
     nb_fields = gcd_X.shape[1]
@@ -110,14 +115,14 @@ def main():
     # Training XGBoost
     num_classes = 2
     num_features = X_train_onehot.shape[1]
-    params = {'objective': 'multi:softprob', 'num_class': num_classes}
+    params = {'objective': 'binary:logistic'}
     model = train_xgboost(X_train_onehot, Y_train_label, params, num_round=10)
-    
-    # Building a classifier
+
+    # Building a regressor
     # Building preprocessing function
     preprocessing_func = lambda x: raw_to_onehot(x, X_onehot_encoders_list)
-    # Building a classifier
-    classifier = XGBoostClassifier(model, preprocessing=preprocessing_func, postprocessing=None, nb_features=num_features, nb_classes=num_classes)
+    # Building a regressor
+    regressor = XGBoostRegressor(model, preprocessing=preprocessing_func, postprocessing=None, nb_features=num_features)
 
     # Building a attacker.
     # Building a function (class) of calculate the distortion norm.
@@ -131,7 +136,7 @@ def main():
     norm_func = CheckAndImportanceNorm(check_vector=feature_check, importance_vector=feature_importance, alpha=1, beta=1, norm_type='l2')
 
     # Building a function (class) of calculate the adversarial loss.
-    loss_func = CWLoss()
+    loss_func = RegressionAttackLoss(direction)
 
     # Build a processor.
     # Build a scaler. This is built for convenience using training data. You can also use custom value ranges to generate virtual samples for building.
@@ -195,20 +200,18 @@ def main():
 
     feature_allowed_vector = vector_transform_by_onehot_info(allowed_vector, X_onehot_encoders_list)
 
-    # Building variable_h
+    # Building variable_h.
     variable_h = 1 / (scaler.data_max_ - scaler.data_min_) + 0.01
 
     # Building attack success discriminator.
-    targeted = False
-    attack_success_discriminator = ClassificationAttackSuccessDiscriminator(targeted)
+    attack_success_discriminator = RegressionAttackSuccessDiscriminator(direction)
 
     attacker = ZooAttack(
-        task_type='classification',
-        predictor=classifier, 
+        task_type='regression',
+        predictor=regressor, 
         norm_func=norm_func, 
         loss_func=loss_func,
         attack_success_discriminator=attack_success_discriminator,
-        targeted=targeted, 
         learning_rate=1.0, 
         max_iter=1000,
         const_binary_search_steps=1, 
@@ -221,9 +224,10 @@ def main():
         
     for data in X_test:
         data = data.reshape(1, -1)
-        ori_label = np.argmax(classifier.predict(data))
-        if ori_label == 1:
-            o_best_distortion_norms, o_best_adversarial_losses, o_best_results, o_best_attacks, o_success_indices = attacker.generate(data)
+        ori_scores = regressor.predict(data)
+        if ori_scores > 0.5:
+            target_scores = get_target_scores(ori_scores, direction, target_score_change, target_score_type)
+            o_best_distortion_norms, o_best_adversarial_losses, o_best_results, o_best_attacks, o_success_indices = attacker.generate(data, target_scores)
             print(o_success_indices, o_best_results)
             print(data)
             print(o_best_attacks)

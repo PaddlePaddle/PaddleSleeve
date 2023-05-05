@@ -10,6 +10,7 @@ The Advbox-tabular_data is a sub-module of AdvBox used to generate adversarial s
 - scikit-learn
 - xgboost
 - pandas
+- tqdm
 
 ## Get Started with Advbox-tabular_data
 

@@ -480,3 +480,34 @@ class DataCorrector(object):
             corrected_field_data = np.clip(corrected_field_data, min_value, max_value)
 
         return corrected_field_data
+
+
+def get_target_scores(scores, direction, target_score_change, target_score_type):
+    '''
+    The target score is calculated for the adversarial attack of the regression task.
+
+    Args:
+        scores: The original scores.
+        direction: The direction of the change in the scores, `increase` or `decrease`.
+        target_score_change: The target value of change scores.
+        target_score_type: The type of `target_score_change`, `absolute` or `relative`.
+
+    Returns:
+        target_scores: The target scores for adversarial attack of the regression task.
+    '''
+
+    if target_score_type == 'absolute':
+        score_change_values = np.full(scores.shape, target_score_change)
+    elif target_score_type == 'relative':
+        score_change_values = scores * target_score_change
+    else:
+        raise ValueError(f'Error: The `target_score_type` {target_score_type} is nonsupport.')
+
+    if direction == 'increase':
+        target_scores = scores + score_change_values
+    elif direction == 'decrease':
+        target_scores = scores - score_change_values
+    else:
+        raise ValueError(f'Error: The `direction` {direction} is nonsupport.')
+
+    return target_scores

@@ -1,6 +1,6 @@
+from tqdm import tqdm
 import numpy as np
 from tabular_adversarial.utils.data_utils import check_and_transform_label_format, get_labels_np_array
-from tabular_adversarial.attacks.attack_utils import judge_attack_success
 
 class ZooAttack(object):
     '''
@@ -13,9 +13,11 @@ class ZooAttack(object):
 
     def __init__(
         self, 
+        task_type,
         predictor,
         norm_func,
         loss_func,
+        attack_success_discriminator,
         targeted=False,
         learning_rate=1.0,
         max_iter=1000,
@@ -27,14 +29,17 @@ class ZooAttack(object):
         adam_beta1=0.9, 
         adam_beta2=0.999, 
         processor=None,
+        verbose=False
     ):
         '''
         Create a ZOO attack instance.
 
         Args:
+            task_type: The type for task, `classification` or `regression`.
             predictor: A trained predictor.
             norm_func: Function of calculate the distortion norm.
             loss_func: Function of calculate adversarial loss.
+            attack_success_discriminator: Function of determine whether the attack was successful.
             targeted: Should the attack target one specific class.
             learning_rate: The initial learning rate for the attack algorithm.
             max_iter: The maximum number of iterations.
@@ -44,11 +49,14 @@ class ZooAttack(object):
             nb_parallel: Number of coordinate updates to run in parallel.
             variable_h (int|list|numpy.ndarray): Step size for numerical estimation of derivatives.
             processor: 
+            verbose: 
         '''            
 
+        self.task_type = task_type
         self.predictor = predictor
         self.norm_func = norm_func
         self.loss_func = loss_func
+        self.attack_success_discriminator = attack_success_discriminator
         self.targeted = targeted
         self.learning_rate = learning_rate
         self.max_iter = max_iter
@@ -65,45 +73,56 @@ class ZooAttack(object):
         self.adam_beta1 = adam_beta1
         self.adam_beta2 = adam_beta2
 
-    def generate(self, raw_data, target_labels=None):
+        self.verbose = verbose
+
+        assert self.task_type in ['classification', 'regression'], f'Error: The task_type {self.task_type} nonsupport.'
+
+    def generate(self, raw_data, targets=None):
         '''
         Generate adversarial samples.
 
         Args:
             raw_data: Raw data to be attacked. Shape (nb_samples, nb_fields)
-            target_labels: Target values (class labels) one-hot-encoded of shape (nb_samples, nb_classes) or indices of shape (nb_samples, ).
+            targets: Target values (class labels or target scores) one-hot-encoded of shape (nb_samples, nb_classes), indices of shape (nb_samples, ), scores of shape or (nb_samples, ).
 
         Returns:
             o_best_distortion_norms: Global best distortion norms.
             o_best_adversarial_losses: Global best adversarial losses.
-            o_best_labels: Global best attack labels.
+            o_best_results: Global best attack results.
             o_best_attacks: Global best attack samples.
             o_success_indices: Indices of attack success samples.
         '''
 
-        # Check for targeted attacks.
-        if self.targeted:
-            # Check `target_label` is provided for targeted attacks.
-            # `target_label` is not provided.
-            if target_label is None:
-                raise ValueError('Target labels `target_labels` need to be provided for a targeted attack.')
-            # `target_label` is provided.
-            else:
-                # Check and transform format for `target_label`.
-                # Return shape (nb_samples, )
-                y = check_and_transform_label_format(y, nb_classes=self.estimator.nb_classes)
+        # Check for classification task.
+        if self.task_type == 'classification':
+            # Check for targeted attacks.
+            if self.targeted:
+                # Targeted attack nonsupport now.
+                # Check `targets` is provided for targeted attacks.
+                # `targets` is not provided.
+                if targets is None:
+                    raise ValueError('Target labels `targets` need to be provided for a targeted attack.')
+                # `targets` is provided.
+                else:
+                    # Check and transform format for `targets`.
+                    # Return shape (nb_samples, )
+                    y = check_and_transform_label_format(targets, nb_classes=self.predictor.nb_classes)
 
-            # Check the loss function supports targeted attacks.
-            if not getattr(self.loss_func, 'targeted', False):
-                raise ValueError('The loss function not supports targeted attacks.')
-        # Check for untargeted attacks.
+                # Check the loss function supports targeted attacks.
+                if not getattr(self.loss_func, 'targeted', False):
+                    raise ValueError('The loss function not supports targeted attacks.')
+            # Check for untargeted attacks.
+            else:
+                # Unatargeted not use targets.
+                if not targets is None:
+                    raise Warning("Untarget `targets` not used.")
+                # Untargeted use model prediction as correct class.
+                # Return shape (nb_samples, ).
+                y = get_labels_np_array(self.predictor.predict(raw_data))
+
+        # Regression
         else:
-            # Unatargeted not use target_labels.
-            if not target_labels is None:
-                raise Warning("Untarget `target_labels` not used.")
-            # Untargeted use model prediction as correct class.
-            # Return shape (nb_samples, ).
-            y = get_labels_np_array(self.predictor.predict(raw_data))
+             y = targets.reshape(-1)
 
         # Transform raw_data to embedding data.
         if not self.processor is None:
@@ -146,13 +165,13 @@ class ZooAttack(object):
         # Initialize best globally
         o_best_distortion_norms = np.inf * np.ones(ori_data.shape[0])
         o_best_adversarial_losses = np.inf * np.ones(ori_data.shape[0])
-        o_best_labels = -np.inf * np.ones(ori_data.shape[0])
+        o_best_results = -np.inf * np.ones(ori_data.shape[0])
         o_best_attacks = ori_data.copy()
 
         # Start with a binary search
         for const_binary_search_step in range(self.const_binary_search_steps):
             # Run with 1 specific binary search step
-            best_distortion_norms, best_adversarial_losses, best_labels, best_attacks, success_indices = self.generate_bss(ori_data, y, c_current)
+            best_distortion_norms, best_adversarial_losses, best_results, best_attacks, success_indices = self.generate_bss(ori_data, y, c_current)
 
             # Update best results so far
             for i in range(ori_data.shape[0]):
@@ -162,7 +181,7 @@ class ZooAttack(object):
                     if best_distortion_norms[i] < o_best_distortion_norms[i] and success_indices[i]:
                         o_best_distortion_norms[i] = best_distortion_norms[i]
                         o_best_adversarial_losses[i] = best_adversarial_losses[i]
-                        o_best_labels[i] = best_labels[i]
+                        o_best_results[i] = best_results[i]
                         o_best_attacks[i] = best_attacks[i].copy()
 
                 # The attacks have not been successful before
@@ -171,7 +190,7 @@ class ZooAttack(object):
                     if success_indices[i]:
                         o_best_distortion_norms[i] = best_distortion_norms[i]
                         o_best_adversarial_losses[i] = best_adversarial_losses[i]
-                        o_best_labels[i] = best_labels[i]
+                        o_best_results[i] = best_results[i]
                         o_best_attacks[i] = best_attacks[i].copy()
                         o_success_indices[i] = success_indices[i]
                     # The attack was unsuccessful
@@ -179,7 +198,7 @@ class ZooAttack(object):
                         if best_adversarial_losses[i] < o_best_adversarial_losses[i]:
                             o_best_distortion_norms[i] = best_distortion_norms[i]
                             o_best_adversarial_losses[i] = best_adversarial_losses[i]
-                            o_best_labels[i] = best_labels[i]
+                            o_best_results[i] = best_results[i]
                             o_best_attacks[i] = best_attacks[i].copy()
                  
 
@@ -192,7 +211,7 @@ class ZooAttack(object):
         if not self.processor is None:
             o_best_attacks = self.processor.inverse_transform(o_best_attacks, clip_values=True)
 
-        return o_best_distortion_norms, o_best_adversarial_losses, o_best_labels, o_best_attacks, o_success_indices
+        return o_best_distortion_norms, o_best_adversarial_losses, o_best_results, o_best_attacks, o_success_indices
 
     def generate_bss(self, ori_data, y, constants):
         '''
@@ -206,7 +225,7 @@ class ZooAttack(object):
         Returns:
             best_distortion_norms: Local best distortions.
             best_adversarial_losses: Local best adversarial losses.
-            best_labels: Local best changed labels.
+            best_results: Local best changed results.
             best_attacks: Local best adversarial samples.
             success_indices: Indices of successful adversarial samples.
         '''
@@ -225,12 +244,14 @@ class ZooAttack(object):
         # Initialize best distortions, best adversarial losses, changed labels and best attacks for local.
         best_distortion_norms = np.inf * np.ones(x_adv.shape[0])
         best_adversarial_losses = np.inf * np.ones(x_adv.shape[0])
-        best_labels = -np.inf * np.ones(x_adv.shape[0])
+        best_results = -np.inf * np.ones(x_adv.shape[0])
         best_attacks = x_adv.copy()
 
-        for _iter in range(self.max_iter):
+        for _iter in tqdm(range(self.max_iter), desc='Attack iter', ):
 
-            print(f'Attack iter: {_iter}.') 
+            if self.verbose:
+                print(f'Attack iter: {_iter}.') 
+
             x_adv = self.optimizer(x_ori, y, constants)
 
             # Correct perturbed data and inverse transform to field-level
@@ -258,11 +279,11 @@ class ZooAttack(object):
             # Trade-off the distortion norm and the adversarial loss
             losses = constants * adversarial_losses + distortion_norms
 
-            # Get the label of the adversarial sample.
-            adv_labels = get_labels_np_array(adv_preds)
+            # Get the results of the adversarial sample.
+            adv_results = get_labels_np_array(adv_preds)
 
             # Determine whether the attack is successful
-            success_masks = judge_attack_success(adv_labels, y, self.targeted)
+            success_masks = self.attack_success_discriminator(adv_results.reshape(-1, 1), y.reshape(-1, 1))
             success_masks = success_masks.reshape(-1)
 
             # Reset Adam if a success adversarial example has been found
@@ -280,7 +301,7 @@ class ZooAttack(object):
                     if distortion_norms[i] < best_distortion_norms[i] and mask_success[i]:
                         best_distortion_norms[i] = distortion_norms[i]
                         best_adversarial_losses[i] = adversarial_losses[i]
-                        best_labels[i] = adv_labels[i]
+                        best_results[i] = adv_results[i]
                         best_attacks[i] = x_adv[i].copy()
                 # The attacks not have been successful before
                 else:
@@ -288,21 +309,21 @@ class ZooAttack(object):
                     if success_masks[i]:
                         best_distortion_norms[i] = distortion_norms[i]
                         best_adversarial_losses[i] = adversarial_losses[i]
-                        best_labels[i] = adv_labels[i]
+                        best_results[i] = adv_results[i]
                         best_attacks[i] = x_adv[i].copy()
                     # The attack was unsuccessful
                     else:
                         if adversarial_losses[i] < best_adversarial_losses[i]:
                             best_distortion_norms[i] = distortion_norms[i]
                             best_adversarial_losses[i] = adversarial_losses[i]
-                            best_labels[i] = adv_labels[i]
+                            best_results[i] = adv_results[i]
                             best_attacks[i] = x_adv[i].copy()
                 
             fine_tuning[mask_fine_tune] = True
 
         success_indices = fine_tuning
 
-        return best_distortion_norms, best_adversarial_losses, best_labels, best_attacks, success_indices
+        return best_distortion_norms, best_adversarial_losses, best_results, best_attacks, success_indices
 
     def update_const(self, success_indices, c_current, c_lower_bound, c_upper_bound):
         '''

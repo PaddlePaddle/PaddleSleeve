@@ -10,6 +10,7 @@ AdvBox-tabular_data是AdvBox的子模块，用于为结构化数据机器学习�
 - scikit-learn
 - xgboost
 - pandas
+- tqdm
 
 ## 开始使用Advbox-tabular_data
 

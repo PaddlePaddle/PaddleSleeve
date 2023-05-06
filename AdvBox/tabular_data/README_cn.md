@@ -52,7 +52,7 @@ cd examples
     | Original&nbsp;sample | <&nbsp;0&nbsp;DM | 18 | no&nbsp;credits&nbsp;taken/all&nbsp;credits&nbsp;paid&nbsp;back&nbsp;duly | business | 3104 | <&nbsp;100&nbsp;DM | 4&nbsp;<=&nbsp;...&nbsp;<&nbsp;7&nbsp;years | 3 | male:&nbsp;single | none | 1 | building&nbsp;society&nbsp;savings&nbsp;agreement/life&nbsp;insurance | 31 | bank | own | 1 | skilled&nbsp;employee/official | 1 | yes,&nbsp;registered&nbsp;under&nbsp;the&nbsp;customers&nbsp;name | yes |
     | Adversarial&nbsp;sample | *no&nbsp;checking&nbsp;account | 18 | no&nbsp;credits&nbsp;taken/all&nbsp;credits&nbsp;paid&nbsp;back&nbsp;duly | *car&nbsp;(used) | 3104 | <&nbsp;100&nbsp;DM | 4&nbsp;<=&nbsp;...&nbsp;<&nbsp;7&nbsp;years | 3 | male:&nbsp;single | none | 1 | building&nbsp;society&nbsp;savings&nbsp;agreement/life&nbsp;insurance | 31 | bank | own | 1 | skilled&nbsp;employee/official | 1 | yes,&nbsp;registered&nbsp;under&nbsp;the&nbsp;customers&nbsp;name | yes |
 
-- **[attack_german_credit_data_xgboost_regression.py](/AdvBox/tabular_data/examples/attack_german_credit_data_xgboost_regression.py)** 演示了一个分类任务对抗攻击的例子，使用German Credit Data训练XBGoost模型，然后使用Advbox-tabular_data来构建预测器，并根据攻击设置生成对抗样本的示例。
+- **[attack_german_credit_data_xgboost_regression.py](/AdvBox/tabular_data/examples/attack_german_credit_data_xgboost_regression.py)** 演示了一个回归任务对抗攻击的例子，使用German Credit Data训练XBGoost模型，然后使用Advbox-tabular_data来构建预测器，并根据攻击设置生成对抗样本的示例。
   - **命令行参数**
     - `--seed`: 随机种子，默认值:666。
     - `--data_path`: German Credit Data中文件“german.data”的路径。

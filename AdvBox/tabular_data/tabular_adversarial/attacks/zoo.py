@@ -298,7 +298,7 @@ class ZooAttack(object):
                 success_flag = success_masks[i]
                 # The attacks have been successful before
                 if fine_tuning[i] == True: 
-                    if distortion_norms[i] < best_distortion_norms[i] and mask_success[i]:
+                    if distortion_norms[i] < best_distortion_norms[i] and success_masks[i]:
                         best_distortion_norms[i] = distortion_norms[i]
                         best_adversarial_losses[i] = adversarial_losses[i]
                         best_results[i] = adv_results[i]

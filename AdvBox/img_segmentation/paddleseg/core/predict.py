@@ -82,7 +82,7 @@ def predict(model,
 
     """
     utils.utils.load_entire_model(model, model_path)
-    model.eval()
+    #model.eval()
     nranks = paddle.distributed.get_world_size()
     local_rank = paddle.distributed.get_rank()
     if nranks > 1:
@@ -131,17 +131,21 @@ def predict(model,
                 im_file = im_file[1:]
 
             # save added image
-            added_image = utils.visualize.visualize(
-                im_path, pred, color_map, weight=0.6)
-            added_image_path = os.path.join(added_saved_dir, im_file)
-            mkdir(added_image_path)
-            cv2.imwrite(added_image_path, added_image)
+            #added_image = utils.visualize.visualize(
+            #    im_path, pred, color_map, weight=0.6)
+            #added_image_path = os.path.join(added_saved_dir, im_file)
+            #mkdir(added_image_path)
+            #cv2.imwrite(added_image_path, added_image)
 
             # save pseudo color prediction
             pred_mask = utils.visualize.get_pseudo_color_map(pred, color_map)
+            #pred_saved_path = os.path.join(
+            #    pred_saved_dir, os.path.splitext(im_file)[0] + ".png")
             pred_saved_path = os.path.join(
-                pred_saved_dir, os.path.splitext(im_file)[0] + ".png")
+                pred_saved_dir,
+                "out_" + os.path.splitext(im_file)[0] + ".png")
             mkdir(pred_saved_path)
             pred_mask.save(pred_saved_path)
-
+            print(pred_saved_path)
             progbar_pred.update(i + 1)
+        return pred_saved_path

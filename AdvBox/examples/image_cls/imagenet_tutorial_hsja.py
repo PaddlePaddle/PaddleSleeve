@@ -173,10 +173,17 @@ def main(orig):
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
         cv2.imwrite('output/img_adv_hsja.png', adv_cv)
-        show_images_diff(orig, labels, adv, adversary.adversarial_label)
+        cv2.imwrite('/mnt/demo/pic_service/demo_output_tmp/img_adv_hsja.png', adv_cv)
+        #show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
-
+    with open('/mnt/demo/pic_service/PaddleSleeve/Robustness/perceptron/utils/labels.txt') as info:
+        imagenet_dict = eval(info.read())
+        label = imagenet_dict[label]
+        adv_label = imagenet_dict[adversary.adversarial_label]
+    print('/mnt/demo/pic_service/demo_output_tmp/img_adv_hsja.png')
+    print(label)
+    print(adv_label)
 
 if __name__ == '__main__':
     # read image

@@ -39,7 +39,7 @@ from examples.utils import add_arguments, print_arguments, show_images_diff
 
 parser = argparse.ArgumentParser(description=__doc__)
 add_arg = functools.partial(add_arguments, argparser=parser)
-add_arg('target', int, 126, "target class.")
+add_arg('target', int, 283, "target class.")
 add_arg('class_dim', int, 1000, "Class number.")
 add_arg('image_shape', str, "3,224,224", "Input image size")
 
@@ -70,6 +70,8 @@ def main(image_path):
     logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
 
     orig = cv2.imread(image_path)[..., ::-1]
+    h, w, _  = orig.shape
+
     orig = cv2.resize(orig, (224, 224))
     img = orig.copy().astype(np.float32)
 
@@ -91,6 +93,8 @@ def main(image_path):
     print(predict.shape)
     label = np.argmax(predict)
     print("label={}".format(label))
+    print("==========================")
+    print("==========================")
 
     # init a paddle model
     paddle_model = PaddleWhiteBoxModel(
@@ -124,7 +128,6 @@ def main(image_path):
                      "c_search_steps": 20}
 
     adversary = attack(adversary, **attack_config)
-
     if adversary.is_successful():
         print(
             'attack success, adversarial_label=%d'
@@ -136,18 +139,33 @@ def main(image_path):
         adv = (adv * std) + mean
         adv = adv * 255.0
         adv = np.clip(adv, 0, 255).astype(np.uint8)
+        adv = cv2.resize(adv, (w, h))
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
-        cv2.imwrite('output/img_adv_cw.png', adv_cv)
+        cv2.imwrite("/mnt/demo/pic_service/demo_output_tmp/img_adv_cw.png", adv_cv)
 
-        show_images_diff(orig, labels, adv, adversary.adversarial_label)
+        #show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
 
     print("cw attack done")
+    with open('/mnt/demo/pic_service/PaddleSleeve/Robustness/perceptron/utils/labels.txt') as info:
+        imagenet_dict = eval(info.read())
+    label = imagenet_dict[label]
+    adv_label = imagenet_dict[adversary.adversarial_label]
 
+    print('/mnt/demo/pic_service/demo_output_tmp/img_adv_cw.png')
+    print(label)
+    print(adv_label)
 
 if __name__ == '__main__':
-    # main("input/tiger.jpeg")
-    # main("input/cropped_panda.jpeg")
-    main("input/pickup_truck.jpeg")
+    #parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-i", "--image_path",
+        help="specify the name of the image you want to evaluate",
+    )
+    #main("input/pickup_truck.jpeg")
+    args_out = parser.parse_args()
+    image_path = args_out.image_path
+
+    main(image_path)

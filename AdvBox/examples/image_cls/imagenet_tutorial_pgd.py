@@ -51,6 +51,7 @@ else:
 paddle.seed(2021)
 
 
+
 def main(image_path):
     """
 
@@ -66,8 +67,9 @@ def main(image_path):
 
     # Define what device we are using
     logging.info("CUDA Available: {}".format(paddle.is_compiled_with_cuda()))
-
+    
     orig = cv2.imread(image_path)[..., ::-1]
+    h, w, _  = orig.shape
     orig = cv2.resize(orig, (224, 224))
     img = orig.copy().astype(np.float32)
 
@@ -133,17 +135,36 @@ def main(image_path):
         adv = adv.transpose(1, 2, 0)
         adv = (adv * std) + mean
         adv = adv * 255.0
+        print("=================", h, w)
         adv = np.clip(adv, 0, 255).astype(np.uint8)
+        adv = cv2.resize(adv, (w, h))
         adv_cv = np.copy(adv)
         adv_cv = adv_cv[..., ::-1]  # RGB to BGR
         cv2.imwrite('output/img_adv_pgd.png', adv_cv)
-        show_images_diff(orig, labels, adv, adversary.adversarial_label)
+        cv2.imwrite('/mnt/demo/pic_service/demo_output_tmp/img_adv_pgd.png', adv_cv)
+        #show_images_diff(orig, labels, adv, adversary.adversarial_label)
     else:
         print('attack failed')
 
     print("pgd attack done")
+    with open('/mnt/demo/pic_service/PaddleSleeve/Robustness/perceptron/utils/labels.txt') as info:
+        imagenet_dict = eval(info.read())
+    label = imagenet_dict[label]
+    adv_label = imagenet_dict[adversary.adversarial_label]
+
+    print('/mnt/demo/pic_service/demo_output_tmp/img_adv_pgd.png')
+    print(label)
+    print(adv_label)
 
 
 if __name__ == '__main__':
-    main("input/pickup_truck.jpeg")
-    # main("output/img_adv_pgd.png")
+    #parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-i", "--image_path",
+        help="specify the name of the image you want to evaluate",
+    )
+    #main("input/pickup_truck.jpeg")
+    args_out = parser.parse_args()
+    image_path = args_out.image_path
+
+    main(image_path)

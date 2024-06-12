@@ -15,7 +15,8 @@
 from .train import train
 from .val import evaluate
 from .predict import predict
-from .predict_adv import predict_adv
+from .predict_adv import predict_adv_pgd
+from .predict_adv import predict_adv_cw
 from . import infer
 
 __all__ = ['train', 'evaluate', 'predict']

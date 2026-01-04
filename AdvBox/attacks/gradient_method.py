@@ -93,6 +93,9 @@ class GradientMethodAttack(Attack):
                 gradient = - adv_img.grad
             else:
                 logits = self.model.predict_tensor(adv_img_normalized)
+                # wangwenhua add
+                if original_label.ndim == 0:
+                    original_label = original_label.reshape([1])
                 loss = self.model.loss(logits, original_label)
                 loss.backward(retain_graph=True)
                 gradient = adv_img.grad

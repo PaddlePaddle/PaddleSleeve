@@ -1,0 +1,10 @@
+numpy==2.3.5
+paddlepaddle_gpu==3.3.0.dev20251216
+pandas==2.3.3
+pygame==2.6.1
+pypinyin==0.55.0
+scikit_learn==1.8.0
+tensorflow==2.20.0
+torch==2.9.1
+tqdm==4.67.1
+transformers==4.57.3

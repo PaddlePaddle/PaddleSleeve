@@ -169,7 +169,7 @@ if __name__ == "__main__":
     # 创建模型（随机初始化权重）
     model = Defender(34765, 4096, 256, 128, 512, 1024, 2, 8, 6,
                      num_action=3, dropout=0.1, pinyin_hid_dim=128)
-
+    print(f"Paddle version: {paddle.__version__}")
 
 
     # 如果你有保存的PaddlePaddle模型权重，可以加载
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
 
 
-    result_save_path = '../防御方实验/data/demo/defense_demo.xlsx'
+    result_save_path = '../code/data/demo/defense_demo.xlsx'
     result.to_excel(result_save_path)
     print(f"\n结果已保存到: {result_save_path}")
 

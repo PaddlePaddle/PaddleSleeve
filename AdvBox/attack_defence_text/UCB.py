@@ -118,7 +118,7 @@ defender_model_path = '../防御方实验/data/demo/model/epoch_0_model.pt'
 defender_model = torch.load(defender_model_path, weights_only= False)
 
 
-with open('../防御方实验/pinyin_map.json', encoding="utf-8") as f:
+with open('pinyin_map.json', encoding="utf-8") as f:
     pinyin_map = json.load(f)
 
 class UCBJoint:
@@ -221,7 +221,7 @@ class UCBJoint:
 if __name__ == "__main__":
 
     pygame.init()
-    text_set_path = '../防御方实验/data/demo/attack_demo.xlsx'
+    text_set_path = 'data/demo/attack_demo.xlsx'
     text_set = pd.read_excel(text_set_path)
 
     for index in text_set.index.values:

@@ -155,8 +155,9 @@ if __name__ == "__main__":
         print("GPU is not available, using CPU instead")
 
     #待评估的模型
-    model_save_path = '../防御方实验/data/demo/model/epoch_0_model.pt'
+    model_save_path = 'data/demo/model/epoch_0_model.pt'
     model = torch.load(model_save_path, weights_only= False)
+    print(f"PyTorch version: {torch.__version__}")
 
     col_names = ['query','字音变体(0.1)','字音变体(0.2)','字音变体(0.3)','字音变体(0.4)','字音变体(0.5)','字音变体(0.6)','字音变体(0.7)','字音变体(0.8)','字音变体(0.9)',
                  '字形变体(0.1)','字形变体(0.2)','字形变体(0.3)','字形变体(0.4)','字形变体(0.5)','字形变体(0.6)','字形变体(0.7)','字形变体(0.8)','字形变体(0.9)']
@@ -176,7 +177,7 @@ if __name__ == "__main__":
         result.loc[col, 'recall'] = recall
         result.loc[col, 'f1'] = f1
 
-    result_save_path ='../防御方实验/data/demo/defense_demo.xlsx'
+    result_save_path ='data/demo/defense_demo.xlsx'
     result.to_excel(result_save_path)
 
 

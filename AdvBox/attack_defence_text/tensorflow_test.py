@@ -10,6 +10,7 @@ from tqdm import tqdm
 from pypinyin import lazy_pinyin, Style
 import pygame
 
+
 # 假设你的TensorFlow Defender模型定义在这个文件中
 from tensorflow_defender import Defender  # 你需要创建TensorFlow版本的Defender
 
@@ -164,6 +165,7 @@ if __name__ == "__main__":
     # 创建模型（随机初始化权重）
     model = Defender(34765, 4096, 256, 128, 512, 1024, 2, 8, 6,
                      num_action=3, dropout=0.1, pinyin_hid_dim=128)
+    print(f"Tensorflow version: {tf.__version__}")
 
     # 如果你有保存的TensorFlow模型权重，可以加载
     # model_save_path = '../防御方实验/data/demo/model/epoch_0_model.h5'
@@ -190,6 +192,6 @@ if __name__ == "__main__":
         result.loc[col, 'recall'] = recall
         result.loc[col, 'f1'] = f1
 
-    result_save_path = '../防御方实验/data/demo/defense_demo.xlsx'
+    result_save_path = 'data/demo/defense_demo.xlsx'
     result.to_excel(result_save_path)
     print(f"结果已保存到: {result_save_path}")
